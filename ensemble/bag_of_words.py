@@ -43,9 +43,9 @@ class BagOfWordsClassifier:
     acc = np.mean(predicted == y_test)       
     return acc
 
-  def predict(self, comment):
+  def predict(self, comment_df):
      # Get test data
-    X_test = [comment]
+    X_test = comment_df['comment']
 
     X_new_counts = self.count_vect.transform(X_test)
     X_new_tfidf = self.tfidf_transformer.transform(X_new_counts)
@@ -97,7 +97,7 @@ class BagOfWordsClassifier:
     index = np.asarray(indices)[0]
     hate_words = [strings[i] for i in reversed(index)]
 
-    print("Top 40 hate words", hate_words[:40])
+    # print("Top 100 hate words", hate_words[:100])
 
     return hate_words
 

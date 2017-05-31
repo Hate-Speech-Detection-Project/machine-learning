@@ -8,8 +8,8 @@ class Predictor:
   def initialize(self):
     # self.train_df = pd.read_csv('../../data/test.csv', sep=',')
     # self.test_df = pd.read_csv('../../data/tiny.csv', sep=',')
-    self.train_df = pd.read_csv('../../data/train.csv', sep=',')
-    self.test_df = pd.read_csv('../../data/test.csv', sep=',')
+    self.train_df = pd.read_csv('../../data/datasets/stratified/train.csv', sep=',')
+    self.test_df = pd.read_csv('../../data/datasets/stratified/test.csv', sep=',')
     self.bag_of_words_classifier = BagOfWordsClassifier()
     self.bag_of_words_classifier.fit(self.train_df)
     self.text_features_classifier = TextFeatureClassifier()
@@ -61,4 +61,4 @@ def predict():
   result = predictor.predict(comment)
   return jsonify(result)
 
-    
+# app.run(host='0.0.0.0', port=9999)
