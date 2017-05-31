@@ -18,7 +18,7 @@ class PreProcessor:
         # the output is a single string (a preprocessed movie review)
         #
         # 1. Remove HTML
-        comment_text = BeautifulSoup(raw_comment).get_text()
+        comment_text = BeautifulSoup(raw_comment, "html.parser").get_text()
         #
         # 2. Remove non-letters
         letters_only = re.sub("[^a-zA-Z]", " ", comment_text)

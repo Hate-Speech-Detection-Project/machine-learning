@@ -20,15 +20,35 @@ class Predictor:
     self.ada_boost_classifier.fit(self.train_df)
 
   def accuracy(self):
-    bow_accuracy = self.bag_of_words_classifier.test(self.test_df)
-    tf_accuracy = self.text_features_classifier.test(self.test_df)
-    rf_accuracy = self.random_forest_classifier.test(self.test_df)
-    ab_accuracy = self.ada_boost_classifier.test(self.test_df)
+    self.bow_result = self.bag_of_words_classifier.test(self.test_df)
+    self.tf_result = self.text_features_classifier.test(self.test_df)
+    self.rf_result = self.random_forest_classifier.test(self.test_df)
+    self.ab_result = self.ada_boost_classifier.test(self.test_df)
+
+    bow_result_train = self.bag_of_words_classifier.test(self.test_df)
+    tf_result_train = self.text_features_classifier.test(self.test_df)
+    rf_result_train = self.random_forest_classifier.test(self.test_df)
+    ab_result_train = self.ada_boost_classifier.test(self.test_df)
+
+    bow_accuracy = self.bow_result[0]
+    tf_accuracy = self.tf_result[0]
+    rf_accuracy = self.rf_result[0]
+    ab_accuracy = self.ab_result[0]
+
+    self.ensemble = AdaBoost()
+    # ensemble_training_data = pd.DataFrame(data= np.c_[bow_result, tf_result, rf_result, ab_result, self.test_df['hate']]],
+    #                  columns= ['bow', 'tf', 'rf', 'ab', 'hate'])
+    ensemble_training_data = [bow_result_train[1], tf_result_train[1], rf_result_train[1], ab_result_train[1]]
+    print(ensemble_training_data)
+    self.ensemble.fitFormatted(ensemble_training_data, self.train_df['hate'])
+    ensemble_accuracy = self.ensemble.test(self.test_df)
+
     return {
       'bag_of_words': np.asscalar(bow_accuracy),
       'text_features': np.asscalar(tf_accuracy),
       'random_forest': np.asscalar(rf_accuracy),
-      'ada_boost': np.asscalar(ab_accuracy)
+      'ada_boost': np.asscalar(ab_accuracy),
+      'ensemble': np.asscalar(ensemble_accuracy)
     }
 
   def predict(self, comment):
@@ -36,6 +56,7 @@ class Predictor:
     tf = self.text_features_classifier.predict(comment)
     rf = self.random_forest_classifier.predict(comment)
     ab = self.ada_boost_classifier.predict(comment)
+    ensemble = self.ensemble.predict(comment)
 
     return {
       'comment': comment,
@@ -43,7 +64,8 @@ class Predictor:
       'hate_words': bow["hate_words"],
       'text_features': tf.tolist(),
       'random_forest': rf,
-      'ada_boost': ab
+      'ada_boost': ab,
+      'ensemble': ensemble
     }
 
 predictor = Predictor()
@@ -60,7 +82,8 @@ def hello():
     'bag_of_words': acc['bag_of_words'],
     'text_features': acc['text_features'],
     'random_forest': acc['random_forest'],
-    'ada_boost': acc['ada_boost']
+    'ada_boost': acc['ada_boost'],
+    'ensemble': acc['ensemble']
   }
   return jsonify(data)
 

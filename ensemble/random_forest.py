@@ -23,6 +23,12 @@ class RandomForestBOWClassifier:
         self.model = forest
         print("done")
 
+    def fitFormatted(self, x, y):
+        forest = RandomForestClassifier(n_estimators = 100)
+        forest = forest.fit(x, y)
+        self.model = forest
+        print("done")
+
 
     def test(self, test_df):
         test_data_features = self.preprocessor.createFeatureMatrix(test_df)
@@ -42,7 +48,8 @@ class RandomForestBOWClassifier:
         acc = equal["cid"].count() / verification["cid"].count()
 
         print("Accuracy", acc)
-        return acc
+        print("testresult:")
+        return (acc, result)
 
     def predict(self, comment):
         df = pd.Series([comment])

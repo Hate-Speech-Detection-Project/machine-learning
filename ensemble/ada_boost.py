@@ -15,6 +15,10 @@ class AdaBoost:
         self.model = clf.fit(trainingFeatures, train_df['hate'])
         print("done")
 
+    def fitFormatted(self, x, y):
+        clf = AdaBoostClassifier(n_estimators=100)
+        self.model = clf.fit(x, y)
+        print("done")
 
     def test(self, test_df):
         test_data_features = self.preprocessor.createFeatureMatrix(test_df)
@@ -34,7 +38,7 @@ class AdaBoost:
         acc = equal["cid"].count() / verification["cid"].count()
 
         print("Accuracy", acc)
-        return acc
+        return (acc, result)
 
     def predict(self, comment):
         df = pd.Series([comment])

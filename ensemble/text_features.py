@@ -28,9 +28,9 @@ class TextFeatureClassifier:
                         .replace( 'f','0',   regex=True ).astype(float))
     predicted = self.model.predict(X)
 
-    acc = np.mean(np.round(predicted) == y)       
+    acc = np.mean(np.round(predicted) == y)
     print("Accuracy", acc)
-    return acc
+    return (acc, predicted)
 
   def predict(self, comment):
     df = pd.Series([comment])
