@@ -1,5 +1,5 @@
 from sklearn.model_selection import cross_val_score
-from sklearn.datasets import load_iris
+import pandas as pd
 from sklearn.ensemble import AdaBoostClassifier
 
 from preprocessor import PreProcessor
@@ -13,7 +13,6 @@ class AdaBoost:
         trainingFeatures = self.preprocessor.trainFeatureMatrix(train_df);
         clf = AdaBoostClassifier(n_estimators=100)
         self.model = clf.fit(trainingFeatures, train_df['hate'])
-        scores.mean()
         print("done")
 
 

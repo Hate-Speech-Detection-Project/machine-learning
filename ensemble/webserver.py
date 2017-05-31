@@ -8,14 +8,14 @@ from flask import *
 
 class Predictor:
   def initialize(self):
-    self.train_df = pd.read_csv('../../data/datasets/stratified_alternative/train.csv', sep=',')
-    self.test_df = pd.read_csv('../../data/datasets/stratified_alternative/test.csv', sep=',')
-    # self.bag_of_words_classifier = BagOfWordsClassifier()
-    # self.bag_of_words_classifier.fit(self.train_df)
-    # self.text_features_classifier = TextFeatureClassifier()
-    # self.text_features_classifier.fit(self.train_df)
-    # self.random_forest_classifier = RandomForestBOWClassifier()
-    # self.random_forest_classifier.fit(self.train_df)
+    self.train_df = pd.read_csv('../../data/datasets/1000/train.csv', sep=',')
+    self.test_df = pd.read_csv('../../data/datasets/1000/test.csv', sep=',')
+    self.bag_of_words_classifier = BagOfWordsClassifier()
+    self.bag_of_words_classifier.fit(self.train_df)
+    self.text_features_classifier = TextFeatureClassifier()
+    self.text_features_classifier.fit(self.train_df)
+    self.random_forest_classifier = RandomForestBOWClassifier()
+    self.random_forest_classifier.fit(self.train_df)
     self.ada_boost_classifier = AdaBoost()
     self.ada_boost_classifier.fit(self.train_df)
 
