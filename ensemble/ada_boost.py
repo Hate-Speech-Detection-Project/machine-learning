@@ -2,21 +2,23 @@ from sklearn.model_selection import cross_val_score
 from sklearn.datasets import load_iris
 from sklearn.ensemble import AdaBoostClassifier
 
+from preprocessor import PreProcessor
+
 class AdaBoost:
     def __init__(self):
         self.model = None
-        pass
+        self.preprocessor = PreProcessor()
 
     def fit(self, train_df):
-        trainingFeatures = pp.trainFeatureMatrix(train_df);
+        trainingFeatures = self.preprocessor.trainFeatureMatrix(train_df);
         clf = AdaBoostClassifier(n_estimators=100)
-        self.model = clf.train(trainingFeatures, train_df['hate'])
+        self.model = clf.fit(trainingFeatures, train_df['hate'])
         scores.mean()
         print("done")
 
 
     def test(self, test_df):
-        test_data_features = pp.createFeatureMatrix(test_df)
+        test_data_features = self.preprocessor.createFeatureMatrix(test_df)
         test_data_features = test_data_features.toarray()
 
         # Use the random forest to make sentiment label predictions
@@ -37,6 +39,6 @@ class AdaBoost:
 
     def predict(self, comment):
         df = pd.Series([comment])
-        features = pp.createFeatureMatrix(df)
+        features = self.preprocessor.createFeatureMatrix(df)
 
         return self.model.predict(features)
