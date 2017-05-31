@@ -1,6 +1,9 @@
 from bag_of_words import BagOfWordsClassifier
 from text_features import TextFeatureClassifier
 import pandas as pd
+pd.set_option('display.expand_frame_repr', False)
+pd.set_option('display.width', 1000)
+pd.set_option('display.max_colwidth', 200)
 import numpy as np
 from beautifultable import BeautifulTable
 import os
@@ -34,6 +37,19 @@ class Predictor:
 
     print(table)
 
+    print("Unioned True Hate:", 
+      len(np.union1d(
+        (np.intersect1d(np.argwhere(bow_result == 't'), np.argwhere(y_str == 't'))),
+        (np.intersect1d(np.argwhere(tf_result == 1), np.argwhere(y_int == 1)))
+        )))
+
+    # print('Wrongly detected comments:')
+    # print(
+    #     self.test_df.iloc[(np.intersect1d(np.argwhere(bow_result == 't'), np.argwhere(y_str == 'f')))]['comment'],
+    #     self.test_df.iloc[(np.intersect1d(np.argwhere(tf_result == 1), np.argwhere(y_int == 0)))]['comment']
+    #     )
+
+
   def calculateRow(self, predicted, real, positive_character):
     acc = np.mean(predicted == real)
     tp = self.true_positive(predicted, real, positive_character)
@@ -59,7 +75,7 @@ class Predictor:
 
 
 predictor = Predictor()
-datasets = ['1000', '10000', 'stratified', '100000']
+datasets = ['1000', '10000', 'stratified']
 
 for set in datasets:
   print("\nDataset:", set)
