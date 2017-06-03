@@ -31,11 +31,11 @@ class BagOfWordsClassifier:
     self.clf = MultinomialNB().fit(X_train_tfidf, y_train)
     self.hate_words = self.hate_words()
 
-    def fitFormatted(self, x, y):
-        from sklearn.naive_bayes import MultinomialNB
-        self.clf = MultinomialNB().fit(x, y)
-        self.hate_words = self.hate_words()
-        print("done")
+  # def fitFormatted(self, x, y):
+  #     from sklearn.naive_bayes import MultinomialNB
+  #     self.clf = MultinomialNB().fit(x, y)
+  #     self.hate_words = self.hate_words()
+  #     print("done")
 
   def test(self, test_df):
      # Get test data

@@ -3,9 +3,9 @@ import pandas as pd
 from preprocessor import PreProcessor
 
 class RandomForestBOWClassifier:
-    def __init__(self):
+    def __init__(self, preprocessor):
         self.model = None
-        self.preprocessor = PreProcessor()
+        self.preprocessor = preprocessor
 
     def fit(self, train_df):
         print("Training the random forest...")

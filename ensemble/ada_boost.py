@@ -5,9 +5,9 @@ from sklearn.ensemble import AdaBoostClassifier
 from preprocessor import PreProcessor
 
 class AdaBoost:
-    def __init__(self):
+    def __init__(self, preprocessor):
         self.model = None
-        self.preprocessor = PreProcessor()
+        self.preprocessor = preprocessor
 
     def fit(self, train_df):
         trainingFeatures = self.preprocessor.trainFeatureMatrix(train_df);

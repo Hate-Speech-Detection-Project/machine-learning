@@ -81,3 +81,6 @@ class PreProcessor:
         # Get a bag of words for the test set, and convert to a numpy array
         test_data_features = self.vectorizer.transform(clean_test_comments)
         return test_data_features
+
+    def convertBoolStringsToNumbers(self, inputArray):
+        return list(map((lambda x: 1 if x == 't' else 0), inputArray))

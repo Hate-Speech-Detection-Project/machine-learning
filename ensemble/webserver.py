@@ -2,22 +2,47 @@ from bag_of_words import BagOfWordsClassifier
 from text_features import TextFeatureClassifier
 from random_forest import RandomForestBOWClassifier
 from ada_boost import AdaBoost
+from preprocessor import PreProcessor
 import pandas as pd
 import numpy as np
+from threading import Thread
 from flask import *
 
 class Predictor:
   def initialize(self):
-    self.train_df = pd.read_csv('../../data/datasets/1000/train.csv', sep=',')
-    self.test_df = pd.read_csv('../../data/datasets/1000/test.csv', sep=',')
+    self.threads = []
+    self.preprocessor = PreProcessor()
+
+    self.train_df = pd.read_csv('../../data/datasets/10000/train.csv', sep=',')
+    self.test_df = pd.read_csv('../../data/datasets/10000/test.csv', sep=',')
+
+    bag_of_words_features_array = self.preprocessor.trainFeatureMatrix(self.train_df);
+
     self.bag_of_words_classifier = BagOfWordsClassifier()
-    self.bag_of_words_classifier.fit(self.train_df)
+    thread = Thread(target = self.bag_of_words_classifier.fit, args = (self.train_df,))
+    self.threads.append(thread)
+    thread.start()
+
     self.text_features_classifier = TextFeatureClassifier()
-    self.text_features_classifier.fit(self.train_df)
-    self.random_forest_classifier = RandomForestBOWClassifier()
-    self.random_forest_classifier.fit(self.train_df)
-    self.ada_boost_classifier = AdaBoost()
-    self.ada_boost_classifier.fit(self.train_df)
+    thread = Thread(target = self.text_features_classifier.fit, args = (self.train_df,))
+    self.threads.append(thread)
+    thread.start()
+
+    self.random_forest_classifier = RandomForestBOWClassifier(self.preprocessor)
+    thread = Thread(target = self.random_forest_classifier.fitFormatted, args = (bag_of_words_features_array, self.train_df['hate']))
+    self.threads.append(thread)
+    thread.start()
+
+    self.ada_boost_classifier = AdaBoost(self.preprocessor)
+    thread = Thread(target = self.ada_boost_classifier.fitFormatted, args = (bag_of_words_features_array, self.train_df['hate']))
+    self.threads.append(thread)
+    thread.start()
+
+    for thread in self.threads:
+        thread.join()
+
+  def fitClassifier(self, classifier, df):
+    classifier.fit(df)
 
   def accuracy(self):
     self.bow_result = self.bag_of_words_classifier.test(self.test_df)
@@ -35,20 +60,23 @@ class Predictor:
     rf_accuracy = self.rf_result[0]
     ab_accuracy = self.ab_result[0]
 
-    self.ensemble = AdaBoost()
+    self.ensemble = AdaBoost(self.preprocessor)
     # ensemble_training_data = pd.DataFrame(data= np.c_[bow_result, tf_result, rf_result, ab_result, self.test_df['hate']]],
     #                  columns= ['bow', 'tf', 'rf', 'ab', 'hate'])
-    ensemble_training_data = [bow_result_train[1], tf_result_train[1], rf_result_train[1], ab_result_train[1]]
+    ensemble_training_data = [self.preprocessor.convertBoolStringsToNumbers(bow_result_train[1]), 
+                              self.preprocessor.convertBoolStringsToNumbers(tf_result_train[1]), 
+                              self.preprocessor.convertBoolStringsToNumbers(rf_result_train[1]), 
+                              self.preprocessor.convertBoolStringsToNumbers(ab_result_train[1])]
     print(ensemble_training_data)
-    self.ensemble.fitFormatted(ensemble_training_data, self.train_df['hate'])
-    ensemble_accuracy = self.ensemble.test(self.test_df)
+    #self.ensemble.fitFormatted(ensemble_training_data, self.train_df['hate'])
+    ensemble_accuracy = 0#self.ensemble.test(self.test_df)
 
     return {
       'bag_of_words': np.asscalar(bow_accuracy),
       'text_features': np.asscalar(tf_accuracy),
       'random_forest': np.asscalar(rf_accuracy),
       'ada_boost': np.asscalar(ab_accuracy),
-      'ensemble': np.asscalar(ensemble_accuracy)
+      'ensemble': 0#np.asscalar(ensemble_accuracy)
     }
 
   def predict(self, comment):
