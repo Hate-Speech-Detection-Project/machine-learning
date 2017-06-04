@@ -9,7 +9,7 @@ class FilterManager():
   def __init__(self):
     # Create all the filters. Their priority is determined by their position in the list (FCFS).
     self.filters = [
-      ReactionFilter(),
+      ReactionFilter(600),
       DearEditorsFilter()
     ]
 

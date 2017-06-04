@@ -1,4 +1,5 @@
 from flask import *
+import re
 
 class DearEditorsFilter():
   """
@@ -12,14 +13,20 @@ class DearEditorsFilter():
   THRESHOLD = 2
   
   def __init__(self):
-    pass
+    self.patterns = [
+      re.compile(
+        r'\b({0})\b'.format(word),
+        flags=re.IGNORECASE
+      )
+      for word in DearEditorsFilter.DICTIONARY
+    ]
 
   def filter(self, comment):
     text = comment['comment'].lower()
     
     count = 0
-    for word in DearEditorsFilter.DICTIONARY:
-      if word in text:
+    for pattern in self.patterns:
+      if pattern.search(text):
         count += 1
         if count >= DearEditorsFilter.THRESHOLD:
           break

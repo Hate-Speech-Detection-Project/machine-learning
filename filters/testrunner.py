@@ -5,6 +5,8 @@ import requests
 import cProfile
 from filter_manager import FilterManager
 
+FETCH_SIZE = 500000
+
 # Connect to the database.
 try:
     conn = psycopg2.connect("dbname='postgres' user='postgres' host='localhost' password='admin'")
@@ -13,11 +15,10 @@ except:
     sys.exit(0)
 print("Connected to database")
 
-# Get the comments.
-cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-
 # Classify the comments.
 def do_stuff():  
+  filterManager = FilterManager()
+  
   tp = 0
   fp = 0
   tn = 0
@@ -27,18 +28,19 @@ def do_stuff():
   
   done = False
   while not done:
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute(
       """
       SELECT *
       FROM comments
       ORDER BY created ASC
-      LIMIT 100000
+      LIMIT %i
       OFFSET %i
-      """ % total
+      """ % (FETCH_SIZE, total)
     )
-    
     comments = cur.fetchall()
-    if not comments:
+    cur.close()
+    if not comments or len(comments) < FETCH_SIZE:
       done = True
     
     for comment in comments:
@@ -62,8 +64,9 @@ def do_stuff():
           else:
             tn += 1
       
-      if total%500 == 0:
+      if total%5000 == 0:
         print("%i,%i,%i,%i,%i,%i" % (total, filtered, tp, fp, tn, fn))
+  print("%i,%i,%i,%i,%i,%i" % (total, filtered, tp, fp, tn, fn))
 
 # cProfile.run('do_stuff()')
 do_stuff()

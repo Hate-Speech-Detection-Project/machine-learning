@@ -7,12 +7,10 @@ class ReactionFilter():
   about the previous decision.
   """
   
-  # Size of the time window in seconds after which we forget inappropriate comments.
-  WINDOW_SIZE = 600
-  
-  def __init__(self):
+  def __init__(self, window_size):
     self.users = dict()
-    self.last_timestamp = -ReactionFilter.WINDOW_SIZE;
+    self.window_size = window_size
+    self.last_timestamp = -window_size;
 
   def filter(self, comment):
     uid = comment['uid']
@@ -48,7 +46,7 @@ class ReactionFilter():
       self.users[uid, url] = created
   
   def __is_inside_window(self, base, timestamp):
-    return 0 <= timestamp - base <= ReactionFilter.WINDOW_SIZE
+    return 0 <= timestamp - base <= self.window_size
   
   def __clean_timestamps(self, timestamp):
     for key, last_inappropriate in self.users.items():
