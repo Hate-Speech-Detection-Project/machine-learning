@@ -13,7 +13,6 @@ class ReactionFilter():
   def __init__(self):
     self.users = dict()
     self.last_timestamp = -ReactionFilter.WINDOW_SIZE;
-    pass
 
   def filter(self, comment):
     uid = comment['uid']

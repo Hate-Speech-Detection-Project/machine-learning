@@ -3,6 +3,7 @@ import psycopg2.extras
 import sys
 import requests
 import cProfile
+from filter_manager import FilterManager
 
 # Connect to the database.
 try:
@@ -15,10 +16,8 @@ print("Connected to database")
 # Get the comments.
 cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-# Send the comments to the local filter webservice.
-def do_stuff():
-  session = requests.Session()
-  
+# Classify the comments.
+def do_stuff():  
   tp = 0
   fp = 0
   tn = 0
@@ -33,18 +32,20 @@ def do_stuff():
       SELECT *
       FROM comments
       ORDER BY created ASC
-      LIMIT 10000
+      LIMIT 100000
       OFFSET %i
       """ % total
     )
+    
     comments = cur.fetchall()
     if not comments:
       done = True
+    
     for comment in comments:
       filterComment = { k : v for (k,v) in comment.items()
                         if k in set(['cid', 'pid', 'uid', 'comment', 'created', 'url']) }
-      filter_result = session.post('http://127.0.0.1:5000/filters/filter', json=filterComment, stream=False).json()
-      session.post('http://127.0.0.1:5000/filters/add_comment', json=comment, stream=False)
+      filter_result = filterManager.filter(filterComment)
+      filterManager.add_comment(comment)
       
       # Some statistics.
       total += 1
@@ -62,7 +63,7 @@ def do_stuff():
             tn += 1
       
       if total%500 == 0:
-        print("Filtered %i of %i, TP: %i, FP: %i, TN: %i, FN: %i" % (filtered, total, tp, fp, tn, fn))
+        print("%i,%i,%i,%i,%i,%i" % (total, filtered, tp, fp, tn, fn))
 
 # cProfile.run('do_stuff()')
 do_stuff()
