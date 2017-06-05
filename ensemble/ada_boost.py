@@ -1,5 +1,6 @@
 from sklearn.model_selection import cross_val_score
 import pandas as pd
+import numpy as np
 from sklearn.ensemble import AdaBoostClassifier
 
 from preprocessor import PreProcessor
@@ -39,6 +40,15 @@ class AdaBoost:
 
         print("Accuracy", acc)
         return (acc, result)
+
+    def testFeatuerMatrix(self, features, result):
+        # Use the random forest to make sentiment label predictions
+        predicted = self.model.predict(features)
+
+        # Copy the results to a pandas dataframe with an "id" column and
+        # a "sentiment" column
+        acc = np.mean(predicted == result)
+        return (acc, predicted)
 
     def predict(self, comment):
         df = pd.Series([comment])

@@ -15,8 +15,11 @@ class Predictor:
 
     self.train_df = pd.read_csv('../../data/datasets/10000/train.csv', sep=',')
     self.test_df = pd.read_csv('../../data/datasets/10000/test.csv', sep=',')
+    self.test_ensemble_df = pd.read_csv('../../data/test2.csv', sep=',')
 
     bag_of_words_features_array = self.preprocessor.trainFeatureMatrix(self.train_df);
+
+    print(bag_of_words_features_array.shape)
 
     self.bag_of_words_classifier = BagOfWordsClassifier()
     thread = Thread(target = self.bag_of_words_classifier.fit, args = (self.train_df,))
@@ -50,33 +53,39 @@ class Predictor:
     self.rf_result = self.random_forest_classifier.test(self.test_df)
     self.ab_result = self.ada_boost_classifier.test(self.test_df)
 
-    bow_result_train = self.bag_of_words_classifier.test(self.test_df)
-    tf_result_train = self.text_features_classifier.test(self.test_df)
-    rf_result_train = self.random_forest_classifier.test(self.test_df)
-    ab_result_train = self.ada_boost_classifier.test(self.test_df)
+    bow_result_train = self.bag_of_words_classifier.test(self.test_ensemble_df)
+    tf_result_train = self.text_features_classifier.test(self.test_ensemble_df)
+    rf_result_train = self.random_forest_classifier.test(self.test_ensemble_df)
+    ab_result_train = self.ada_boost_classifier.test(self.test_ensemble_df)
 
-    bow_accuracy = self.bow_result[0]
-    tf_accuracy = self.tf_result[0]
-    rf_accuracy = self.rf_result[0]
-    ab_accuracy = self.ab_result[0]
+    # use testresults that also participate in the ensemble
+    bow_accuracy = bow_result_train[0]
+    tf_accuracy = tf_result_train[0]
+    rf_accuracy = rf_result_train[0]
+    ab_accuracy = ab_result_train[0]
 
     self.ensemble = AdaBoost(self.preprocessor)
-    # ensemble_training_data = pd.DataFrame(data= np.c_[bow_result, tf_result, rf_result, ab_result, self.test_df['hate']]],
-    #                  columns= ['bow', 'tf', 'rf', 'ab', 'hate'])
-    ensemble_training_data = [self.preprocessor.convertBoolStringsToNumbers(bow_result_train[1]), 
-                              self.preprocessor.convertBoolStringsToNumbers(tf_result_train[1]), 
-                              self.preprocessor.convertBoolStringsToNumbers(rf_result_train[1]), 
-                              self.preprocessor.convertBoolStringsToNumbers(ab_result_train[1])]
+
+    ensemble_training_data = np.matrix((self.preprocessor.convertBoolStringsToNumbers(self.bow_result[1]), 
+                              self.preprocessor.convertBoolStringsToNumbers(self.tf_result[1]), 
+                              self.preprocessor.convertBoolStringsToNumbers(self.rf_result[1]), 
+                              self.preprocessor.convertBoolStringsToNumbers(self.ab_result[1]))).getT()
+
+    ensemble_test_data = np.matrix((self.preprocessor.convertBoolStringsToNumbers(bow_result_train[1]), 
+                          self.preprocessor.convertBoolStringsToNumbers(tf_result_train[1]), 
+                          self.preprocessor.convertBoolStringsToNumbers(rf_result_train[1]), 
+                          self.preprocessor.convertBoolStringsToNumbers(ab_result_train[1]))).getT()
+
     print(ensemble_training_data)
-    #self.ensemble.fitFormatted(ensemble_training_data, self.train_df['hate'])
-    ensemble_accuracy = 0#self.ensemble.test(self.test_df)
+    self.ensemble.fitFormatted(ensemble_training_data, self.test_ensemble_df['hate'])
+    ensemble_accuracy = self.ensemble.testFeatuerMatrix(ensemble_test_data, self.test_ensemble_df['hate'])[0]
 
     return {
       'bag_of_words': np.asscalar(bow_accuracy),
       'text_features': np.asscalar(tf_accuracy),
       'random_forest': np.asscalar(rf_accuracy),
       'ada_boost': np.asscalar(ab_accuracy),
-      'ensemble': 0#np.asscalar(ensemble_accuracy)
+      'ensemble': np.asscalar(ensemble_accuracy)
     }
 
   def predict(self, comment):
