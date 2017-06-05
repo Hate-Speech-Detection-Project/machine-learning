@@ -64,7 +64,7 @@ class Predictor:
     rf_accuracy = rf_result_train[0]
     ab_accuracy = ab_result_train[0]
 
-    self.ensemble = AdaBoost(self.preprocessor)
+    self.ensemble = AdaBoost(PreProcessor())
 
     ensemble_training_data = np.matrix((self.preprocessor.convertBoolStringsToNumbers(self.bow_result[1]), 
                               self.preprocessor.convertBoolStringsToNumbers(self.tf_result[1]), 
@@ -77,7 +77,7 @@ class Predictor:
                           self.preprocessor.convertBoolStringsToNumbers(ab_result_train[1]))).getT()
 
     print(ensemble_training_data)
-    self.ensemble.fitFormatted(ensemble_training_data, self.test_ensemble_df['hate'])
+    self.ensemble.fitFormatted(ensemble_training_data, self.test_df['hate'])
     ensemble_accuracy = self.ensemble.testFeatuerMatrix(ensemble_test_data, self.test_ensemble_df['hate'])[0]
 
     return {
