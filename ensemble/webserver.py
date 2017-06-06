@@ -13,9 +13,9 @@ class Predictor:
     self.threads = []
     self.preprocessor = PreProcessor()
 
-    self.train_df = pd.read_csv('../../data/datasets/10000/train.csv', sep=',')
-    self.test_df = pd.read_csv('../../data/datasets/10000/test.csv', sep=',')
-    self.test_ensemble_df = pd.read_csv('../../data/test2.csv', sep=',')
+    self.train_df = pd.read_csv('../../data/datasets/stratified/train.csv', sep=',')
+    self.test_df = pd.read_csv('../../data/datasets/stratified/test.csv', sep=',')
+    self.test_ensemble_df = pd.read_csv('../../data/datasets/stratified_small/test.csv', sep=',')
 
     bag_of_words_features_array = self.preprocessor.trainFeatureMatrix(self.train_df);
 
@@ -53,6 +53,7 @@ class Predictor:
     self.rf_result = self.random_forest_classifier.test(self.test_df)
     self.ab_result = self.ada_boost_classifier.test(self.test_df)
 
+    # these names are totally misleading... change them
     bow_result_train = self.bag_of_words_classifier.test(self.test_ensemble_df)
     tf_result_train = self.text_features_classifier.test(self.test_ensemble_df)
     rf_result_train = self.random_forest_classifier.test(self.test_ensemble_df)
@@ -66,26 +67,40 @@ class Predictor:
 
     self.ensemble = AdaBoost(PreProcessor())
 
-    ensemble_training_data = np.matrix((self.preprocessor.convertBoolStringsToNumbers(self.bow_result[1]), 
-                              self.preprocessor.convertBoolStringsToNumbers(self.tf_result[1]), 
-                              self.preprocessor.convertBoolStringsToNumbers(self.rf_result[1]), 
+    ensemble_training_data = np.matrix((self.preprocessor.convertBoolStringsToNumbers(self.bow_result[1]),
+                              self.preprocessor.convertBoolStringsToNumbers(self.tf_result[1]),
+                              self.preprocessor.convertBoolStringsToNumbers(self.rf_result[1]),
                               self.preprocessor.convertBoolStringsToNumbers(self.ab_result[1]))).getT()
 
-    ensemble_test_data = np.matrix((self.preprocessor.convertBoolStringsToNumbers(bow_result_train[1]), 
-                          self.preprocessor.convertBoolStringsToNumbers(tf_result_train[1]), 
-                          self.preprocessor.convertBoolStringsToNumbers(rf_result_train[1]), 
+    ensemble_test_data = np.matrix((self.preprocessor.convertBoolStringsToNumbers(bow_result_train[1]),
+                          self.preprocessor.convertBoolStringsToNumbers(tf_result_train[1]),
+                          self.preprocessor.convertBoolStringsToNumbers(rf_result_train[1]),
                           self.preprocessor.convertBoolStringsToNumbers(ab_result_train[1]))).getT()
 
     print(ensemble_training_data)
     self.ensemble.fitFormatted(ensemble_training_data, self.test_df['hate'])
-    ensemble_accuracy = self.ensemble.testFeatuerMatrix(ensemble_test_data, self.test_ensemble_df['hate'])[0]
+
+    ensemble_results = self.ensemble.testFeatuerMatrix(ensemble_test_data, self.test_ensemble_df['hate'])
+
+    ensemble_analysis = np.array([self.test_ensemble_df['cid'],
+                                self.preprocessor.convertBoolStringsToNumbers(bow_result_train[1]),
+                                self.preprocessor.convertBoolStringsToNumbers(tf_result_train[1]),
+                                self.preprocessor.convertBoolStringsToNumbers(rf_result_train[1]),
+                                self.preprocessor.convertBoolStringsToNumbers(ab_result_train[1]),
+                                self.preprocessor.convertBoolStringsToNumbers(ensemble_results[1]),
+                                self.test_ensemble_df['hate']]).T
+
+    df = pd.DataFrame(data=ensemble_analysis[0:,1:],    # values
+                        index=ensemble_analysis[0:,0],    # 1st column as index
+                        columns=['cid', 'bow', 'tf', 'rf', 'ab', 'ensemble', 'hate'])
+    df.to_csv('ensemble_analysis.csv', sep='\t', encoding='utf-8')
 
     return {
       'bag_of_words': np.asscalar(bow_accuracy),
       'text_features': np.asscalar(tf_accuracy),
       'random_forest': np.asscalar(rf_accuracy),
       'ada_boost': np.asscalar(ab_accuracy),
-      'ensemble': np.asscalar(ensemble_accuracy)
+      'ensemble': np.asscalar(ensemble_results[0])
     }
 
   def predict(self, comment):
