@@ -100,11 +100,21 @@ class Predictor:
 
     #### Voter
 
-    voter = Vote(1)
-    voter.fitFormatted(ensemble_test_data)
-    voter_results = voter.getResults(self.preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
+    voter_1 = Vote(1)
+    voter_1.fitFormatted(ensemble_test_data)
+    voter_1_results = voter_1.getResults(self.preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
 
-    print(voter_results)
+    voter_2 = Vote(2)
+    voter_2.fitFormatted(ensemble_test_data)
+    voter_2_results = voter_2.getResults(self.preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
+
+    voter_3 = Vote(3)
+    voter_3.fitFormatted(ensemble_test_data)
+    voter_3_results = voter_3.getResults(self.preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
+
+    voter_4 = Vote(4)
+    voter_4.fitFormatted(ensemble_test_data)
+    voter_4_results = voter_4.getResults(self.preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
 
     return {
       'bag_of_words': np.asscalar(bow_accuracy),
@@ -112,7 +122,10 @@ class Predictor:
       'random_forest': np.asscalar(rf_accuracy),
       'ada_boost': np.asscalar(ab_accuracy),
       'ensemble': np.asscalar(ensemble_results[0]),
-      'voter': voter_results[0]
+      'voter(1)': voter_1_results[0],
+      'voter(2)': voter_2_results[0],
+      'voter(3)': voter_3_results[0],
+      'voter(4)': voter_4_results[0]
     }
 
   def predict(self, comment):
@@ -148,7 +161,10 @@ def hello():
     'random_forest': acc['random_forest'],
     'ada_boost': acc['ada_boost'],
     'ensemble': acc['ensemble'],
-    'voter': acc['voter']
+    'voter(1)': acc['voter(1)'],
+    'voter(2)': acc['voter(2)'],
+    'voter(3)': acc['voter(3)'],
+    'voter(4)': acc['voter(4)']
   }
   return jsonify(data)
 
