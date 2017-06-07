@@ -2,8 +2,10 @@ from sklearn.model_selection import cross_val_score
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import VotingClassifier
+from preprocessor import Preprocessor
+from utils import ConfusionMatrix
 
-from preprocessor import PreProcessor
+from preprocessor import Preprocessor
 
 class Vote:
     def __init__(self, threshold):
@@ -29,5 +31,5 @@ class Vote:
             if(row == result[index]):
                 equals += 1
 
-        acc = equals/len(self.results)
-        return (acc, self.results)
+        confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(self.results), Preprocessor.convertBoolStringsToNumbers(result))
+        return (confusionMatrix, self.results)

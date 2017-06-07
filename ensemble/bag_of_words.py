@@ -1,5 +1,7 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
+from utils import ConfusionMatrix
+from preprocessor import Preprocessor
 import pandas as pd
 import numpy as np
 import re
@@ -46,8 +48,10 @@ class BagOfWordsClassifier:
     X_new_tfidf = self.tfidf_transformer.transform(X_new_counts)
     predicted = self.clf.predict(X_new_tfidf)
 
-    acc = np.mean(predicted == y_test)
-    return (acc, predicted)
+    #acc = np.mean(predicted == y_test)
+
+    confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y_test))
+    return (confusionMatrix, predicted)
 
   def predict(self, comment):
      # Get test data

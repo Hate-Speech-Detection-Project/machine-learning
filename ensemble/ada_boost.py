@@ -2,8 +2,9 @@ from sklearn.model_selection import cross_val_score
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import AdaBoostClassifier
+from utils import ConfusionMatrix
 
-from preprocessor import PreProcessor
+from preprocessor import Preprocessor
 
 class AdaBoost:
     def __init__(self, preprocessor):
@@ -27,28 +28,17 @@ class AdaBoost:
 
         # Use the random forest to make sentiment label predictions
         result = self.model.predict(test_data_features)
+        confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(test_df["hate"]))
 
-        # Copy the results to a pandas dataframe with an "id" column and
-        # a "sentiment" column
-        output = pd.DataFrame(data={"cid": test_df["cid"], "hate": result})
-
-        verification = pd.DataFrame(data={"cid": test_df["cid"], "hate": test_df["hate"]})
-        merged = pd.merge(verification, output, on="cid")
-
-        equal = merged.loc[merged["hate_x"] == merged["hate_y"]]
-        acc = equal["cid"].count() / verification["cid"].count()
-
-        print("Accuracy", acc)
-        return (acc, result)
+        return (confusionMatrix, result)
 
     def testFeatuerMatrix(self, features, result):
         # Use the random forest to make sentiment label predictions
         predicted = self.model.predict(features)
 
-        # Copy the results to a pandas dataframe with an "id" column and
-        # a "sentiment" column
-        acc = np.mean(predicted == result)
-        return (acc, predicted)
+        confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(result))
+
+        return (confusionMatrix, predicted)
 
     def predict(self, comment):
         df = pd.Series([comment])

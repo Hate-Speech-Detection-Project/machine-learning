@@ -3,7 +3,7 @@ from text_features import TextFeatureClassifier
 from random_forest import RandomForestBOWClassifier
 from vote import Vote
 from ada_boost import AdaBoost
-from preprocessor import PreProcessor
+from preprocessor import Preprocessor
 import pandas as pd
 import numpy as np
 from threading import Thread
@@ -12,7 +12,7 @@ from flask import *
 class Predictor:
   def initialize(self):
     self.threads = []
-    self.preprocessor = PreProcessor()
+    self.preprocessor = Preprocessor()
 
     self.train_df = pd.read_csv('../../data/datasets/stratified_dual_small/train.csv', sep=',')
     self.test_df = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
@@ -69,29 +69,29 @@ class Predictor:
     rf_accuracy = rf_result_train[0]
     ab_accuracy = ab_result_train[0]
 
-    self.ensemble = AdaBoost(PreProcessor())
+    self.ensemble = AdaBoost(Preprocessor())
 
-    ensemble_training_data = np.matrix((self.preprocessor.convertBoolStringsToNumbers(self.bow_result[1]),
-                              self.preprocessor.convertBoolStringsToNumbers(self.tf_result[1]),
-                              self.preprocessor.convertBoolStringsToNumbers(self.rf_result[1]),
-                              self.preprocessor.convertBoolStringsToNumbers(self.ab_result[1]))).getT()
+    ensemble_training_data = np.matrix((Preprocessor.convertBoolStringsToNumbers(self.bow_result[1]),
+                              Preprocessor.convertBoolStringsToNumbers(self.tf_result[1]),
+                              Preprocessor.convertBoolStringsToNumbers(self.rf_result[1]),
+                              Preprocessor.convertBoolStringsToNumbers(self.ab_result[1]))).getT()
 
-    ensemble_test_data = np.matrix((self.preprocessor.convertBoolStringsToNumbers(bow_result_train[1]),
-                          self.preprocessor.convertBoolStringsToNumbers(tf_result_train[1]),
-                          self.preprocessor.convertBoolStringsToNumbers(rf_result_train[1]),
-                          self.preprocessor.convertBoolStringsToNumbers(ab_result_train[1]))).getT()
+    ensemble_test_data = np.matrix((Preprocessor.convertBoolStringsToNumbers(bow_result_train[1]),
+                          Preprocessor.convertBoolStringsToNumbers(tf_result_train[1]),
+                          Preprocessor.convertBoolStringsToNumbers(rf_result_train[1]),
+                          Preprocessor.convertBoolStringsToNumbers(ab_result_train[1]))).getT()
 
     print(ensemble_training_data)
     self.ensemble.fitFormatted(ensemble_training_data, self.test_df['hate'])
 
     ensemble_results = self.ensemble.testFeatuerMatrix(ensemble_test_data, self.test_ensemble_df['hate'])
 
-    ensemble_analysis = np.array([self.preprocessor.convertBoolStringsToNumbers(bow_result_train[1]),
-                                self.preprocessor.convertBoolStringsToNumbers(tf_result_train[1]),
-                                self.preprocessor.convertBoolStringsToNumbers(rf_result_train[1]),
-                                self.preprocessor.convertBoolStringsToNumbers(ab_result_train[1]),
-                                self.preprocessor.convertBoolStringsToNumbers(ensemble_results[1]),
-                                self.preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate'])]).T
+    ensemble_analysis = np.array([Preprocessor.convertBoolStringsToNumbers(bow_result_train[1]),
+                                Preprocessor.convertBoolStringsToNumbers(tf_result_train[1]),
+                                Preprocessor.convertBoolStringsToNumbers(rf_result_train[1]),
+                                Preprocessor.convertBoolStringsToNumbers(ab_result_train[1]),
+                                Preprocessor.convertBoolStringsToNumbers(ensemble_results[1]),
+                                Preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate'])]).T
 
     df = pd.DataFrame(data=ensemble_analysis[0:,0:],    # values
                         index=self.test_ensemble_df['cid'],    # 1st column as index
@@ -102,30 +102,30 @@ class Predictor:
 
     voter_1 = Vote(1)
     voter_1.fitFormatted(ensemble_test_data)
-    voter_1_results = voter_1.getResults(self.preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
+    voter_1_results = voter_1.getResults(Preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
 
     voter_2 = Vote(2)
     voter_2.fitFormatted(ensemble_test_data)
-    voter_2_results = voter_2.getResults(self.preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
+    voter_2_results = voter_2.getResults(Preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
 
     voter_3 = Vote(3)
     voter_3.fitFormatted(ensemble_test_data)
-    voter_3_results = voter_3.getResults(self.preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
+    voter_3_results = voter_3.getResults(Preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
 
     voter_4 = Vote(4)
     voter_4.fitFormatted(ensemble_test_data)
-    voter_4_results = voter_4.getResults(self.preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
+    voter_4_results = voter_4.getResults(Preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
 
     return {
-      'bag_of_words': np.asscalar(bow_accuracy),
-      'text_features': np.asscalar(tf_accuracy),
-      'random_forest': np.asscalar(rf_accuracy),
-      'ada_boost': np.asscalar(ab_accuracy),
-      'ensemble': np.asscalar(ensemble_results[0]),
-      'voter(1)': voter_1_results[0],
-      'voter(2)': voter_2_results[0],
-      'voter(3)': voter_3_results[0],
-      'voter(4)': voter_4_results[0]
+      'bag_of_words': bow_result_train[0].toString(),
+      'text_features': tf_result_train[0].toString(),
+      'random_forest': rf_result_train[0].toString(),
+      'ada_boost': ab_result_train[0].toString(),
+      'ensemble': ensemble_results[0].toString(),
+      'voter(1)': voter_1_results[0].toString(),
+      'voter(2)': voter_2_results[0].toString(),
+      'voter(3)': voter_3_results[0].toString(),
+      'voter(4)': voter_4_results[0].toString()
     }
 
   def predict(self, comment):

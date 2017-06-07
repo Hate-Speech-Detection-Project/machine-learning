@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.svm import SVR
+from preprocessor import Preprocessor
+from utils import ConfusionMatrix
 
 class TextFeatureClassifier:
   def __init__(self):
@@ -28,9 +30,10 @@ class TextFeatureClassifier:
                         .replace( 'f','0',   regex=True ).astype(float))
     predicted = self.model.predict(X)
 
-    acc = np.mean(np.round(predicted) == y)
-    print("Accuracy", acc)
-    return (acc, predicted)
+    print(Preprocessor.convertBoolStringsToNumbers(predicted))
+    print(Preprocessor.convertBoolStringsToNumbers(test_df['hate']))
+    confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(test_df['hate']))
+    return (confusionMatrix, predicted)
 
   def predict(self, comment):
     df = pd.Series([comment])

@@ -4,7 +4,7 @@ import re
 from sklearn.feature_extraction.text import CountVectorizer
 from nltk.corpus import stopwords # Import the stop word list
 
-class PreProcessor:
+class Preprocessor:
     def __init__(self):
         self.vectorizer  = CountVectorizer(analyzer="word",
                                      tokenizer=None,
@@ -82,5 +82,6 @@ class PreProcessor:
         test_data_features = self.vectorizer.transform(clean_test_comments)
         return test_data_features
 
-    def convertBoolStringsToNumbers(self, inputArray):
+    @staticmethod
+    def convertBoolStringsToNumbers(inputArray):
         return list(map((lambda x: 1 if x == 't' else 0), inputArray))
