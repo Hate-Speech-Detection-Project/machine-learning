@@ -39,7 +39,7 @@ class BagOfWordsClassifier:
     X_test = test_df['comment']
     y_test = test_df['hate']
 
-    X_test = self._remove_words_of_article_from_comments(test_df)
+    # X_test = self._remove_words_of_article_from_comments(test_df)
 
     X_new_counts = self.count_vect.transform(X_test)
     X_new_tfidf = self.tfidf_transformer.transform(X_new_counts)
@@ -88,7 +88,7 @@ class BagOfWordsClassifier:
     X_test = test_df['comment']
     cids_from_comments = test_df['cid']
     for cid in cids_from_comments:
-      intersection = self.article_features.get_shared_words_from_comment_and_article_by_cid(int(cid))
+      intersection = self.article_features.get_shared_words_from_comment_and_article_using_db_by_cid(int(cid))
       text = X_test[index]
       X_test.loc[index] = ' '.join([w for w in nltk.word_tokenize(text) if not w.lower() in intersection])
       index += 1
