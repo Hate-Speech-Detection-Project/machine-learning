@@ -13,9 +13,9 @@ class Predictor:
     self.threads = []
     self.preprocessor = PreProcessor()
 
-    self.train_df = pd.read_csv('../../data/datasets/stratified/train.csv', sep=',')
-    self.test_df = pd.read_csv('../../data/datasets/stratified/test.csv', sep=',')
-    self.test_ensemble_df = pd.read_csv('../../data/datasets/stratified_small/test.csv', sep=',')
+    self.train_df = pd.read_csv('../../data/datasets/stratified_dual/train.csv', sep=',')
+    self.test_df = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
+    self.test_ensemble_df = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
 
     bag_of_words_features_array = self.preprocessor.trainFeatureMatrix(self.train_df);
 
@@ -82,18 +82,17 @@ class Predictor:
 
     ensemble_results = self.ensemble.testFeatuerMatrix(ensemble_test_data, self.test_ensemble_df['hate'])
 
-    ensemble_analysis = np.array([self.test_ensemble_df['cid'],
-                                self.preprocessor.convertBoolStringsToNumbers(bow_result_train[1]),
+    ensemble_analysis = np.array([self.preprocessor.convertBoolStringsToNumbers(bow_result_train[1]),
                                 self.preprocessor.convertBoolStringsToNumbers(tf_result_train[1]),
                                 self.preprocessor.convertBoolStringsToNumbers(rf_result_train[1]),
                                 self.preprocessor.convertBoolStringsToNumbers(ab_result_train[1]),
                                 self.preprocessor.convertBoolStringsToNumbers(ensemble_results[1]),
-                                self.test_ensemble_df['hate']]).T
+                                self.preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate'])]).T
 
-    df = pd.DataFrame(data=ensemble_analysis[0:,1:],    # values
-                        index=ensemble_analysis[0:,0],    # 1st column as index
-                        columns=['cid', 'bow', 'tf', 'rf', 'ab', 'ensemble', 'hate'])
-    df.to_csv('ensemble_analysis.csv', sep='\t', encoding='utf-8')
+    df = pd.DataFrame(data=ensemble_analysis[0:,0:],    # values
+                        index=self.test_ensemble_df['cid'],    # 1st column as index
+                        columns=['bow', 'tf', 'rf', 'ab', 'ensemble', 'hate'])
+    df.to_csv('ensemble_analysis.csv', sep=';', encoding='utf-8')
 
     return {
       'bag_of_words': np.asscalar(bow_accuracy),
