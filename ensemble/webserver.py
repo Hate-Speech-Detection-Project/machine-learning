@@ -1,6 +1,7 @@
 from bag_of_words import BagOfWordsClassifier
 from text_features import TextFeatureClassifier
 from random_forest import RandomForestBOWClassifier
+from vote import Vote
 from ada_boost import AdaBoost
 from preprocessor import PreProcessor
 import pandas as pd
@@ -13,9 +14,12 @@ class Predictor:
     self.threads = []
     self.preprocessor = PreProcessor()
 
-    self.train_df = pd.read_csv('../../data/datasets/stratified_dual/train.csv', sep=',')
-    self.test_df = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
-    self.test_ensemble_df = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
+    self.train_df = pd.read_csv('../../data/datasets/stratified_dual_small/train.csv', sep=',')
+    self.test_df = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
+    self.test_ensemble_df = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
+    # self.train_df = pd.read_csv('../../data/datasets/1000/train.csv', sep=',')
+    # self.test_df = pd.read_csv('../../data/datasets/1000/test.csv', sep=',')
+    # self.test_ensemble_df = pd.read_csv('../../data/datasets/10000/test.csv', sep=',')
 
     bag_of_words_features_array = self.preprocessor.trainFeatureMatrix(self.train_df);
 
@@ -94,12 +98,21 @@ class Predictor:
                         columns=['bow', 'tf', 'rf', 'ab', 'ensemble', 'hate'])
     df.to_csv('ensemble_analysis.csv', sep=';', encoding='utf-8')
 
+    #### Voter
+
+    voter = Vote(1)
+    voter.fitFormatted(ensemble_test_data)
+    voter_results = voter.getResults(self.preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
+
+    print(voter_results)
+
     return {
       'bag_of_words': np.asscalar(bow_accuracy),
       'text_features': np.asscalar(tf_accuracy),
       'random_forest': np.asscalar(rf_accuracy),
       'ada_boost': np.asscalar(ab_accuracy),
-      'ensemble': np.asscalar(ensemble_results[0])
+      'ensemble': np.asscalar(ensemble_results[0]),
+      'voter': voter_results[0]
     }
 
   def predict(self, comment):
@@ -134,7 +147,8 @@ def hello():
     'text_features': acc['text_features'],
     'random_forest': acc['random_forest'],
     'ada_boost': acc['ada_boost'],
-    'ensemble': acc['ensemble']
+    'ensemble': acc['ensemble'],
+    'voter': acc['voter']
   }
   return jsonify(data)
 
