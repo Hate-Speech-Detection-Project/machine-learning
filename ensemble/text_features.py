@@ -30,8 +30,6 @@ class TextFeatureClassifier:
                         .replace( 'f','0',   regex=True ).astype(float))
     predicted = self.model.predict(X)
 
-    print(Preprocessor.convertBoolStringsToNumbers(predicted))
-    print(Preprocessor.convertBoolStringsToNumbers(test_df['hate']))
     confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(test_df['hate']))
     return (confusionMatrix, predicted)
 

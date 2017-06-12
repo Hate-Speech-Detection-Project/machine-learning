@@ -1,7 +1,7 @@
 import numpy as np
 
-class ConfusionMatrix:
-    def __init__(self, predictions, reality):
+class ConfusionMatrix():
+    def __init__(self, predictions, reality, verbose = False):
         self.predictions = 0
         self.positives = 0
         self.negatives = 0
@@ -10,12 +10,18 @@ class ConfusionMatrix:
         self.falseNegatives = 0
         self.falsePositives = 0
         self.correctPredictions = 0
+        self.verbose = verbose
 
         for index, prediction in enumerate(predictions) :
             self.predictions += 1
+
+            if self.verbose:
+                print((prediction, reality[index]))
             if prediction == 1:
                 self.positives +=1
                 if reality[index] == 1:
+                    if self.verbose:
+                        print("match")
                     self.truePositives += 1
                 else:
                     self.falsePositives +=1
@@ -23,6 +29,8 @@ class ConfusionMatrix:
                 self.negatives +=1
                 if reality[index] == 0:
                     self.trueNegatives += 1
+                    if self.verbose:
+                        print("match")
                 else:
                     self.falseNegatives += 1
 
@@ -42,4 +50,4 @@ class ConfusionMatrix:
         return self.correctPredictions/self.predictions
 
     def toString(self):
-        return "Accuracy: " + str(self.getAccuracy()) + "/Precision: " + str(self.getPrecision()) + "/Recall: " + str(self.getRecall())
+        return "Accuracy: " + str(self.getAccuracy()) + "\tPrecision: " + str(self.getPrecision()) + "\tRecall: " + str(self.getRecall())

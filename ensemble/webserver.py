@@ -8,18 +8,19 @@ import pandas as pd
 import numpy as np
 from threading import Thread
 from flask import *
+import json
 
 class Predictor:
   def initialize(self):
     self.threads = []
     self.preprocessor = Preprocessor()
 
-    self.train_df = pd.read_csv('../../data/datasets/stratified_dual_small/train.csv', sep=',')
-    self.test_df = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
-    self.test_ensemble_df = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
-    # self.train_df = pd.read_csv('../../data/datasets/1000/train.csv', sep=',')
-    # self.test_df = pd.read_csv('../../data/datasets/1000/test.csv', sep=',')
-    # self.test_ensemble_df = pd.read_csv('../../data/datasets/10000/test.csv', sep=',')
+    self.train_df = pd.read_csv('../../data/datasets/stratified_dual/train.csv', sep=',')
+    self.test_df = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
+    self.test_ensemble_df = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
+    #self.train_df = pd.read_csv('../../data/datasets/stratified_dual_small/train.csv', sep=',')
+    #self.test_df = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
+    #self.test_ensemble_df = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
 
     bag_of_words_features_array = self.preprocessor.trainFeatureMatrix(self.train_df);
 

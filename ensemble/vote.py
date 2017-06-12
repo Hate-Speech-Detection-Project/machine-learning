@@ -8,9 +8,10 @@ from utils import ConfusionMatrix
 from preprocessor import Preprocessor
 
 class Vote:
-    def __init__(self, threshold):
+    def __init__(self, threshold, verbose = False):
         self.results = []
         self.threshold = threshold
+        self.verbose = verbose
 
     def fitFormatted(self, x):
         self.results = [None] * len(x)
@@ -26,10 +27,14 @@ class Vote:
 
     def getResults(self, result):
 
-        equals = 0
-        for index, row in enumerate(self.results):
-            if(row == result[index]):
-                equals += 1
+        #equals = 0
+        #for index, row in enumerate(self.results):
+        #    if(row == result[index]):
+        #        equals += 1
 
-        confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(self.results), Preprocessor.convertBoolStringsToNumbers(result))
+        if self.verbose:
+            print(self.results)
+            print(result)
+
+        confusionMatrix = ConfusionMatrix(self.results, result, self.verbose)
         return (confusionMatrix, self.results)
