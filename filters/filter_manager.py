@@ -22,10 +22,17 @@ class FilterManager():
     
     Note: Comments MUST be given to filter() in ascending order defined by their timestamp.
     """
+    result = True
     for filter in self.filters:
       output = filter.filter(comment)
-      if output['filtered']:
-        return output
+      if not output['filtered'] or not output['result']:
+        result = False
+        break
+    if result:
+      return {
+        'filtered': True,
+        'result': True
+      }
     return {
       'filtered': False
     }

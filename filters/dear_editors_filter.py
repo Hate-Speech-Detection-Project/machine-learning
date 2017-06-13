@@ -7,7 +7,7 @@ class DearEditorsFilter():
   """
   
   # Dictionary of suspicious words.
-  DICTIONARY = [ 'liebe', 'redaktion', 'zeit' ]
+  DICTIONARY = [ 'liebe', 'redaktion', 'zeit', 'zon' ]
   
   # How many suspicious words a comment must contain to be filtered out.
   THRESHOLD = 2
