@@ -72,15 +72,15 @@ class Predictor:
 
     self.ensemble = AdaBoost(Preprocessor())
 
-    ensemble_training_data = np.matrix((Preprocessor.convertBoolStringsToNumbers(self.bow_result[1]),
-                              Preprocessor.convertBoolStringsToNumbers(self.tf_result[1]),
-                              Preprocessor.convertBoolStringsToNumbers(self.rf_result[1]),
-                              Preprocessor.convertBoolStringsToNumbers(self.ab_result[1]))).getT()
+    ensemble_training_data = np.matrix((self.bow_result[2],
+                                        self.tf_result[1],
+                                        self.rf_result[2],
+                                        self.ab_result[2])).getT()
 
-    ensemble_test_data = np.matrix((Preprocessor.convertBoolStringsToNumbers(bow_result_train[1]),
-                          Preprocessor.convertBoolStringsToNumbers(tf_result_train[1]),
-                          Preprocessor.convertBoolStringsToNumbers(rf_result_train[1]),
-                          Preprocessor.convertBoolStringsToNumbers(ab_result_train[1]))).getT()
+    ensemble_test_data = np.matrix((bow_result_train[2],
+                          tf_result_train[1],
+                          rf_result_train[2],
+                          ab_result_train[2])).getT()
 
     print(ensemble_training_data)
     self.ensemble.fitFormatted(ensemble_training_data, self.test_df['hate'])

@@ -38,6 +38,8 @@ class ConfusionMatrix():
 
     # true negative rate
     def getPrecision(self):
+        if self.negatives == 0:
+            return 0
         return self.trueNegatives/self.negatives
 
     # true positive rate
