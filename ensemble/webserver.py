@@ -203,12 +203,13 @@ def plot():
       ax.scatter( predictor.rf_result[2][index], 
                   predictor.ab_result[2][index], 
                   predictor.bow_result[2][index], 
-                  s=100)
+                  alpha=np.mean((predictor.rf_result[2][index], predictor.ab_result[2][index], predictor.bow_result[2][index]))/2,
+                  s=30)
       ax.scatter( predictor.rf_result[2][index], 
                   predictor.ab_result[2][index], 
                   predictor.bow_result[2][index], 
                   s = 1000,
-                  alpha=3/(predictor.rf_result[2][index] + predictor.ab_result[2][index] + predictor.bow_result[2][index]),
+                  alpha=np.mean((predictor.rf_result[2][index], predictor.ab_result[2][index], predictor.bow_result[2][index])),
                   marker=r"$ {} $".format(predictor.test_df['cid'][index]))
 
     
