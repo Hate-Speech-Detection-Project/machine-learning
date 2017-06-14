@@ -160,6 +160,8 @@ print("Learning models...")
 predictor.initialize()
 print("Done learning models...")
 
+angle = 0
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -194,18 +196,29 @@ def plot():
 
     img = io.BytesIO()
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(15, 15))
     ax = fig.add_subplot(111, projection='3d')
 
-    s = []
-    for foo in predictor.bow_result[2]:
-      s.append(0.1)
+    for index,observation in enumerate(predictor.bow_result[2]):
+      ax.scatter( predictor.rf_result[2][index], 
+                  predictor.ab_result[2][index], 
+                  predictor.bow_result[2][index], 
+                  s=100)
+      ax.scatter( predictor.rf_result[2][index], 
+                  predictor.ab_result[2][index], 
+                  predictor.bow_result[2][index], 
+                  s = 1000,
+                  alpha=3/(predictor.rf_result[2][index] + predictor.ab_result[2][index] + predictor.bow_result[2][index]),
+                  marker=r"$ {} $".format(predictor.test_df['cid'][index]))
 
-    ax.scatter(predictor.rf_result[2], predictor.ab_result[2], predictor.bow_result[2], s)
+    
 
-    ax.set_xlabel('X Label')
-    ax.set_ylabel('Y Label')
-    ax.set_zlabel('Z Label')
+    ax.set_xlabel('Random Forest')
+    ax.set_ylabel('Ada Boost')
+    ax.set_zlabel('Naive Bayes')
+
+    # ax.view_init(30, angle)
+    # angle += 10
 
     # plt.plot(predictor.rf_result[2], predictor.ab_result[2], 'ro')
     plt.savefig(img, format='png')
