@@ -1,19 +1,28 @@
+import matplotlib.pyplot as plt
 from bag_of_words import BagOfWordsClassifier
 from text_features import TextFeatureClassifier
 from random_forest import RandomForestBOWClassifier
 from vote import Vote
 from ada_boost import AdaBoost
 from preprocessor import Preprocessor
+from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import numpy as np
 from threading import Thread
 from flask import *
 import json
+import io
+import base64
 
 class Predictor:
   def initialize(self):
     self.threads = []
     self.preprocessor = Preprocessor()
+
+    self.bow_result = None
+    self.tf_result = None
+    self.rf_result = None
+    self.ab_result = None
 
     # self.train_df = pd.read_csv('../../data/datasets/stratified_dual/train.csv', sep=',')
     # self.test_df = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
@@ -179,3 +188,30 @@ def predict():
 
   result = predictor.predict(comment)
   return jsonify(result)
+
+@app.route('/plot', methods=["POST", "GET"])
+def plot():
+
+    img = io.BytesIO()
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    s = []
+    for foo in predictor.bow_result[2]:
+      s.append(0.1)
+
+    ax.scatter(predictor.rf_result[2], predictor.ab_result[2], predictor.bow_result[2], s)
+
+    ax.set_xlabel('X Label')
+    ax.set_ylabel('Y Label')
+    ax.set_zlabel('Z Label')
+
+    # plt.plot(predictor.rf_result[2], predictor.ab_result[2], 'ro')
+    plt.savefig(img, format='png')
+
+    img.seek(0)
+
+    return send_file(img, mimetype='image/png')
+
+
