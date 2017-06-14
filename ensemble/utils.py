@@ -18,7 +18,7 @@ class ConfusionMatrix():
             if self.verbose:
                 print((prediction, reality[index]))
             if prediction == 1:
-                self.positives +=1
+                self.positives += 1
                 if reality[index] == 1:
                     if self.verbose:
                         print("match")
@@ -34,7 +34,7 @@ class ConfusionMatrix():
                 else:
                     self.falseNegatives += 1
 
-        self.correctPredictions = self.truePositives + self.falseNegatives
+        self.correctPredictions = self.truePositives + self.trueNegatives
 
     # true negative rate
     def getPrecision(self):

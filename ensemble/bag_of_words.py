@@ -48,7 +48,7 @@ class BagOfWordsClassifier:
     X_new_tfidf = self.tfidf_transformer.transform(X_new_counts)
     predicted = self.clf.predict(X_new_tfidf)
 
-    #acc = np.mean(predicted == y_test)
+    # acc = np.mean(predicted == y_test)
 
     confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y_test))
     return (confusionMatrix, predicted)
