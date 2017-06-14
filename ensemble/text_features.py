@@ -3,10 +3,12 @@ import pandas as pd
 from sklearn.svm import SVR
 from preprocessor import Preprocessor
 from utils import ConfusionMatrix
+from sklearn.calibration import CalibratedClassifierCV
 
 class TextFeatureClassifier:
   def __init__(self):
         self.train_df = None
+        self.calibrated = None
 
   def calculate_features(self, df):
       total_length = df.apply(lambda x: len(x))
@@ -21,8 +23,11 @@ class TextFeatureClassifier:
     self.y = (train_df['hate'].replace( 't','1', regex=True )
                               .replace( 'f','0', regex=True ).astype(float))
 
-    self.svr = SVR(kernel='rbf')
-    self.model = self.svr.fit(self.X, self.y)
+    self.model = SVR(kernel='rbf')
+    self.model.fit(self.X, self.y)
+
+    # self.calibrated = CalibratedClassifierCV(self.model, cv=2, method='isotonic')
+    # self.calibrated.fit(self.X, self.y)
 
   def test(self, test_df):
     X = self.calculate_features(test_df['comment'])
@@ -30,8 +35,10 @@ class TextFeatureClassifier:
                         .replace( 'f','0',   regex=True ).astype(float))
     predicted = self.model.predict(X)
 
+    # prob_pos_isotonic = self.calibrated.predict_proba(X_new_tfidf)[:, 1]
+
     confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(test_df['hate']))
-    return (confusionMatrix, predicted)
+    return (confusionMatrix, predicted, [])
 
   def predict(self, comment):
     df = pd.Series([comment])
