@@ -602,3 +602,17 @@ zweiter
 zweites
 zwischen
 zwölf
+?
+!
+.
+,
+#
+'
+:
+)
+(
+[
+]
+{
+}
+;
