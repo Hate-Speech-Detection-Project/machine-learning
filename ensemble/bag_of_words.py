@@ -5,7 +5,9 @@ from utils import ConfusionMatrix
 from preprocessor import Preprocessor
 import pandas as pd
 import numpy as np
+from article_features import ArticleFeatures
 import re
+import nltk
 
 class BagOfWordsClassifier:
   def __init__(self):
@@ -49,6 +51,8 @@ class BagOfWordsClassifier:
     X_test = test_df['comment']
     y_test = test_df['hate']
 
+    X_test = self._remove_words_of_article_from_comments(test_df)
+
     X_new_counts = self.count_vect.transform(X_test)
     X_new_tfidf = self.tfidf_transformer.transform(X_new_counts)
     predicted = self.clf.predict(X_new_tfidf)
@@ -59,9 +63,9 @@ class BagOfWordsClassifier:
     confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y_test))
     return (confusionMatrix, predicted, prob_pos_isotonic)
 
-  def predict(self, comment):
+  def predict(self, comment_df):
      # Get test data
-    X_test = [comment]
+    X_test = comment_df['comment']
 
     X_new_counts = self.count_vect.transform(X_test)
     X_new_tfidf = self.tfidf_transformer.transform(X_new_counts)
@@ -93,6 +97,18 @@ class BagOfWordsClassifier:
         "hate_words": hate_words
     }
 
+  def _remove_words_of_article_from_comments(self,test_df):
+    print('Removing specific comment-words...')
+    index = 0
+    X_test = test_df['comment']
+    cids_from_comments = test_df['cid']
+    for cid in cids_from_comments:
+      intersection = self.article_features.get_shared_words_from_comment_and_article_by_cid(int(cid))
+      text = X_test[index]
+      X_test.loc[index] = ' '.join([w for w in nltk.word_tokenize(text) if not w.lower() in intersection])
+      index += 1
+    return X_test
+
   def hate_words(self):
     # Top words
     X_train_hate = self.train_df[self.train_df['hate'] == 't']['comment']
@@ -113,6 +129,6 @@ class BagOfWordsClassifier:
     index = np.asarray(indices)[0]
     hate_words = [strings[i] for i in reversed(index)]
 
-    print("Top 40 hate words", hate_words[:40])
+    # print("Top 100 hate words", hate_words[:100])
 
     return hate_words

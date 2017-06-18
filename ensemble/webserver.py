@@ -227,5 +227,3 @@ def plot():
     img.seek(0)
 
     return send_file(img, mimetype='image/png')
-
-
