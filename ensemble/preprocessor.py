@@ -84,4 +84,4 @@ class Preprocessor:
 
     @staticmethod
     def convertBoolStringsToNumbers(inputArray):
-        return list(map((lambda x: 1 if x == 't' else 0), inputArray))
+        return list(map((lambda x: 1 if x == True else 0), inputArray))

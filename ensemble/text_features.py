@@ -28,8 +28,8 @@ class TextFeatureClassifier:
   def fit(self, train_df):
     self.X = self.calculate_features(train_df)
     # self.X = self.calculate_time_feature(train_df)
-    self.y = (train_df['hate'].replace( 't','1', regex=True )
-                              .replace( 'f','0', regex=True ).astype(float))
+    self.y = (train_df['hate'].replace( True,'1', regex=True )
+                              .replace( False,'0', regex=True ).astype(float))
 
     self.model = SVR(kernel='rbf')
     self.model.fit(self.X, self.y)
@@ -40,8 +40,8 @@ class TextFeatureClassifier:
   def test(self, test_df):
     X = self.calculate_features(test_df)
     # X = self.calculate_time_feature(test_df)
-    y = (test_df['hate'].replace( 't','1', regex=True )
-                        .replace( 'f','0',   regex=True ).astype(float))
+    y = (test_df['hate'].replace( True,'1', regex=True )
+                        .replace( False,'0',   regex=True ).astype(float))
     predicted = self.model.predict(X)
 
     # prob_pos_isotonic = self.calibrated.predict_proba(X_new_tfidf)[:, 1]

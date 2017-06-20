@@ -1,11 +1,13 @@
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from bag_of_words import BagOfWordsClassifier
 from text_features import TextFeatureClassifier
 from random_forest import RandomForestBOWClassifier
 from vote import Vote
 from ada_boost import AdaBoost
 from preprocessor import Preprocessor
-from mpl_toolkits.mplot3d import Axes3D
+import psycopg2
+import psycopg2.extras
+# from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import numpy as np
 from threading import Thread
@@ -24,12 +26,49 @@ class Predictor:
     self.rf_result = None
     self.ab_result = None
 
+    # Connect to the database.
+    try:
+        conn = psycopg2.connect("dbname='postgres' user='postgres' host='localhost' password='admin'")
+    except:
+        print("Cannot connect to database")
+        sys.exit(0)
+    print("Connected to database")
+
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute(
+      """
+      SELECT comments.*, since_hate.since_hate
+      FROM comments LEFT JOIN since_hate ON comments.cid = since_hate.cid
+      WHERE NOT hate
+      LIMIT %i
+      """ % (10000)
+    )
+    non_hate = cur.fetchall()
+    cur.close()
+
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute(
+      """
+      SELECT comments.*, since_hate.since_hate
+      FROM comments LEFT JOIN since_hate ON comments.cid = since_hate.cid
+      WHERE hate
+      LIMIT %i
+      """ % (10000)
+    )
+    hate = cur.fetchall()
+    cur.close()
+
+    train_set = non_hate[:8000] + hate[:8000]
+    test_set = non_hate[8000:] + hate[8000:]
+    print(len(train_set))
+    print(len(test_set))
+
     # self.train_df = pd.read_csv('../../data/datasets/stratified_dual/train.csv', sep=',')
     # self.test_df = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
     # self.test_ensemble_df = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
-    self.train_df = pd.read_csv('../../data/datasets/stratified_dual_small/train.csv', sep=',')
-    self.test_df = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
-    self.test_ensemble_df = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
+    self.train_df = pd.DataFrame(train_set)
+    self.test_df = pd.DataFrame(test_set)
+    self.test_ensemble_df = pd.DataFrame(test_set)
 
     bag_of_words_features_array = self.preprocessor.trainFeatureMatrix(self.train_df);
 
@@ -191,39 +230,39 @@ def predict():
   result = predictor.predict(comment)
   return jsonify(result)
 
-@app.route('/plot', methods=["POST", "GET"])
-def plot():
+# @app.route('/plot', methods=["POST", "GET"])
+# def plot():
 
-    img = io.BytesIO()
+#     img = io.BytesIO()
 
-    fig = plt.figure(figsize=(15, 15))
-    ax = fig.add_subplot(111, projection='3d')
+#     fig = plt.figure(figsize=(15, 15))
+#     ax = fig.add_subplot(111, projection='3d')
 
-    for index,observation in enumerate(predictor.bow_result[2]):
-      ax.scatter( predictor.rf_result[2][index], 
-                  predictor.ab_result[2][index], 
-                  predictor.bow_result[2][index], 
-                  alpha=np.mean((predictor.rf_result[2][index], predictor.ab_result[2][index], predictor.bow_result[2][index]))/2,
-                  s=30)
-      ax.scatter( predictor.rf_result[2][index], 
-                  predictor.ab_result[2][index], 
-                  predictor.bow_result[2][index], 
-                  s = 1000,
-                  alpha=np.mean((predictor.rf_result[2][index], predictor.ab_result[2][index], predictor.bow_result[2][index])),
-                  marker=r"$ {} $".format(predictor.test_df['cid'][index]))
+#     for index,observation in enumerate(predictor.bow_result[2]):
+#       ax.scatter( predictor.rf_result[2][index], 
+#                   predictor.ab_result[2][index], 
+#                   predictor.bow_result[2][index], 
+#                   alpha=np.mean((predictor.rf_result[2][index], predictor.ab_result[2][index], predictor.bow_result[2][index]))/2,
+#                   s=30)
+#       ax.scatter( predictor.rf_result[2][index], 
+#                   predictor.ab_result[2][index], 
+#                   predictor.bow_result[2][index], 
+#                   s = 1000,
+#                   alpha=np.mean((predictor.rf_result[2][index], predictor.ab_result[2][index], predictor.bow_result[2][index])),
+#                   marker=r"$ {} $".format(predictor.test_df['cid'][index]))
 
     
 
-    ax.set_xlabel('Random Forest')
-    ax.set_ylabel('Ada Boost')
-    ax.set_zlabel('Naive Bayes')
+#     ax.set_xlabel('Random Forest')
+#     ax.set_ylabel('Ada Boost')
+#     ax.set_zlabel('Naive Bayes')
 
-    # ax.view_init(30, angle)
-    # angle += 10
+#     # ax.view_init(30, angle)
+#     # angle += 10
 
-    # plt.plot(predictor.rf_result[2], predictor.ab_result[2], 'ro')
-    plt.savefig(img, format='png')
+#     # plt.plot(predictor.rf_result[2], predictor.ab_result[2], 'ro')
+#     plt.savefig(img, format='png')
 
-    img.seek(0)
+#     img.seek(0)
 
-    return send_file(img, mimetype='image/png')
+#     return send_file(img, mimetype='image/png')
