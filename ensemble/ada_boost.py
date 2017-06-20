@@ -12,6 +12,7 @@ class AdaBoost:
         self.model = None
         self.preprocessor = preprocessor
         self.calibrated = None
+        self.testResult = None
 
     def fit(self, train_df):
         trainingFeatures = self.preprocessor.trainFeatureMatrix(train_df);
@@ -23,7 +24,7 @@ class AdaBoost:
 
         print("done")
 
-    def fitFormatted(self, x, y):
+    def fitFeatureArray(self, x, y):
         clf = AdaBoostClassifier(n_estimators=100)
         self.model = clf.fit(x, y)
 
@@ -32,17 +33,20 @@ class AdaBoost:
         print("done")
 
     def test(self, test_df):
-        test_data_features = self.preprocessor.createFeatureMatrix(test_df)
-        test_data_features = test_data_features.toarray()
 
-        # Use the random forest to make sentiment label predictions
-        result = self.model.predict(test_data_features)
+        if(self.testResult == None):
+            test_data_features = self.preprocessor.createFeatureMatrix(test_df)
+            test_data_features = test_data_features.toarray()
 
-        prob_pos_isotonic = self.calibrated.predict_proba(test_data_features)[:, 1]
+            # Use the random forest to make sentiment label predictions
+            result = self.model.predict(test_data_features)
 
-        confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(test_df["hate"]))
+            prob_pos_isotonic = self.calibrated.predict_proba(test_data_features)[:, 1]
 
-        return (confusionMatrix, result, prob_pos_isotonic)
+            confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(test_df["hate"]))
+
+            self.testResult = (confusionMatrix, result, prob_pos_isotonic)
+        return self.testResult
 
     def testFeatuerMatrix(self, features, result):
         # Use the random forest to make sentiment label predictions

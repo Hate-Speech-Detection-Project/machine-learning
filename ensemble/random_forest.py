@@ -9,6 +9,7 @@ class RandomForestBOWClassifier:
         self.model = None
         self.preprocessor = preprocessor
         self.calibrated = None
+        self.testResult = None
 
     def fit(self, train_df):
         print("Training the random forest...")
@@ -29,7 +30,7 @@ class RandomForestBOWClassifier:
         self.calibrated.fit(trainingFeatures, train_df["hate"])
         print("done")
 
-    def fitFormatted(self, x, y):
+    def fitFeatureArray(self, x, y):
         self.model = RandomForestClassifier(n_estimators = 100)
         self.model.fit(x, y)
 
@@ -39,16 +40,19 @@ class RandomForestBOWClassifier:
 
 
     def test(self, test_df):
-        test_data_features = self.preprocessor.createFeatureMatrix(test_df)
-        test_data_features = test_data_features.toarray()
+        if self.testResult == None:
+            test_data_features = self.preprocessor.createFeatureMatrix(test_df)
+            test_data_features = test_data_features.toarray()
 
-        # Use the random forest to make sentiment label predictions
-        result = self.model.predict(test_data_features)
+            # Use the random forest to make sentiment label predictions
+            result = self.model.predict(test_data_features)
 
-        prob_pos_isotonic = self.calibrated.predict_proba(test_data_features)[:, 1]
+            prob_pos_isotonic = self.calibrated.predict_proba(test_data_features)[:, 1]
 
-        confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(test_df["hate"]))
-        return (confusionMatrix, result, prob_pos_isotonic)
+            confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(test_df["hate"]))
+            self.testResult = (confusionMatrix, result, prob_pos_isotonic)
+
+        result self.testResult
 
     def predict(self, comment):
         df = pd.Series([comment])

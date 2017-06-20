@@ -11,6 +11,7 @@ class BagOfWordsClassifier:
   def __init__(self):
         self.train_df = None
         self.calibrated = None
+        self.testResult = None
 
   def fit(self, train_df):
     self.train_df = train_df
@@ -35,7 +36,7 @@ class BagOfWordsClassifier:
     self.clf = MultinomialNB().fit(X_train_tfidf, y_train)
     self.hate_words = self.hate_words()
 
-  # def fitFormatted(self, x, y):
+  # def fitFeatureArray(self, x, y):
   #     from sklearn.naive_bayes import MultinomialNB
   #     self.clf = MultinomialNB().fit(x, y)
   #     self.hate_words = self.hate_words()
@@ -45,19 +46,23 @@ class BagOfWordsClassifier:
     self.calibrated.fit(X_train_tfidf, y_train)
 
   def test(self, test_df):
-     # Get test data
-    X_test = test_df['comment']
-    y_test = test_df['hate']
 
-    X_new_counts = self.count_vect.transform(X_test)
-    X_new_tfidf = self.tfidf_transformer.transform(X_new_counts)
-    predicted = self.clf.predict(X_new_tfidf)
+    if self.testResult == None:
+         # Get test data
+        X_test = test_df['comment']
+        y_test = test_df['hate']
 
-    # acc = np.mean(predicted == y_test)
-    prob_pos_isotonic = self.calibrated.predict_proba(X_new_tfidf)[:, 1]
+        X_new_counts = self.count_vect.transform(X_test)
+        X_new_tfidf = self.tfidf_transformer.transform(X_new_counts)
+        predicted = self.clf.predict(X_new_tfidf)
 
-    confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y_test))
-    return (confusionMatrix, predicted, prob_pos_isotonic)
+        # acc = np.mean(predicted == y_test)
+        prob_pos_isotonic = self.calibrated.predict_proba(X_new_tfidf)[:, 1]
+
+        confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y_test))
+        self.testResult = (confusionMatrix, predicted, prob_pos_isotonic)
+
+    return self.testResult
 
   def predict(self, comment):
      # Get test data

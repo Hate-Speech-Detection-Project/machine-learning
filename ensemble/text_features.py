@@ -9,6 +9,7 @@ class TextFeatureClassifier:
   def __init__(self):
         self.train_df = None
         self.calibrated = None
+        self.testResult = None
 
   def calculate_features(self, df):
       total_length = df.apply(lambda x: len(x))
@@ -30,15 +31,19 @@ class TextFeatureClassifier:
     # self.calibrated.fit(self.X, self.y)
 
   def test(self, test_df):
-    X = self.calculate_features(test_df['comment'])
-    y = (test_df['hate'].replace( 't','1', regex=True )
-                        .replace( 'f','0',   regex=True ).astype(float))
-    predicted = self.model.predict(X)
 
-    # prob_pos_isotonic = self.calibrated.predict_proba(X_new_tfidf)[:, 1]
+    if self.testResult == None:
+      X = self.calculate_features(test_df['comment'])
+      y = (test_df['hate'].replace( 't','1', regex=True )
+                          .replace( 'f','0',   regex=True ).astype(float))
+      predicted = self.model.predict(X)
 
-    confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(test_df['hate']))
-    return (confusionMatrix, predicted, [])
+      # prob_pos_isotonic = self.calibrated.predict_proba(X_new_tfidf)[:, 1]
+
+      confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(test_df['hate']))
+      self.testResult = (confusionMatrix, predicted, [])
+
+    return self.testResult
 
   def predict(self, comment):
     df = pd.Series([comment])

@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 from threading import Thread
 from flask import *
+from utils import CorrelationMatrix
 import json
 import io
 import base64
@@ -24,12 +25,12 @@ class Predictor:
     self.rf_result = None
     self.ab_result = None
 
-    self.train_df = pd.read_csv('../../data/datasets/stratified_dual/train.csv', sep=',')
-    self.test_df = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
-    self.test_ensemble_df = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
-    #self.train_df = pd.read_csv('../../data/datasets/stratified_dual_small/train.csv', sep=',')
-    #self.test_df = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
-    #self.test_ensemble_df = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
+    #self.train_df = pd.read_csv('../../data/datasets/stratified_dual/train.csv', sep=',')
+    #self.test_df = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
+    #self.test_ensemble_df = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
+    self.train_df = pd.read_csv('../../data/datasets/stratified_dual_small/train.csv', sep=',')
+    self.test_df = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
+    self.test_ensemble_df = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
 
 
     bag_of_words_features_array = self.preprocessor.trainFeatureMatrix(self.train_df);
@@ -47,12 +48,12 @@ class Predictor:
     thread.start()
 
     self.random_forest_classifier = RandomForestBOWClassifier(self.preprocessor)
-    thread = Thread(target = self.random_forest_classifier.fitFormatted, args = (bag_of_words_features_array, self.train_df['hate']))
+    thread = Thread(target = self.random_forest_classifier.fitFeatureArray, args = (bag_of_words_features_array, self.train_df['hate']))
     self.threads.append(thread)
     thread.start()
 
     self.ada_boost_classifier = AdaBoost(self.preprocessor)
-    thread = Thread(target = self.ada_boost_classifier.fitFormatted, args = (bag_of_words_features_array, self.train_df['hate']))
+    thread = Thread(target = self.ada_boost_classifier.fitFeatureArray, args = (bag_of_words_features_array, self.train_df['hate']))
     self.threads.append(thread)
     thread.start()
 
@@ -69,16 +70,16 @@ class Predictor:
     self.ab_result = self.ada_boost_classifier.test(self.test_df)
 
     # these names are totally misleading... change them
-    bow_result_train = self.bag_of_words_classifier.test(self.test_ensemble_df)
-    tf_result_train = self.text_features_classifier.test(self.test_ensemble_df)
-    rf_result_train = self.random_forest_classifier.test(self.test_ensemble_df)
-    ab_result_train = self.ada_boost_classifier.test(self.test_ensemble_df)
+    bow_ensemble_test = self.bag_of_words_classifier.test(self.test_ensemble_df)
+    tf_ensemble_test = self.text_features_classifier.test(self.test_ensemble_df)
+    rf_ensemble_test = self.random_forest_classifier.test(self.test_ensemble_df)
+    ab_ensemble_test = self.ada_boost_classifier.test(self.test_ensemble_df)
 
     # use testresults that also participate in the ensemble
-    bow_accuracy = bow_result_train[0]
-    tf_accuracy = tf_result_train[0]
-    rf_accuracy = rf_result_train[0]
-    ab_accuracy = ab_result_train[0]
+    bow_accuracy = bow_ensemble_test[0]
+    tf_accuracy = tf_ensemble_test[0]
+    rf_accuracy = rf_ensemble_test[0]
+    ab_accuracy = ab_ensemble_test[0]
 
     self.ensemble = AdaBoost(Preprocessor())
 
@@ -87,20 +88,20 @@ class Predictor:
                                         self.rf_result[2],
                                         self.ab_result[2])).getT()
 
-    ensemble_test_data = np.matrix((bow_result_train[2],
-                          tf_result_train[1],
-                          rf_result_train[2],
-                          ab_result_train[2])).getT()
+    ensemble_test_data = np.matrix((bow_ensemble_test[2],
+                          tf_ensemble_test[1],
+                          rf_ensemble_test[2],
+                          ab_ensemble_test[2])).getT()
 
     print(ensemble_training_data)
-    self.ensemble.fitFormatted(ensemble_training_data, self.test_df['hate'])
+    self.ensemble.fitFeatureArray(ensemble_training_data, self.test_df['hate'])
 
     ensemble_results = self.ensemble.testFeatuerMatrix(ensemble_test_data, self.test_ensemble_df['hate'])
 
-    ensemble_analysis = np.array([Preprocessor.convertBoolStringsToNumbers(bow_result_train[1]),
-                                Preprocessor.convertBoolStringsToNumbers(tf_result_train[1]),
-                                Preprocessor.convertBoolStringsToNumbers(rf_result_train[1]),
-                                Preprocessor.convertBoolStringsToNumbers(ab_result_train[1]),
+    ensemble_analysis = np.array([Preprocessor.convertBoolStringsToNumbers(bow_ensemble_test[1]),
+                                Preprocessor.convertBoolStringsToNumbers(tf_ensemble_test[1]),
+                                Preprocessor.convertBoolStringsToNumbers(rf_ensemble_test[1]),
+                                Preprocessor.convertBoolStringsToNumbers(ab_ensemble_test[1]),
                                 Preprocessor.convertBoolStringsToNumbers(ensemble_results[1]),
                                 Preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate'])]).T
 
@@ -112,26 +113,26 @@ class Predictor:
     #### Voter
 
     voter_1 = Vote(1)
-    voter_1.fitFormatted(ensemble_test_data)
+    voter_1.fitFeatureArray(ensemble_test_data)
     voter_1_results = voter_1.getResults(Preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
 
     voter_2 = Vote(2)
-    voter_2.fitFormatted(ensemble_test_data)
+    voter_2.fitFeatureArray(ensemble_test_data)
     voter_2_results = voter_2.getResults(Preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
 
     voter_3 = Vote(3)
-    voter_3.fitFormatted(ensemble_test_data)
+    voter_3.fitFeatureArray(ensemble_test_data)
     voter_3_results = voter_3.getResults(Preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
 
     voter_4 = Vote(4)
-    voter_4.fitFormatted(ensemble_test_data)
+    voter_4.fitFeatureArray(ensemble_test_data)
     voter_4_results = voter_4.getResults(Preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
 
     return {
-      'bag_of_words': bow_result_train[0].toString(),
-      'text_features': tf_result_train[0].toString(),
-      'random_forest': rf_result_train[0].toString(),
-      'ada_boost': ab_result_train[0].toString(),
+      'bag_of_words': bow_ensemble_test[0].toString(),
+      'text_features': tf_ensemble_test[0].toString(),
+      'random_forest': rf_ensemble_test[0].toString(),
+      'ada_boost': ab_ensemble_test[0].toString(),
       'ensemble': ensemble_results[0].toString(),
       'voter(1)': voter_1_results[0].toString(),
       'voter(2)': voter_2_results[0].toString(),
@@ -192,7 +193,17 @@ def predict():
   result = predictor.predict(comment)
   return jsonify(result)
 
-@app.route('/plot', methods=["POST", "GET"])
+@app.route('/correlation')
+def correlation():
+  dataRows = [predictor.bow_result[2],
+              predictor.rf_result[2],
+              predictor.ab_result[2],
+              predictor.bow_result[2]]
+  correlationMatrix = CorrelationMatrix(dataRows)
+  return jasonify(correlationMatrix.get())
+
+
+@app.route('/plot')
 def plot():
 
     img = io.BytesIO()

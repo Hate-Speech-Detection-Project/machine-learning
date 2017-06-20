@@ -1,4 +1,30 @@
 import numpy as np
+class CorrelationMatrix():
+    def __init__(self, dataRows):
+        self.dataRows = dataRows
+        self.correlationMatrix = []
+
+    def get(self):
+        if len(self.correlationMatrix) == 0:
+            self.correlationMatrix = []
+            for rowXIndex, rowX in enumerate(self.dataRows):
+                resultRow = []
+                for rowYIndex, rowY in enumerate(self.dataRows):
+                    correlation = np.corrcoef(rowX, rowY)[0, 1]
+                    resultRow.append(correlation)
+                self.correlationMatrix.append(resultRow)
+
+        return self.correlationMatrix;
+
+    def toString(self):
+        matrixString =""
+
+        for row in self.correlationMatrix:
+            rowString = ""
+            for field in row:
+                rowString += str(field) + "\t"
+            matrixString += rowString + "\n" 
+
 
 class ConfusionMatrix():
     def __init__(self, predictions, reality, verbose = False):
