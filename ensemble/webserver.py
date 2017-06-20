@@ -17,7 +17,7 @@ import io
 import base64
 
 class Predictor:
-  def initialize(self):
+  def initialize(self, train_set, test_set):
     self.threads = []
     self.preprocessor = Preprocessor()
 
@@ -25,43 +25,6 @@ class Predictor:
     self.tf_result = None
     self.rf_result = None
     self.ab_result = None
-
-    # Connect to the database.
-    try:
-        conn = psycopg2.connect("dbname='postgres' user='postgres' host='localhost' password='admin'")
-    except:
-        print("Cannot connect to database")
-        sys.exit(0)
-    print("Connected to database")
-
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute(
-      """
-      SELECT comments.*, since_hate.since_hate
-      FROM comments LEFT JOIN since_hate ON comments.cid = since_hate.cid
-      WHERE NOT hate
-      LIMIT %i
-      """ % (10000)
-    )
-    non_hate = cur.fetchall()
-    cur.close()
-
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute(
-      """
-      SELECT comments.*, since_hate.since_hate
-      FROM comments LEFT JOIN since_hate ON comments.cid = since_hate.cid
-      WHERE hate
-      LIMIT %i
-      """ % (10000)
-    )
-    hate = cur.fetchall()
-    cur.close()
-
-    train_set = non_hate[:8000] + hate[:8000]
-    test_set = non_hate[8000:] + hate[8000:]
-    print(len(train_set))
-    print(len(test_set))
 
     # self.train_df = pd.read_csv('../../data/datasets/stratified_dual/train.csv', sep=',')
     # self.test_df = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
@@ -193,10 +156,51 @@ class Predictor:
       'ada_boost': ab,
       'ensemble': ensemble
     }
+    
+# Connect to the database.
+try:
+    conn = psycopg2.connect("dbname='postgres' user='postgres' host='localhost' password='admin'")
+except:
+    print("Cannot connect to database")
+    sys.exit(0)
+print("Connected to database")
+  
+cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+cur.execute(
+  """
+  SELECT comments.*, since_hate.since_hate
+  FROM comments LEFT JOIN since_hate ON comments.cid = since_hate.cid
+  WHERE NOT hate
+  AND since_hate IS NULL
+  LIMIT %i
+  """ % (10000)
+)
+non_hate = cur.fetchall()
+cur.close()
+  
+cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+cur.execute(
+  """
+  SELECT comments.*, since_hate.since_hate
+  FROM comments LEFT JOIN since_hate ON comments.cid = since_hate.cid
+  WHERE hate
+  AND since_hate IS NULL
+  LIMIT %i
+  """ % (10000)
+)
+hate = cur.fetchall()
+cur.close()
+  
+train_set = non_hate[:8000] + hate[:8000]
+test_set = non_hate[8000:] + hate[8000:]
+print(len(train_set))
+print(len(test_set))
 
-predictor = Predictor()
+predictor1 = Predictor(train_set, test_set)
+#predictor2 = Predictor(train_set, test_set)
 print("Learning models...")
-predictor.initialize()
+predictor1.initialize()
+#predictor2.initialize()
 print("Done learning models...")
 
 angle = 0
@@ -205,7 +209,8 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-  acc = predictor.accuracy()
+
+  acc = predictor1.accuracy()
   data = {
     'bag_of_words': acc['bag_of_words'],
     'text_features': acc['text_features'],
