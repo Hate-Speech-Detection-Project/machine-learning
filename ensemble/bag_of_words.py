@@ -36,7 +36,7 @@ class BagOfWordsClassifier:
     self.clf = MultinomialNB().fit(X_train_tfidf, y_train)
     self.hate_words = self.hate_words()
 
-  # def fitFeatureArray(self, x, y):
+  # def fitFeatureMatrix(self, x, y):
   #     from sklearn.naive_bayes import MultinomialNB
   #     self.clf = MultinomialNB().fit(x, y)
   #     self.hate_words = self.hate_words()
@@ -45,7 +45,7 @@ class BagOfWordsClassifier:
     self.calibrated = CalibratedClassifierCV(self.clf, cv=2, method='isotonic')
     self.calibrated.fit(X_train_tfidf, y_train)
 
-  def fitFeatureArray(self, x, y):
+  def fitFeatureMatrix(self, x, y):
     # Training a classifier
     from sklearn.naive_bayes import MultinomialNB
     self.clf = MultinomialNB().fit(x, y)
@@ -72,7 +72,7 @@ class BagOfWordsClassifier:
 
     return self.testResult
 
-  def testFeatureArray(self, x, y):
+  def testFeatureMatrix(self, x, y):
     if self.testResult == None:
       predicted = self.clf.predict(x)
 

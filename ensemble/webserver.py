@@ -48,12 +48,12 @@ class Predictor:
     thread.start()
 
     self.random_forest_classifier = RandomForestBOWClassifier(self.preprocessor)
-    thread = Thread(target = self.random_forest_classifier.fitFeatureArray, args = (bag_of_words_features_array, self.train_df['hate']))
+    thread = Thread(target = self.random_forest_classifier.fitFeatureMatrix, args = (bag_of_words_features_array, self.train_df['hate']))
     self.threads.append(thread)
     thread.start()
 
     self.ada_boost_classifier = AdaBoost(self.preprocessor)
-    thread = Thread(target = self.ada_boost_classifier.fitFeatureArray, args = (bag_of_words_features_array, self.train_df['hate']))
+    thread = Thread(target = self.ada_boost_classifier.fitFeatureMatrix, args = (bag_of_words_features_array, self.train_df['hate']))
     self.threads.append(thread)
     thread.start()
 
@@ -94,7 +94,7 @@ class Predictor:
                           ab_ensemble_test[2])).getT()
 
     print(ensemble_training_data)
-    self.ensemble.fitFeatureArray(ensemble_training_data, self.test_df['hate'])
+    self.ensemble.fitFeatureMatrix(ensemble_training_data, self.test_df['hate'])
 
     ensemble_results = self.ensemble.testFeatuerMatrix(ensemble_test_data, self.test_ensemble_df['hate'])
 
@@ -113,19 +113,19 @@ class Predictor:
     #### Voter
 
     voter_1 = Vote(1)
-    voter_1.fitFeatureArray(ensemble_test_data)
+    voter_1.fitFeatureMatrix(ensemble_test_data)
     voter_1_results = voter_1.getResults(Preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
 
     voter_2 = Vote(2)
-    voter_2.fitFeatureArray(ensemble_test_data)
+    voter_2.fitFeatureMatrix(ensemble_test_data)
     voter_2_results = voter_2.getResults(Preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
 
     voter_3 = Vote(3)
-    voter_3.fitFeatureArray(ensemble_test_data)
+    voter_3.fitFeatureMatrix(ensemble_test_data)
     voter_3_results = voter_3.getResults(Preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
 
     voter_4 = Vote(4)
-    voter_4.fitFeatureArray(ensemble_test_data)
+    voter_4.fitFeatureMatrix(ensemble_test_data)
     voter_4_results = voter_4.getResults(Preprocessor.convertBoolStringsToNumbers(self.test_ensemble_df['hate']))
 
     return {

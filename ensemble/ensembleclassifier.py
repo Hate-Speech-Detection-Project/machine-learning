@@ -26,12 +26,12 @@ class EnsembleClassifier:
 
 	def __fitClassifiers(self, featureArray, groundTruth):
 		for key, classifier in self.classifiers.items():
-			self.scheduler.schedule(function = classifier.fitFeatureArray, args = (featureArray, groundTruth))
+			self.scheduler.schedule(function = classifier.fitFeatureMatrix, args = (featureArray, groundTruth))
 		self.scheduler.joinAll()
 
 	def __testClassifiers(self, featureArray, groundTruth):
 		for key, classifier in self.classifiers.items():
-			self.scheduler.schedule(function = classifier.testFeatureArray, args = (featureArray, groundTruth))
+			self.scheduler.schedule(function = classifier.testFeatureMatrix, args = (featureArray, groundTruth))
 		self.scheduler.joinAll();		
 
 	def __generateTrainingFeatures(self, trainingDf):
@@ -58,4 +58,4 @@ class EnsembleClassifier:
 		self.__testClassifiers(self.testFeatureMatrix['BOW'], self.testGroundTruth['BOW'])
 
 	def getClassifierStatistics(self, classifierName):
-		return self.classifiers[classifierName].testFeatureArray(None, None)
+		return self.classifiers[classifierName].testFeatureMatrix(None, None)

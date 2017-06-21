@@ -13,7 +13,7 @@ class Vote:
         self.threshold = threshold
         self.verbose = verbose
 
-    def fitFeatureArray(self, x):
+    def fitFeatureMatrix(self, x):
         self.results = [None] * len(x)
         columncount = len(x[0])
 

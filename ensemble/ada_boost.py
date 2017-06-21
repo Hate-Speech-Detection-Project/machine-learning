@@ -14,7 +14,7 @@ class AdaBoost:
         self.calibrated = None
         self.testResult = None
 
-    def fitFeatureArray(self, x, y):
+    def fitFeatureMatrix(self, x, y):
         clf = AdaBoostClassifier(n_estimators=100)
         self.model = clf.fit(x, y)
 
@@ -22,7 +22,7 @@ class AdaBoost:
         self.calibrated.fit(x, y)
         print("done")
 
-    def testFeatureArray(self, x, y):
+    def testFeatureMatrix(self, x, y):
         if(self.testResult == None):
             # Use the random forest to make sentiment label predictions
             result = self.model.predict(x)

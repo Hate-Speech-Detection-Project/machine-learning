@@ -11,7 +11,7 @@ class RandomForestBOWClassifier:
         self.calibrated = None
         self.testResult = None
 
-    def fitFeatureArray(self, x, y):
+    def fitFeatureMatrix(self, x, y):
 
         self.model = RandomForestClassifier(n_estimators = 100)
         self.model.fit(x, y)
@@ -19,7 +19,7 @@ class RandomForestBOWClassifier:
         self.calibrated = CalibratedClassifierCV(self.model, cv=2, method='isotonic')
         self.calibrated.fit(x, y)
 
-    def testFeatureArray(self, x, y):
+    def testFeatureMatrix(self, x, y):
         if self.testResult == None:
             # Use the random forest to make sentiment label predictions
             result = self.model.predict(x)
