@@ -81,8 +81,8 @@ class BagOfWordsClassifier:
 
   def hate_words(self):
     # Top words
-    X_train_hate = self.train_df[self.train_df['hate'] == 't']['comment']
-    X_train_no_hate = self.train_df[self.train_df['hate'] == 'f']['comment']
+    X_train_hate = self.train_df[self.train_df['hate'] == True]['comment']
+    X_train_no_hate = self.train_df[self.train_df['hate'] == False]['comment']
 
     X_train_hate_counts = self.count_vect.fit_transform(np.concatenate([X_train_hate, X_train_hate, X_train_no_hate]))
     X_train_hate_tfidf = self.tfidf_transformer.fit_transform(X_train_hate_counts)

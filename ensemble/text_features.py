@@ -10,7 +10,7 @@ class TextFeatureClassifier:
         self.train_df = None
 
     def calculate_features_with_dataframe(self, df):
-        df["created"] = df["created"].astype("datetime64[ns]")
+        # df["created"] = df["created"].astype("datetime64[ns]")
 
         hour = df["created"] % (24*60*60)
         total_length = df['comment'].apply(lambda x: len(x))
@@ -38,6 +38,9 @@ class TextFeatureClassifier:
           self.normalize(avg_length)
         )).T
         return features
+
+    def normalize(self, values_df):
+        return (values_df - np.mean(values_df)) / np.std(values_df)
 
     def calculate_features(self,comment,timestamp):
         date = datetime.datetime.fromtimestamp(timestamp)
@@ -68,13 +71,14 @@ class TextFeatureClassifier:
         y = (test_df['hate'].replace('t', '1', regex=True)
              .replace('f', '0', regex=True).astype(float))
         predicted = self.model.predict(X)
+        return predicted
 
-        acc = np.mean(np.round(predicted) == y)
-        print("Accuracy", acc)
-        return acc
+        # acc = np.mean(np.round(predicted) == y)
+        # print("Accuracy", acc)
+        # return acc
 
     def predict(self, comment, timestamp):
-        X_test = self.calculate_features(comment, timestamp)
+        X_test = self.calculate_features_with_dataframe(pd.Series([comment, timestamp], index=['comment', 'created'])).iloc[0]
 
         predicted = self.model.predict(X_test)
         return predicted
