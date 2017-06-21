@@ -3,7 +3,8 @@ from text_features import TextFeatureClassifier
 import pandas as pd
 import numpy as np
 from flask import *
-from crawler.article_crawler import ArticelCrawler
+from crawler.article_crawler import ArticleCrawler
+import threading
 from article_features import ArticleFeatures
 
 
@@ -13,17 +14,15 @@ class Predictor:
 
         # self.train_df = pd.read_csv('../../data/test.csv', sep=',')
         # self.test_df = pd.read_csv('../../data/tiny.csv', sep=',')
-        # self.train_df = pd.read_csv('../data/stratified/train.csv', sep=',')
-        self.train_df = pd.read_csv('../data/1000/train.csv', sep=',')
+        self.train_df = pd.read_csv('../data/stratified/train.csv', sep=',')
+        # self.train_df = pd.read_csv('../data/1000/train.csv', sep=',')
         self.test_df = pd.read_csv('../data/stratified/test.csv', sep=',')
 
         self.bag_of_words_classifier = BagOfWordsClassifier()
         self.bag_of_words_classifier.fit(self.train_df)
         self.text_features_classifier = TextFeatureClassifier()
         self.text_features_classifier.fit(self.train_df)
-
         self.article_features = ArticleFeatures()
-        ArticelCrawler.create_crawler()
 
     def accuracy(self):
         bow_accuracy = self.bag_of_words_classifier.test(self.test_df)
@@ -45,14 +44,15 @@ class Predictor:
         }
 
     def clean_comment(self,comment,url):
-        ArticelCrawler.start_crawler(url)
-        article = ArticelCrawler.crawled_article
+
+        ArticleCrawler.start_crawling(url)
+        article = ArticleCrawler.crawled_article
         if article is None or article.get_body() is None:
             print("Could not get article for comment. Continues without a change.")
             return comment
-
         comment = self.article_features.remove_words_of_comment_by_given_text(comment, article.get_body())
-        return comment
+        print(comment)
+
 
 
 
@@ -84,7 +84,10 @@ def predict():
         comment = json_dict['comment']
 
         if 'url' in json_dict:
-            comment = predictor.clean_comment(comment,json_dict['url'])
+            t1 = threading.Thread(target=predictor.clean_comment, args=(comment, json_dict['url']))
+            t1.start()
+            t1.join()
+            # comment = predictor.clean_comment(comment,)
 
         if 'created' in json_dict:
             timestamp = int(json_dict['created'])

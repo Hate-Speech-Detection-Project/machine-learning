@@ -1,7 +1,12 @@
+from textblob_de import TextBlobDE as TextBlob
+from textblob_de import PatternParser
+from textblob_de import PatternTagger
 import numpy as np
 from sklearn.svm import SVR
 from article_features import ArticleFeatures
 import datetime
+from textblob_de import TextBlobDE as TextBlob
+from textblob_de import PatternParser
 
 
 class TextFeatureClassifier:
@@ -10,16 +15,26 @@ class TextFeatureClassifier:
         self.train_df = None
 
     def calculate_features_with_dataframe(self, df):
+        tagged_comments = df['comment'].apply(lambda x: TextBlob(x).tags)
+
         df["created"] = df["created"].astype("datetime64[ns]")
         hour = df.created.dt.hour
         total_length = df['comment'].apply(lambda x: len(x))
         num_of_words = df['comment'].apply(lambda x: len(x.split()))
+        num_of_distinct_words = df['comment'].apply(lambda x: len(set(x.split())))
         num_questions = df['comment'].apply(lambda x: x.count('?'))
         num_exclamation = df['comment'].apply(lambda x: x.count('!'))
-        features = np.vstack((total_length, num_questions, num_exclamation, num_of_words, hour)).T
+        num_adjectives = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x,'JJ'))
+        num_superlatives = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x, 'JJS'))
+        num_personal_pronouns = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x, 'PRP'))
+        # TODO calculates the sentiment values for each comment, nevertheless it is not worth the effort
+        # sentiment_analysis = df['comment'].apply(lambda x: (TextBlob(x, parser=PatternParser(pprint=True, lemmata=True))).sentiment[0])
+        features = np.vstack(
+            (total_length, num_questions, num_exclamation, num_of_words, hour,
+             num_of_distinct_words, num_adjectives, num_superlatives, num_personal_pronouns)).T
         return features
 
-    def calculate_features(self,comment,timestamp):
+    def calculate_features(self, comment, timestamp):
         date = datetime.datetime.fromtimestamp(timestamp)
         total_length = len(comment)
         num_of_words = len(comment.split())
@@ -58,3 +73,12 @@ class TextFeatureClassifier:
 
         predicted = self.model.predict(X_test)
         return predicted
+
+    @staticmethod
+    def _getCountOfWordsByTaggedList(tagged_list, tag_id):
+        count = 0
+        for tag in tagged_list:
+            if tag[1] == tag_id:
+                count = count + 1
+
+        return count
