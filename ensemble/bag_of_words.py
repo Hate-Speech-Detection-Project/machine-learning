@@ -2,11 +2,13 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 import pandas as pd
 import numpy as np
+from article_features import ArticleFeatures
 import re
+import nltk
 
 class BagOfWordsClassifier:
   def __init__(self):
-        self.train_df = None
+    self.train_df = None
 
   def fit(self, train_df):
     self.train_df = train_df
@@ -40,7 +42,7 @@ class BagOfWordsClassifier:
     X_new_tfidf = self.tfidf_transformer.transform(X_new_counts)
     predicted = self.clf.predict(X_new_tfidf)
 
-    acc = np.mean(predicted == y_test)       
+    acc = np.mean(predicted == y_test)
     return acc
 
   def predict(self, comment_df):
