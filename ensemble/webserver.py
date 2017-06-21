@@ -18,34 +18,34 @@ class Predictor:
         # self.train_df = pd.read_csv('../data/1000/train.csv', sep=',')
         self.test_df = pd.read_csv('../data/stratified/test.csv', sep=',')
 
-        self.bag_of_words_classifier = BagOfWordsClassifier()
-        self.bag_of_words_classifier.fit(self.train_df)
+        # self.bag_of_words_classifier = BagOfWordsClassifier()
+        # self.bag_of_words_classifier.fit(self.train_df)
         self.text_features_classifier = TextFeatureClassifier()
         self.text_features_classifier.fit(self.train_df)
         self.article_features = ArticleFeatures()
 
     def accuracy(self):
-        bow_accuracy = self.bag_of_words_classifier.test(self.test_df)
+        # bow_accuracy = self.bag_of_words_classifier.test(self.test_df)
         tf_accuracy = self.text_features_classifier.test(self.test_df)
         return {
-            'bag_of_words': np.asscalar(bow_accuracy),
+            # 'bag_of_words': np.asscalar(bow_accuracy),
             'text_features': np.asscalar(tf_accuracy)
         }
 
     def predict(self, comment,timestamp):
-        bow = self.bag_of_words_classifier.predict_with_info(comment)
+        # bow = self.bag_of_words_classifier.predict_with_info(comment)
         tf = self.text_features_classifier.predict(comment,timestamp)
 
         return {
             'comment': comment,
-            'bag_of_words': bow["predicted"][0],
-            'hate_words': bow["hate_words"],
+            # 'bag_of_words': bow["predicted"][0],
+            # 'hate_words': bow["hate_words"],
             'text_features': tf.tolist()
         }
 
     def clean_comment(self,comment,url):
 
-        ArticleCrawler.start_crawling(url)
+        ArticleCrawler.start_crawler(url)
         article = ArticleCrawler.crawled_article
         if article is None or article.get_body() is None:
             print("Could not get article for comment. Continues without a change.")

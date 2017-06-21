@@ -11,7 +11,7 @@ URL_IDENTIFIER = 'url'
 COMPLETE_ARTICLE_URL_SUBDOMAIN = '/komplettansicht'
 
 
-class ArticelCrawler(scrapy.Spider):
+class ArticleCrawler(scrapy.Spider):
     name = "article"
     allowed_domains = ["zeit.de"]
     handle_httpstatus_list = [404]
@@ -39,24 +39,24 @@ class ArticelCrawler(scrapy.Spider):
             self.failed_urls.append([response.meta[ID_IDENTIFIER], response.status, response.url])
         else:
             article = (self._create_article_from_response(response))
-            ArticelCrawler.crawled_article = article
+            ArticleCrawler.crawled_article = article
 
     @staticmethod
     def get_failed_urls():
-        return ArticelCrawler.failed_urls
+        return ArticleCrawler.failed_urls
 
     @staticmethod
     def create_crawler():
-        ArticelCrawler.process = CrawlerProcess({
+        ArticleCrawler.process = CrawlerProcess({
             'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'
         })
-        ArticelCrawler.process.crawl(ArticelCrawler)
+        ArticleCrawler.process.crawl(ArticleCrawler)
 
 
     @staticmethod
     def start_crawler(url):
-        ArticelCrawler.urls.append(url)
-        ArticelCrawler.process.start()  # the script will block here until the crawling is finished
+        ArticleCrawler.urls.append(url)
+        ArticleCrawler.process.start()  # the script will block here until the crawling is finished
 
 
     # creates an article based on the crawler-response

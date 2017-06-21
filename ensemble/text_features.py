@@ -17,6 +17,8 @@ class TextFeatureClassifier:
     def calculate_features_with_dataframe(self, df):
         tagged_comments = df['comment'].apply(lambda x: TextBlob(x).tags)
 
+        for tag in tagged_comments:
+            print(tag)
         df["created"] = df["created"].astype("datetime64[ns]")
         hour = df.created.dt.hour
         total_length = df['comment'].apply(lambda x: len(x))
@@ -24,14 +26,18 @@ class TextFeatureClassifier:
         num_of_distinct_words = df['comment'].apply(lambda x: len(set(x.split())))
         num_questions = df['comment'].apply(lambda x: x.count('?'))
         num_exclamation = df['comment'].apply(lambda x: x.count('!'))
-        num_adjectives = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x,'JJ'))
-        num_superlatives = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x, 'JJS'))
-        num_personal_pronouns = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x, 'PRP'))
+        num_adjectives = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x, ['JJ', 'JJS', 'JJR']))
+        num_determiner = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x, ['DT']))
+        num_personal_pronouns = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x, ['PRP']))
+        num_adverbs = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x, ['RB', 'RBS']))
+        num_interjections = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x, ['UH']))
+
         # TODO calculates the sentiment values for each comment, nevertheless it is not worth the effort
         # sentiment_analysis = df['comment'].apply(lambda x: (TextBlob(x, parser=PatternParser(pprint=True, lemmata=True))).sentiment[0])
+
         features = np.vstack(
             (total_length, num_questions, num_exclamation, num_of_words, hour,
-             num_of_distinct_words, num_adjectives, num_superlatives, num_personal_pronouns)).T
+             num_of_distinct_words, num_adjectives, num_determiner, num_personal_pronouns, num_adverbs,num_interjections)).T
         return features
 
     def calculate_features(self, comment, timestamp):
@@ -40,7 +46,13 @@ class TextFeatureClassifier:
         num_of_words = len(comment.split())
         num_questions = (comment.count('?'))
         num_exclamation = (comment.count('!'))
-        features = np.vstack((total_length, num_questions, num_exclamation, num_of_words, date.hour)).T
+        num_adjectives = TextFeatureClassifier._getCountOfWordsByTaggedList(comment, ['JJ', 'JJS', 'JJR'])
+        num_superlatives = TextFeatureClassifier._getCountOfWordsByTaggedList(comment, ['DT'])
+        num_personal_pronouns = TextFeatureClassifier._getCountOfWordsByTaggedList(comment, ['PRP'])
+        num_interjections = TextFeatureClassifier._getCountOfWordsByTaggedList(comment, ['UH'])
+        num_adverbs = TextFeatureClassifier._getCountOfWordsByTaggedList(comment, ['RB', 'RBS'])
+        features = np.vstack((total_length, num_questions, num_exclamation, num_of_words,
+                              date.hour, num_adjectives, num_superlatives, num_personal_pronouns,num_adverbs,num_interjections)).T
         return features
 
     def calculate_time_feature(self, df):
@@ -65,7 +77,6 @@ class TextFeatureClassifier:
         predicted = self.model.predict(X)
 
         acc = np.mean(np.round(predicted) == y)
-        print("Accuracy", acc)
         return acc
 
     def predict(self, comment, timestamp):
@@ -75,10 +86,10 @@ class TextFeatureClassifier:
         return predicted
 
     @staticmethod
-    def _getCountOfWordsByTaggedList(tagged_list, tag_id):
+    def _getCountOfWordsByTaggedList(tagged_list, tag_id_list):
         count = 0
         for tag in tagged_list:
-            if tag[1] == tag_id:
+            if tag[1] in tag_id_list:
                 count = count + 1
 
         return count
