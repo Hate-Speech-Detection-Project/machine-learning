@@ -171,7 +171,6 @@ cur.execute(
   SELECT comments.*, since_hate.since_hate
   FROM comments LEFT JOIN since_hate ON comments.cid = since_hate.cid
   WHERE NOT hate
-  AND since_hate IS NULL
   LIMIT %i
   """ % (10000)
 )
@@ -184,23 +183,38 @@ cur.execute(
   SELECT comments.*, since_hate.since_hate
   FROM comments LEFT JOIN since_hate ON comments.cid = since_hate.cid
   WHERE hate
-  AND since_hate IS NULL
   LIMIT %i
   """ % (10000)
 )
 hate = cur.fetchall()
 cur.close()
-  
-train_set = non_hate[:8000] + hate[:8000]
-test_set = non_hate[8000:] + hate[8000:]
-print(len(train_set))
-print(len(test_set))
+print("Got data")
 
-predictor1 = Predictor(train_set, test_set)
-#predictor2 = Predictor(train_set, test_set)
+def split_list(splitlist, percentage):
+  index = int(len(splitlist) * percentage)
+  return splitlist[:index], splitlist[index:]
+
+non_hate_no_since = [x for x in non_hate if x["since_hate"] is None]
+hate_no_since     = [x for x in hate     if x["since_hate"] is None]
+
+non_hate_since    = [x for x in non_hate if x["since_hate"] is not None]
+hate_since        = [x for x in hate     if x["since_hate"] is not None]
+
+train_set1 = split_list(non_hate_no_since, .8)[0] + split_list(hate_no_since, .8)[0]
+test_set1  = split_list(non_hate_no_since, .8)[1] + split_list(hate_no_since, .8)[1]
+print(len(train_set1))
+print(len(test_set1))
+
+train_set2 = split_list(non_hate_since, .8)[0] + split_list(hate_since, .8)[0]
+test_set2  = split_list(non_hate_since, .8)[1] + split_list(hate_since, .8)[1]
+print(len(train_set2))
+print(len(test_set2))
+
+predictor1 = Predictor()
+predictor2 = Predictor()
 print("Learning models...")
-predictor1.initialize()
-#predictor2.initialize()
+predictor1.initialize(train_set1, test_set1)
+predictor2.initialize(train_set2, test_set2)
 print("Done learning models...")
 
 angle = 0
@@ -211,7 +225,7 @@ app = Flask(__name__)
 def hello():
 
   acc = predictor1.accuracy()
-  data = {
+  data1 = {
     'bag_of_words': acc['bag_of_words'],
     'text_features': acc['text_features'],
     'random_forest': acc['random_forest'],
@@ -222,7 +236,26 @@ def hello():
     'voter(3)': acc['voter(3)'],
     'voter(4)': acc['voter(4)']
   }
-  return jsonify(data)
+
+  acc = predictor2.accuracy()
+  data2 = {
+    'bag_of_words': acc['bag_of_words'],
+    'text_features': acc['text_features'],
+    'random_forest': acc['random_forest'],
+    'ada_boost': acc['ada_boost'],
+    'ensemble': acc['ensemble'],
+    'voter(1)': acc['voter(1)'],
+    'voter(2)': acc['voter(2)'],
+    'voter(3)': acc['voter(3)'],
+    'voter(4)': acc['voter(4)']
+  }
+
+  out = {
+    '1' : data1,
+    '2' : data2
+  }
+
+  return jsonify(out)
 
 @app.route('/predict', methods=["POST", "GET"])
 def predict():
