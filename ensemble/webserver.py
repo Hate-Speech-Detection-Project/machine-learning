@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 from flask import *
 from crawler.article_crawler import ArticleCrawler
-import threading
 from article_features import ArticleFeatures
 
 
@@ -18,41 +17,42 @@ class Predictor:
         # self.train_df = pd.read_csv('../data/1000/train.csv', sep=',')
         self.test_df = pd.read_csv('../data/stratified/test.csv', sep=',')
 
-        # self.bag_of_words_classifier = BagOfWordsClassifier()
-        # self.bag_of_words_classifier.fit(self.train_df)
+        self.bag_of_words_classifier = BagOfWordsClassifier()
+        self.bag_of_words_classifier.fit(self.train_df)
         self.text_features_classifier = TextFeatureClassifier()
         self.text_features_classifier.fit(self.train_df)
+
         self.article_features = ArticleFeatures()
+        ArticleCrawler.create_crawler()
 
     def accuracy(self):
-        # bow_accuracy = self.bag_of_words_classifier.test(self.test_df)
+        bow_accuracy = self.bag_of_words_classifier.test(self.test_df)
         tf_accuracy = self.text_features_classifier.test(self.test_df)
         return {
-            # 'bag_of_words': np.asscalar(bow_accuracy),
+            'bag_of_words': np.asscalar(bow_accuracy),
             'text_features': np.asscalar(tf_accuracy)
         }
 
     def predict(self, comment,timestamp):
-        # bow = self.bag_of_words_classifier.predict_with_info(comment)
+        bow = self.bag_of_words_classifier.predict_with_info(comment)
         tf = self.text_features_classifier.predict(comment,timestamp)
 
         return {
             'comment': comment,
-            # 'bag_of_words': bow["predicted"][0],
-            # 'hate_words': bow["hate_words"],
+            'bag_of_words': bow["predicted"][0],
+            'hate_words': bow["hate_words"],
             'text_features': tf.tolist()
         }
 
     def clean_comment(self,comment,url):
-
         ArticleCrawler.start_crawler(url)
         article = ArticleCrawler.crawled_article
         if article is None or article.get_body() is None:
             print("Could not get article for comment. Continues without a change.")
             return comment
-        comment = self.article_features.remove_words_of_comment_by_given_text(comment, article.get_body())
-        print(comment)
 
+        comment = self.article_features.remove_words_of_comment_by_given_text(comment, article.get_body())
+        return comment
 
 
 
@@ -84,10 +84,7 @@ def predict():
         comment = json_dict['comment']
 
         if 'url' in json_dict:
-            t1 = threading.Thread(target=predictor.clean_comment, args=(comment, json_dict['url']))
-            t1.start()
-            t1.join()
-            # comment = predictor.clean_comment(comment,)
+            comment = predictor.clean_comment(comment,json_dict['url'])
 
         if 'created' in json_dict:
             timestamp = int(json_dict['created'])
