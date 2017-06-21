@@ -45,22 +45,41 @@ class BagOfWordsClassifier:
     self.calibrated = CalibratedClassifierCV(self.clf, cv=2, method='isotonic')
     self.calibrated.fit(X_train_tfidf, y_train)
 
+  def fitFeatureArray(self, x, y):
+    # Training a classifier
+    from sklearn.naive_bayes import MultinomialNB
+    self.clf = MultinomialNB().fit(x, y)
+
+    self.calibrated = CalibratedClassifierCV(self.clf, cv=2, method='isotonic')
+    self.calibrated.fit(x, y)
+
   def test(self, test_df):
 
     if self.testResult == None:
-         # Get test data
-        X_test = test_df['comment']
-        y_test = test_df['hate']
+       # Get test data
+      X_test = test_df['comment']
+      y_test = test_df['hate']
 
-        X_new_counts = self.count_vect.transform(X_test)
-        X_new_tfidf = self.tfidf_transformer.transform(X_new_counts)
-        predicted = self.clf.predict(X_new_tfidf)
+      X_new_counts = self.count_vect.transform(X_test)
+      X_new_tfidf = self.tfidf_transformer.transform(X_new_counts)
+      predicted = self.clf.predict(X_new_tfidf)
 
-        # acc = np.mean(predicted == y_test)
-        prob_pos_isotonic = self.calibrated.predict_proba(X_new_tfidf)[:, 1]
+      # acc = np.mean(predicted == y_test)
+      prob_pos_isotonic = self.calibrated.predict_proba(X_new_tfidf)[:, 1]
 
-        confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y_test))
-        self.testResult = (confusionMatrix, predicted, prob_pos_isotonic)
+      confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y_test))
+      self.testResult = (confusionMatrix, predicted, prob_pos_isotonic)
+
+    return self.testResult
+
+  def testFeatureArray(self, x, y):
+    if self.testResult == None:
+      predicted = self.clf.predict(x)
+
+      prob_pos_isotonic = self.calibrated.predict_proba(x)[:, 1]
+
+      confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y))
+      self.testResult = (confusionMatrix, predicted, prob_pos_isotonic)
 
     return self.testResult
 

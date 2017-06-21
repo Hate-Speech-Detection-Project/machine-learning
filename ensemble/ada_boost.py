@@ -14,16 +14,6 @@ class AdaBoost:
         self.calibrated = None
         self.testResult = None
 
-    def fit(self, train_df):
-        trainingFeatures = self.preprocessor.trainFeatureMatrix(train_df);
-        self.model = AdaBoostClassifier(n_estimators=100)
-        self.model.fit(trainingFeatures, train_df['hate'])
-
-        self.calibrated = CalibratedClassifierCV(self.model, cv=2, method='isotonic')
-        self.calibrated.fit(trainingFeatures, train_df['hate'])
-
-        print("done")
-
     def fitFeatureArray(self, x, y):
         clf = AdaBoostClassifier(n_estimators=100)
         self.model = clf.fit(x, y)
@@ -32,29 +22,17 @@ class AdaBoost:
         self.calibrated.fit(x, y)
         print("done")
 
-    def test(self, test_df):
-
+    def testFeatureArray(self, x, y):
         if(self.testResult == None):
-            test_data_features = self.preprocessor.createFeatureMatrix(test_df)
-            test_data_features = test_data_features.toarray()
-
             # Use the random forest to make sentiment label predictions
-            result = self.model.predict(test_data_features)
+            result = self.model.predict(x)
 
-            prob_pos_isotonic = self.calibrated.predict_proba(test_data_features)[:, 1]
+            prob_pos_isotonic = self.calibrated.predict_proba(x)[:, 1]
 
-            confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(test_df["hate"]))
+            confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(y))
 
             self.testResult = (confusionMatrix, result, prob_pos_isotonic)
         return self.testResult
-
-    def testFeatuerMatrix(self, features, result):
-        # Use the random forest to make sentiment label predictions
-        predicted = self.model.predict(features)
-
-        confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(result))
-
-        return (confusionMatrix, predicted)
 
     def predict(self, comment):
         df = pd.Series([comment])
