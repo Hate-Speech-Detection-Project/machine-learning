@@ -3,7 +3,6 @@ from textblob_de import PatternParser
 from textblob_de import PatternTagger
 import numpy as np
 from sklearn.svm import SVR
-from article_features import ArticleFeatures
 import datetime
 from textblob_de import TextBlobDE as TextBlob
 from textblob_de import PatternParser
@@ -11,7 +10,6 @@ from textblob_de import PatternParser
 
 class TextFeatureGenerator:
     def __init__(self):
-        self.article_features = ArticleFeatures()
         self.train_df = None
 
     def calculate_features_with_dataframe(self, df):
@@ -24,11 +22,11 @@ class TextFeatureGenerator:
         num_of_distinct_words = df['comment'].apply(lambda x: len(set(x.split())))
         num_questions = df['comment'].apply(lambda x: x.count('?'))
         num_exclamation = df['comment'].apply(lambda x: x.count('!'))
-        num_adjectives = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x, ['JJ', 'JJS', 'JJR']))
-        num_determiner = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x, ['DT']))
-        num_personal_pronouns = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x, ['PRP']))
-        num_adverbs = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x, ['RB', 'RBS']))
-        num_interjections = tagged_comments.apply(lambda x: TextFeatureClassifier._getCountOfWordsByTaggedList(x, ['UH']))
+        num_adjectives = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['JJ', 'JJS', 'JJR']))
+        num_determiner = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['DT']))
+        num_personal_pronouns = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['PRP']))
+        num_adverbs = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['RB', 'RBS']))
+        num_interjections = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['UH']))
 
         # TODO calculates the sentiment values for each comment, nevertheless it is not worth the effort
         # sentiment_analysis = df['comment'].apply(lambda x: (TextBlob(x, parser=PatternParser(pprint=True, lemmata=True))).sentiment[0])
@@ -46,11 +44,11 @@ class TextFeatureGenerator:
         num_of_words = len(comment.split())
         num_questions = (comment.count('?'))
         num_exclamation = (comment.count('!'))
-        num_adjectives = TextFeatureClassifier._getCountOfWordsByTaggedList(tagged_comment, ['JJ', 'JJS', 'JJR'])
-        num_superlatives = TextFeatureClassifier._getCountOfWordsByTaggedList(tagged_comment, ['DT'])
-        num_personal_pronouns = TextFeatureClassifier._getCountOfWordsByTaggedList(tagged_comment, ['PRP'])
-        num_interjections = TextFeatureClassifier._getCountOfWordsByTaggedList(tagged_comment, ['UH'])
-        num_adverbs = TextFeatureClassifier._getCountOfWordsByTaggedList(tagged_comment, ['RB', 'RBS'])
+        num_adjectives = TextFeatureGenerator._getCountOfWordsByTaggedList(tagged_comment, ['JJ', 'JJS', 'JJR'])
+        num_superlatives = TextFeatureGenerator._getCountOfWordsByTaggedList(tagged_comment, ['DT'])
+        num_personal_pronouns = TextFeatureGenerator._getCountOfWordsByTaggedList(tagged_comment, ['PRP'])
+        num_interjections = TextFeatureGenerator._getCountOfWordsByTaggedList(tagged_comment, ['UH'])
+        num_adverbs = TextFeatureGenerator._getCountOfWordsByTaggedList(tagged_comment, ['RB', 'RBS'])
         features = np.vstack((total_length, num_questions, num_exclamation, num_of_words,
                               date.hour, num_adjectives, num_superlatives, num_personal_pronouns,num_adverbs,num_interjections)).T
         return features
