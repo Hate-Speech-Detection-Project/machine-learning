@@ -28,15 +28,51 @@ def hello():
   data = {
     'Random Forest': predictor.getClassifierStatistics("RandomForest")[0].toString(),
     'Ada Boost': predictor.getClassifierStatistics("AdaBoost")[0].toString(),
-    'SVM': predictor.getClassifierStatistics("SVM")[0].toString()
+    'Naive Bayes': predictor.getClassifierStatistics("Naive Bayes")[0].toString()
   }
   return jsonify(data)
 
 @app.route('/correlation')
 def correlation():
-  dataRows = [predictor.bow_result[2],
-              predictor.rf_result[2],
-              predictor.ab_result[2],
-              predictor.bow_result[2]]
+  dataRows = [predictor.getClassifierStatistics("RandomForest")[2],
+              predictor.getClassifierStatistics("AdaBoost")[2],
+              predictor.getClassifierStatistics("Naive Bayes")[2]]
   correlationMatrix = CorrelationMatrix(dataRows)
-  return jasonify(correlationMatrix.get())
+  return jsonify(correlationMatrix.get())
+
+@app.route('/plot')
+def plot():
+
+    img = io.BytesIO()
+
+    fig = plt.figure(figsize=(15, 15))
+    ax = fig.add_subplot(111, projection='3d')
+
+    for index,observation in enumerate(predictor.getClassifierStatistics("RandomForest")[2]):
+      ax.scatter( predictor.getClassifierStatistics("AdaBoost")[2][index], 
+                  predictor.getClassifierStatistics("Naive Bayes")[2][index], 
+                  predictor.getClassifierStatistics("RandomForest")[2][index], 
+                  alpha=np.mean((predictor.getClassifierStatistics("AdaBoost")[2][index], predictor.getClassifierStatistics("Naive Bayes")[2][index], predictor.getClassifierStatistics("RandomForest")[2][index]))/2,
+                  s=30)
+      ax.scatter( predictor.getClassifierStatistics("AdaBoost")[2][index], 
+                  predictor.getClassifierStatistics("Naive Bayes")[2][index], 
+                  predictor.getClassifierStatistics("RandomForest")[2][index], 
+                  s = 1000,
+                  alpha=np.mean((predictor.getClassifierStatistics("AdaBoost")[2][index], predictor.getClassifierStatistics("Naive Bayes")[2][index], predictor.getClassifierStatistics("RandomForest")[2][index])),
+                  marker=r"$ {} $".format(testDf['cid'][index]))
+
+    
+
+    ax.set_xlabel('Random Forest')
+    ax.set_ylabel('Ada Boost')
+    ax.set_zlabel('Naive Bayes')
+
+    # ax.view_init(30, angle)
+    # angle += 10
+
+    # plt.plot(predictor.rf_result[2], predictor.ab_result[2], 'ro')
+    plt.savefig(img, format='png')
+
+    img.seek(0)
+
+    return send_file(img, mimetype='image/png')

@@ -46,7 +46,7 @@ class EnsembleClassifier:
 	def initClassifiers(self):
 		self.__addClassifier("RandomForest", RandomForestBOWClassifier(self.preprocessor))
 		self.__addClassifier("AdaBoost", AdaBoost(self.preprocessor))
-		self.__addClassifier("SVM", BagOfWordsClassifier())
+		self.__addClassifier("Naive Bayes", BagOfWordsClassifier())
 
 	def fitClassifiers(self, trainDf, groundTruth):
 		self.__generateTrainingFeatures(trainDf)

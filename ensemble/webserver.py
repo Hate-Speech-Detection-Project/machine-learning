@@ -200,7 +200,7 @@ def correlation():
               predictor.ab_result[2],
               predictor.bow_result[2]]
   correlationMatrix = CorrelationMatrix(dataRows)
-  return jasonify(correlationMatrix.get())
+  return jsonify(correlationMatrix.get())
 
 
 @app.route('/plot')
