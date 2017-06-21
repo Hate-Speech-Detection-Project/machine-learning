@@ -17,8 +17,6 @@ class TextFeatureClassifier:
     def calculate_features_with_dataframe(self, df):
         tagged_comments = df['comment'].apply(lambda x: TextBlob(x).tags)
 
-        for tag in tagged_comments:
-            print(tag)
         df["created"] = df["created"].astype("datetime64[ns]")
         hour = df.created.dt.hour
         total_length = df['comment'].apply(lambda x: len(x))
@@ -41,16 +39,18 @@ class TextFeatureClassifier:
         return features
 
     def calculate_features(self, comment, timestamp):
+        tagged_comment = TextBlob(comment).tags
+
         date = datetime.datetime.fromtimestamp(timestamp)
         total_length = len(comment)
         num_of_words = len(comment.split())
         num_questions = (comment.count('?'))
         num_exclamation = (comment.count('!'))
-        num_adjectives = TextFeatureClassifier._getCountOfWordsByTaggedList(comment, ['JJ', 'JJS', 'JJR'])
-        num_superlatives = TextFeatureClassifier._getCountOfWordsByTaggedList(comment, ['DT'])
-        num_personal_pronouns = TextFeatureClassifier._getCountOfWordsByTaggedList(comment, ['PRP'])
-        num_interjections = TextFeatureClassifier._getCountOfWordsByTaggedList(comment, ['UH'])
-        num_adverbs = TextFeatureClassifier._getCountOfWordsByTaggedList(comment, ['RB', 'RBS'])
+        num_adjectives = TextFeatureClassifier._getCountOfWordsByTaggedList(tagged_comment, ['JJ', 'JJS', 'JJR'])
+        num_superlatives = TextFeatureClassifier._getCountOfWordsByTaggedList(tagged_comment, ['DT'])
+        num_personal_pronouns = TextFeatureClassifier._getCountOfWordsByTaggedList(tagged_comment, ['PRP'])
+        num_interjections = TextFeatureClassifier._getCountOfWordsByTaggedList(tagged_comment, ['UH'])
+        num_adverbs = TextFeatureClassifier._getCountOfWordsByTaggedList(tagged_comment, ['RB', 'RBS'])
         features = np.vstack((total_length, num_questions, num_exclamation, num_of_words,
                               date.hour, num_adjectives, num_superlatives, num_personal_pronouns,num_adverbs,num_interjections)).T
         return features
