@@ -52,7 +52,7 @@ class RandomForestBOWClassifier:
             confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(test_df["hate"]))
             self.testResult = (confusionMatrix, result, prob_pos_isotonic)
 
-        result self.testResult
+        return self.testResult
 
     def predict(self, comment):
         df = pd.Series([comment])
