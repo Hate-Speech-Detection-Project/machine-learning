@@ -1,5 +1,4 @@
 from bag_of_words import BagOfWordsClassifier
-from text_features import TextFeatureClassifier
 from random_forest import RandomForestBOWClassifier
 from vote import Vote
 from ada_boost import AdaBoost
@@ -17,10 +16,10 @@ class EnsembleClassifier:
 		self.scheduler = Scheduler()
 		self.classifiers = {}
 
-		self.trainingFeatureMatrix = None
-		self.trainingGroundTruth = None
-		self.testFeatureMatrix = None
-		self.testGroundTruth = None
+		self.trainingFeatureMatrix = {}
+		self.trainingGroundTruth = {}
+		self.testFeatureMatrix = {}
+		self.testGroundTruth = {}
 
 	def __addClassifier(self, name, classifier):
 		self.classifiers[name] = classifier
@@ -36,12 +35,12 @@ class EnsembleClassifier:
 		self.scheduler.joinAll();		
 
 	def __generateTrainingFeatures(self, trainingDf):
-		if self.trainingFeatureMatrix == None:
-			self.trainingFeatureMatrix = self.preprocessor.trainFeatureMatrix(trainingDf)
+		if not 'BOW' in self.trainingFeatureMatrix.keys():
+			self.trainingFeatureMatrix['BOW'] = self.preprocessor.trainFeatureMatrix(trainingDf)
 
 	def __generateTestFeatures(self, testDf):
-		if self.testFeatureMatrix == None:
-			self.testFeatureMatrix = self.preprocessor.createFeatureMatrix(testDf)
+		if not 'BOW' in self.testFeatureMatrix.keys():
+			self.testFeatureMatrix['BOW'] = self.preprocessor.createFeatureMatrix(testDf)
 
 	def initClassifiers(self):
 		self.__addClassifier("RandomForest", RandomForestBOWClassifier(self.preprocessor))
@@ -50,13 +49,13 @@ class EnsembleClassifier:
 
 	def fitClassifiers(self, trainDf, groundTruth):
 		self.__generateTrainingFeatures(trainDf)
-		self.trainingGroundTruth = groundTruth
-		self.__fitClassifiers(self.trainingFeatureMatrix, self.trainingGroundTruth)
+		self.trainingGroundTruth['BOW'] = groundTruth
+		self.__fitClassifiers(self.trainingFeatureMatrix['BOW'], self.trainingGroundTruth['BOW'])
 
 	def testClassifiers(self, testDf, groundTruth):
 		self.__generateTestFeatures(testDf)
-		self.testGroundTruth = groundTruth
-		self.__testClassifiers(self.testFeatureMatrix, self.testGroundTruth)
+		self.testGroundTruth['BOW'] = groundTruth
+		self.__testClassifiers(self.testFeatureMatrix['BOW'], self.testGroundTruth['BOW'])
 
 	def getClassifierStatistics(self, classifierName):
 		return self.classifiers[classifierName].testFeatureArray(None, None)
