@@ -69,7 +69,6 @@ class Predictor:
     self.rf_result = self.random_forest_classifier.test(self.test_df)
     self.ab_result = self.ada_boost_classifier.test(self.test_df)
 
-    # these names are totally misleading... change them
     bow_ensemble_test = self.bag_of_words_classifier.test(self.test_ensemble_df)
     tf_ensemble_test = self.text_features_classifier.test(self.test_ensemble_df)
     rf_ensemble_test = self.random_forest_classifier.test(self.test_ensemble_df)
