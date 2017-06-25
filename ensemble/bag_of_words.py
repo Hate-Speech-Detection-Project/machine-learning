@@ -73,6 +73,7 @@ class BagOfWordsClassifier:
     return self.testResult
 
   def testFeatureMatrix(self, x, y):
+
     if self.testResult == None:
       predicted = self.clf.predict(x)
 

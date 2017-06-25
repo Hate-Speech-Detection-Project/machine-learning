@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use("Qt4Agg")
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
@@ -15,12 +17,12 @@ testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_small/test1.cs
 
 
 predictor = EnsembleClassifier()
-predictor.initClassifiers(trainDf, testDf)
+predictor.initClassifiers(trainDf, testDf, 'hate')
 print('Learning models...')
-predictor.fitClassifiers(trainDf, trainDf['hate'])
+predictor.fitClassifiers()
 print('Done learning models...')
 print('Testing models...')
-predictor.testClassifiers(testDf, testDf['hate'])
+predictor.testClassifiers()
 print('Done Testing models...')
 
 app = Flask(__name__)
@@ -28,9 +30,16 @@ app = Flask(__name__)
 @app.route('/')
 def hello():
   data = {
-    'Random Forest': predictor.getClassifierStatistics('BOW', 'RandomForest')[0].toString(),
-    'Ada Boost': predictor.getClassifierStatistics('BOW', 'AdaBoost')[0].toString(),
-    'Naive Bayes': predictor.getClassifierStatistics('BOW', 'Naive Bayes')[0].toString()
+    'BOW' : {
+      'Random Forest': predictor.getClassifierStatistics('BOW', 'RandomForest')[0].toString(),
+      'Ada Boost': predictor.getClassifierStatistics('BOW', 'AdaBoost')[0].toString(),
+      'Naive Bayes': predictor.getClassifierStatistics('BOW', 'Naive Bayes')[0].toString()
+    },
+    'Textfeatures' : {
+      'Random Forest': predictor.getClassifierStatistics('TextFeatures', 'RandomForest')[0].toString(),
+      'Ada Boost': predictor.getClassifierStatistics('TextFeatures', 'AdaBoost')[0].toString(),
+      'Naive Bayes': predictor.getClassifierStatistics('TextFeatures', 'Naive Bayes')[0].toString()
+    }
   }
   return jsonify(data)
 
@@ -54,13 +63,13 @@ def plot():
       ax.scatter( predictor.getClassifierStatistics('BOW', 'AdaBoost')[2][index], 
                   predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2][index], 
                   predictor.getClassifierStatistics('BOW', 'RandomForest')[2][index], 
-                  alpha=np.mean((predictor.getClassifierStatistics('AdaBoost')[2][index], predictor.getClassifierStatistics('Naive Bayes')[2][index], predictor.getClassifierStatistics('RandomForest')[2][index]))/2,
+                  alpha=np.mean((predictor.getClassifierStatistics('BOW','AdaBoost')[2][index], predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2][index], predictor.getClassifierStatistics('BOW', 'RandomForest')[2][index]))/2,
                   s=30)
       ax.scatter( predictor.getClassifierStatistics('BOW', 'AdaBoost')[2][index], 
                   predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2][index], 
                   predictor.getClassifierStatistics('BOW', 'RandomForest')[2][index], 
                   s = 1000,
-                  alpha=np.mean((predictor.getClassifierStatistics('BOW', 'AdaBoost')[2][index], predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2][index], predictor.getClassifierStatistics('RandomForest')[2][index])),
+                  alpha=np.mean((predictor.getClassifierStatistics('BOW', 'AdaBoost')[2][index], predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2][index], predictor.getClassifierStatistics('BOW', 'RandomForest')[2][index])),
                   marker=r'$ {} $'.format(testDf['cid'][index]))
 
     

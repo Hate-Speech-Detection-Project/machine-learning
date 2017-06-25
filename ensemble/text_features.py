@@ -34,6 +34,7 @@ class TextFeatureGenerator:
         features = np.vstack(
             (total_length, num_questions, num_exclamation, num_of_words, hour,
              num_of_distinct_words, num_adjectives, num_determiner, num_personal_pronouns, num_adverbs,num_interjections)).T
+
         return features
 
     def calculate_features(self, comment, timestamp):

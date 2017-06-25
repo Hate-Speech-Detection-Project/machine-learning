@@ -5,9 +5,8 @@ from preprocessor import Preprocessor
 from utils import ConfusionMatrix
 
 class RandomForestBOWClassifier:
-    def __init__(self, preprocessor):
+    def __init__(self):
         self.model = None
-        self.preprocessor = preprocessor
         self.calibrated = None
         self.testResult = None
 
@@ -31,8 +30,8 @@ class RandomForestBOWClassifier:
 
         return self.testResult
 
-    def predict(self, comment):
-        df = pd.Series([comment])
-        features = self.preprocessor.createFeatureMatrix(df)
-
-        return self.model.predict(features)
+ #   def predict(self, comment):
+ #       df = pd.Series([comment])
+ #       features = self.preprocessor.createFeatureMatrix(df)
+#
+#        return self.model.predict(features)
