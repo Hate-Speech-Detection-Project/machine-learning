@@ -17,7 +17,7 @@ testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_small/test1.cs
 
 
 predictor = EnsembleClassifier()
-predictor.initClassifiers(trainDf, testDf, 'hate')
+predictor.initClassifiers(trainDf, testDf, testEnsembleDf, 'hate')
 print('Learning models...')
 predictor.fitClassifiers()
 print('Done learning models...')

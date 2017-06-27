@@ -9,8 +9,8 @@ from preprocessor import Preprocessor
 
 class AdaBoost:
     def __init__(self, preprocessor):
-        self.trained = false
-        self.tested = false
+        self.trained = False
+        self.tested = False
         self.model = None
         self.preprocessor = preprocessor
         self.calibrated = None
@@ -23,7 +23,7 @@ class AdaBoost:
 
             self.calibrated = CalibratedClassifierCV(self.model, cv=2, method='isotonic')
             self.calibrated.fit(x, y)
-            self.trained = true
+            self.trained = True
             print("done")
 
     def testFeatureMatrix(self, x, y):
@@ -36,7 +36,7 @@ class AdaBoost:
             confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(y))
 
             self.testResult = (confusionMatrix, result, prob_pos_isotonic)
-            self.tested= true
+            self.tested= True
         return self.testResult
 
     def predict(self, comment):

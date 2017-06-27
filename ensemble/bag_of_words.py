@@ -9,8 +9,8 @@ import re
 
 class BagOfWordsClassifier:
   def __init__(self):
-        self.trained = false
-        self.tested = false
+        self.trained = False
+        self.tested = False
         self.train_df = None
         self.calibrated = None
         self.testResult = None
@@ -47,7 +47,7 @@ class BagOfWordsClassifier:
 
         self.calibrated = CalibratedClassifierCV(self.clf, cv=2, method='isotonic')
         self.calibrated.fit(X_train_tfidf, y_train)
-        self.trained = true
+        self.trained = True
 
   def fitFeatureMatrix(self, x, y):
     if not self.trained:
@@ -57,7 +57,7 @@ class BagOfWordsClassifier:
 
         self.calibrated = CalibratedClassifierCV(self.clf, cv=2, method='isotonic')
         self.calibrated.fit(x, y)
-        self.trained = true
+        self.trained = True
 
   def test(self, test_df):
 
@@ -75,7 +75,7 @@ class BagOfWordsClassifier:
 
       confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y_test))
       self.testResult = (confusionMatrix, predicted, prob_pos_isotonic)
-      self.tested = true
+      self.tested = True
 
     return self.testResult
 
@@ -88,7 +88,7 @@ class BagOfWordsClassifier:
 
       confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y))
       self.testResult = (confusionMatrix, predicted, prob_pos_isotonic)
-      self.tested = true
+      self.tested = True
 
     return self.testResult
 

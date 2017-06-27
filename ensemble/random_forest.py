@@ -6,8 +6,8 @@ from utils import ConfusionMatrix
 
 class RandomForestBOWClassifier:
     def __init__(self):
-        self.trained = false
-        self.tested = false
+        self.trained = False
+        self.tested = False
         self.model = None
         self.calibrated = None
         self.testResult = None
@@ -19,7 +19,7 @@ class RandomForestBOWClassifier:
 
             self.calibrated = CalibratedClassifierCV(self.model, cv=2, method='isotonic')
             self.calibrated.fit(x, y)
-            self.trained = true
+            self.trained = True
 
     def testFeatureMatrix(self, x, y):
         if not self.tested:
@@ -30,7 +30,7 @@ class RandomForestBOWClassifier:
 
             confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(y))
             self.testResult = (confusionMatrix, result, prob_pos_isotonic)
-            self.tested = true
+            self.tested = True
 
         return self.testResult
 
