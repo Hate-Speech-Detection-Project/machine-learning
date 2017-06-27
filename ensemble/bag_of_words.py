@@ -9,53 +9,59 @@ import re
 
 class BagOfWordsClassifier:
   def __init__(self):
+        self.trained = false
+        self.tested = false
         self.train_df = None
         self.calibrated = None
         self.testResult = None
 
   def fit(self, train_df):
-    self.train_df = train_df
-    # Get training data
-    X_train = self.train_df['comment']
-    y_train = self.train_df['hate']
+    if not self.trained:
+        self.train_df = train_df
+        # Get training data
+        X_train = self.train_df['comment']
+        y_train = self.train_df['hate']
 
-    # Tokenize Text
-    from sklearn.feature_extraction.text import CountVectorizer
-    self.count_vect = CountVectorizer()
-    X_train_counts = self.count_vect.fit_transform(X_train)
-    X_train_counts.shape
+        # Tokenize Text
+        from sklearn.feature_extraction.text import CountVectorizer
+        self.count_vect = CountVectorizer()
+        X_train_counts = self.count_vect.fit_transform(X_train)
+        X_train_counts.shape
 
-    # From occurrences to frequencies
-    from sklearn.feature_extraction.text import TfidfTransformer
-    self.tfidf_transformer = TfidfTransformer()
-    X_train_tfidf = self.tfidf_transformer.fit_transform(X_train_counts)
-    X_train_tfidf.shape
+        # From occurrences to frequencies
+        from sklearn.feature_extraction.text import TfidfTransformer
+        self.tfidf_transformer = TfidfTransformer()
+        X_train_tfidf = self.tfidf_transformer.fit_transform(X_train_counts)
+        X_train_tfidf.shape
 
-    # Training a classifier
-    from sklearn.naive_bayes import MultinomialNB
-    self.clf = MultinomialNB().fit(X_train_tfidf, y_train)
-    self.hate_words = self.hate_words()
+        # Training a classifier
+        from sklearn.naive_bayes import MultinomialNB
+        self.clf = MultinomialNB().fit(X_train_tfidf, y_train)
+        self.hate_words = self.hate_words()
 
-  # def fitFeatureMatrix(self, x, y):
-  #     from sklearn.naive_bayes import MultinomialNB
-  #     self.clf = MultinomialNB().fit(x, y)
-  #     self.hate_words = self.hate_words()
-  #     print("done")
+      # def fitFeatureMatrix(self, x, y):
+      #     from sklearn.naive_bayes import MultinomialNB
+      #     self.clf = MultinomialNB().fit(x, y)
+      #     self.hate_words = self.hate_words()
+      #     print("done")
 
-    self.calibrated = CalibratedClassifierCV(self.clf, cv=2, method='isotonic')
-    self.calibrated.fit(X_train_tfidf, y_train)
+        self.calibrated = CalibratedClassifierCV(self.clf, cv=2, method='isotonic')
+        self.calibrated.fit(X_train_tfidf, y_train)
+        self.trained = true
 
   def fitFeatureMatrix(self, x, y):
-    # Training a classifier
-    from sklearn.naive_bayes import MultinomialNB
-    self.clf = MultinomialNB().fit(x, y)
+    if not self.trained:
+        # Training a classifier
+        from sklearn.naive_bayes import MultinomialNB
+        self.clf = MultinomialNB().fit(x, y)
 
-    self.calibrated = CalibratedClassifierCV(self.clf, cv=2, method='isotonic')
-    self.calibrated.fit(x, y)
+        self.calibrated = CalibratedClassifierCV(self.clf, cv=2, method='isotonic')
+        self.calibrated.fit(x, y)
+        self.trained = true
 
   def test(self, test_df):
 
-    if self.testResult == None:
+    if not self.tested:
        # Get test data
       X_test = test_df['comment']
       y_test = test_df['hate']
@@ -69,18 +75,20 @@ class BagOfWordsClassifier:
 
       confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y_test))
       self.testResult = (confusionMatrix, predicted, prob_pos_isotonic)
+      self.tested = true
 
     return self.testResult
 
   def testFeatureMatrix(self, x, y):
 
-    if self.testResult == None:
+    if not self.tested:
       predicted = self.clf.predict(x)
 
       prob_pos_isotonic = self.calibrated.predict_proba(x)[:, 1]
 
       confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y))
       self.testResult = (confusionMatrix, predicted, prob_pos_isotonic)
+      self.tested = true
 
     return self.testResult
 

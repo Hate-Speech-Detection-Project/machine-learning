@@ -9,21 +9,25 @@ from preprocessor import Preprocessor
 
 class AdaBoost:
     def __init__(self, preprocessor):
+        self.trained = false
+        self.tested = false
         self.model = None
         self.preprocessor = preprocessor
         self.calibrated = None
         self.testResult = None
 
     def fitFeatureMatrix(self, x, y):
-        clf = AdaBoostClassifier(n_estimators=100)
-        self.model = clf.fit(x, y)
+        if not self.trained:
+            clf = AdaBoostClassifier(n_estimators=100)
+            self.model = clf.fit(x, y)
 
-        self.calibrated = CalibratedClassifierCV(self.model, cv=2, method='isotonic')
-        self.calibrated.fit(x, y)
-        print("done")
+            self.calibrated = CalibratedClassifierCV(self.model, cv=2, method='isotonic')
+            self.calibrated.fit(x, y)
+            self.trained = true
+            print("done")
 
     def testFeatureMatrix(self, x, y):
-        if(self.testResult == None):
+        if not self.tested:
             # Use the random forest to make sentiment label predictions
             result = self.model.predict(x)
 
@@ -32,6 +36,7 @@ class AdaBoost:
             confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(y))
 
             self.testResult = (confusionMatrix, result, prob_pos_isotonic)
+            self.tested= true
         return self.testResult
 
     def predict(self, comment):
