@@ -69,6 +69,7 @@ class EnsembleClassifier:
 		self.scheduler.schedule(function = classifier.testFeatureMatrix, 
 						args = (self.testFeatureMatrix[featureSet], 
 								self.testGroundTruth))
+		self.scheduler.joinAll()
 
 	def __testClassifiers(self):
 		for featureSet in self.featureSets:
@@ -115,17 +116,17 @@ class EnsembleClassifier:
 		self.__addClassifier("Naive Bayes", BagOfWordsClassifier())
 		self.__updateClassifiers()
 
-	def initEnsembleClassifier(self, ensembleTestDF):
-	    ensemble_training_data = np.matrix((getClassifierStatistics('BOW', 'RandomForest')[2],
-                                    getClassifierStatistics('BOW', 'AdaBoost')[2],
-                                    getClassifierStatistics('BOW', 'Naive Bayes')[2])).getT()
-	    ensemble_test_data = np.matrix((getClassifierStatistics('BOW Ensemble Test', 'RandomForest')[2],
-                                    getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2],
-                                    getClassifierStatistics('BOW Ensemble Test', 'Naive Bayes')[2])).getT()
+	def initEnsembleClassifier(self):
+	    ensemble_training_data = np.matrix((self.getClassifierStatistics('BOW', 'RandomForest')[2],
+		                                    self.getClassifierStatistics('BOW', 'AdaBoost')[2],
+		                                    self.getClassifierStatistics('BOW', 'Naive Bayes')[2])).getT()
+	    ensemble_test_data = np.matrix((self.getClassifierStatistics('BOW Ensemble Test', 'RandomForest')[2],
+	                                    self.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2],
+	                                    self.getClassifierStatistics('BOW Ensemble Test', 'Naive Bayes')[2])).getT()
 	    self.__addFeatureSet("BOW Ensemble", identity, identity, ensemble_training_data, ensemble_test_data)
 	    self.__updateClassifiers()
-	    fitClassifiers()
-	    testClassifiers()
+	    self.fitClassifiers()
+	    self.testClassifiers()
 
 	def fitClassifiers(self):
 		self.__generateTrainingFeatures()

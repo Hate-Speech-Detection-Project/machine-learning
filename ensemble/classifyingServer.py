@@ -24,6 +24,7 @@ print('Done learning models...')
 print('Testing models...')
 predictor.testClassifiers()
 print('Done Testing models...')
+predictor.initEnsembleClassifier()
 
 app = Flask(__name__)
 
@@ -33,7 +34,8 @@ def hello():
     'BOW' : {
       'Random Forest': predictor.getClassifierStatistics('BOW', 'RandomForest')[0].toString(),
       'Ada Boost': predictor.getClassifierStatistics('BOW', 'AdaBoost')[0].toString(),
-      'Naive Bayes': predictor.getClassifierStatistics('BOW', 'Naive Bayes')[0].toString()
+      'Naive Bayes': predictor.getClassifierStatistics('BOW', 'Naive Bayes')[0].toString(),
+      'Ensemble': predictor.getClassifierStatistics('BOW Ensemble', 'AdaBoost')[0].toString()
     },
     'Textfeatures' : {
       'Random Forest': predictor.getClassifierStatistics('TextFeatures', 'RandomForest')[0].toString(),
