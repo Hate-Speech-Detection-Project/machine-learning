@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 from utils import CorrelationMatrix
 from text_features import TextFeatureGenerator
+from user_features import UserFeatureGenerator
 import copy
 
 def identity(param):
@@ -19,6 +20,7 @@ class EnsembleClassifier:
 		self.threads = []
 		self.preprocessor = Preprocessor()
 		self.textFeatureGenerator = TextFeatureGenerator()
+		self.userFeatureGenerator = UserFeatureGenerator()
 
 		self.scheduler = Scheduler()
 		self.classifiers = {}
@@ -67,10 +69,7 @@ class EnsembleClassifier:
 		for featureSet in self.featureSets:
 			for key, classifier in self.classifiers[featureSet].items():
 				# Workaround, because the scikit random forest implementation is not thread-safe
-				if key is 'RandomForest':
-					self.__fitClassifier(featureSet, classifier, 'single')
-				else:
-					self.__fitClassifier(featureSet, classifier)
+				self.__fitClassifier(featureSet, classifier, 'single')
 		self.scheduler.joinAll()
 
 	def __testClassifier(self, featureSet, classifier):
@@ -124,6 +123,7 @@ class EnsembleClassifier:
 		self.__addFeatureSet('BOW', self.preprocessor.trainFeatureMatrix, self.preprocessor.createFeatureMatrix)
 		self.__addFeatureSet('BOW Ensemble Test', self.preprocessor.trainFeatureMatrix, self.preprocessor.createFeatureMatrix, ensembleTestDF)
 		self.__addFeatureSet('TextFeatures', self.textFeatureGenerator.calculate_features_with_dataframe, self.textFeatureGenerator.calculate_features_with_dataframe)
+		self.__addFeatureSet('UserFeatures', self.userFeatureGenerator.calculate_features_with_dataframe, self.userFeatureGenerator.calculate_features_with_dataframe)
 		self.__addFeatureSet('TextFeatures Ensemble Test', self.textFeatureGenerator.calculate_features_with_dataframe, self.textFeatureGenerator.calculate_features_with_dataframe, ensembleTestDF)
 
 		self.__addClassifier("RandomForest", RandomForestBOWClassifier())

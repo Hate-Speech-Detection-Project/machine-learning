@@ -4,7 +4,26 @@ import sys
 import numpy as np
 
 
-class UserFeatures:
+class UserFeatureGenerator:
+    def calculate_features_with_dataframe(self, df):
+        time_since_last_comment_by_user = []
+        time_since_last_hate_comment_by_user = []
+        number_of_comments_by_user = []
+        number_of_hate_comments_by_user = []
+        share_of_hate_comments_by_user = []
+
+        for index, comment in df.iterrows():
+            time_since_last_comment_by_user.append(self.time_since_last_comment_by_user(comment['uid']))
+            time_since_last_hate_comment_by_user.append(self.time_since_last_hate_comment_by_user(comment['uid']))
+            number_of_comments_by_user.append(self.number_of_comments_by_user(comment['uid']))
+            number_of_hate_comments_by_user.append(self.number_of_hate_comments_by_user(comment['uid']))
+            share_of_hate_comments_by_user.append(self.share_of_hate_comments_by_user(comment['uid']))
+
+        features = np.vstack(
+            (comment['cid'], time_since_last_comment_by_user, time_since_last_hate_comment_by_user, number_of_comments_by_user, number_of_hate_comments_by_user, share_of_hate_comments_by_user,)).T
+
+        return features
+
     def __init__(self):
         try:
             self.conn = psycopg2.connect("dbname='hatespeech' user='postgres' host='localhost' password='admin'")
@@ -16,9 +35,7 @@ class UserFeatures:
     def time_since_last_comment_by_user(self, uid):
         cur = self.conn.cursor()
 
-        query = """ SELECT MAX(created) " +
-                "FROM comments " +
-                "WHERE uid = %s AND hate = 't' """
+        query = """ SELECT MAX(created) FROM comments WHERE uid = %s AND hate = 't' """
         cur.execute(query, [uid])
 
         result = cur.fetchone()
@@ -82,7 +99,7 @@ class UserFeatures:
 
 
     def share_of_hate_comments_by_user(self, uid):
-        return get_number_of_hate_comments_by_uid(self, uid) / get_number_of_comments_by_uid(self, uid)
+        return self.number_of_hate_comments_by_user(uid) / self.number_of_comments_by_user(uid)
 
 
     def number_of_comments_by_user_on_ressort(self, uid, ressort):
@@ -120,7 +137,7 @@ class UserFeatures:
 
 
     def share_of_hate_comments_by_user_on_ressort(self, uid, ressort):
-        return get_number_of_hate_comments_by_uid_on_ressort(self, uid, ressort) / get_number_of_comments_by_uid_on_ressort(self, uid, ressort)
+        return self.number_of_hate_comments_by_user_on_ressort(uid, ressort) / self.number_of_comments_by_user_on_ressort(uid, ressort)
 
 
     def number_of_comments_by_user_since_time(self, uid, time):
@@ -158,4 +175,4 @@ class UserFeatures:
 
 
     def share_of_hate_comments_by_user_since_time(self, uid, time):
-        return get_number_of_hate_comments_by_uid_since_time(self, uid, time) / get_number_of_comments_by_uid_since_time(self, uid, time)
+        return self.number_of_hate_comments_by_user_since_time(uid, time) / self.number_of_comments_by_user_since_time(uid, time)

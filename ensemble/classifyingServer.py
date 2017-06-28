@@ -1,5 +1,6 @@
-import matplotlib
-matplotlib.use("Qt4Agg")
+#in case you get problems with some qt4 / qt5 pyqtobject stuff
+#import matplotlib
+#matplotlib.use("Qt4Agg")
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
@@ -56,6 +57,10 @@ def correlation():
               predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2]]
   correlationMatrix = CorrelationMatrix(dataRows)
   return jsonify(correlationMatrix.get())
+
+@app.route('/single/<cid>')
+def single(cid):
+	return testDf[testDf['cid'] == cid]
 
 @app.route('/plot')
 def plot():
