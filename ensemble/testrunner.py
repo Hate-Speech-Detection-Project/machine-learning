@@ -1,6 +1,8 @@
 from bag_of_words import BagOfWordsClassifier
 from text_features import TextFeatureClassifier
 from word2vec import Word2VecClassifier
+from word2vec_adding import Word2VecAddingClassifier
+from word2vec_deep_inverse_regression import Word2VecDeepInverseRegressionClassifier
 import pandas as pd
 pd.set_option('display.expand_frame_repr', False)
 pd.set_option('display.width', 1000)
@@ -31,10 +33,14 @@ class Predictor:
   def result(self):
     # bow_result = self.bag_of_words_classifier.predict(self.test_df)
     # tf_result = np.round(self.text_features_classifier.test(self.test_df))
+    print(self.word2vec_classifier.test(self.test_df))
     word2vec_result = np.round(self.word2vec_classifier.test(self.test_df))
 
     y_str = self.test_df['hate']
-    y_int = (self.test_df['hate'].astype(float))
+    try:
+        y_int = ((self.test_df['hate'] == 'True').astype(float))
+    except:
+        y_int = ((self.test_df['hate']).astype(float))
 
     table = BeautifulTable(max_width=min(150, int(terminal_columns)))
     table.column_headers = ["Classifier", "Accuracy", "Prec.", "Recall", "TP (True Hate)", "FP (Wrong Alarm)", "FN (Missed Hate)", "TN (Correctly discarded)"]
