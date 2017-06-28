@@ -91,9 +91,6 @@ class Word2VecAddingClassifier:
         vectors = list(map(self.comment_to_vectors, data))
         # print(vectors)
 
-        features = np.vstack((
-          vectors, 
-        )).T
         return vectors
 
     def fit(self, train_df):
@@ -105,16 +102,15 @@ class Word2VecAddingClassifier:
         self.model = self.svr.fit(self.X, self.y)
 
     def test(self, test_df):
-        print("="*20)
         X = self.calculate_features_with_dataframe(test_df)
         y = test_df['hate']
         if isinstance(y.iloc[0], str):
             y = y == 'True'
-        predicted = self.model.predict(X)
+        predicted = self.model.predict(X) + 0.3
         return predicted
 
     def predict(self, comment):
         X_test = self.calculate_features_with_dataframe(pd.Series([comment], index=['comment'])).iloc[0]
 
-        predicted = self.model.predict(X_test)
+        predicted = self.model.predict(X_test) + 0.3
         return predicted
