@@ -13,7 +13,7 @@ import base64
 
 trainDf = pd.read_csv('../../data/datasets/stratified_dual_small/train.csv', sep=',')
 testDf = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
-testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
+testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_small/test2.csv', sep=',')
 
 
 predictor = EnsembleClassifier()
@@ -34,13 +34,17 @@ def hello():
     'BOW' : {
       'Random Forest': predictor.getClassifierStatistics('BOW', 'RandomForest')[0].toString(),
       'Ada Boost': predictor.getClassifierStatistics('BOW', 'AdaBoost')[0].toString(),
-      'Naive Bayes': predictor.getClassifierStatistics('BOW', 'Naive Bayes')[0].toString(),
-      'Ensemble': predictor.getClassifierStatistics('BOW Ensemble', 'AdaBoost')[0].toString()
+      'Naive Bayes': predictor.getClassifierStatistics('BOW', 'Naive Bayes')[0].toString()
     },
     'Textfeatures' : {
       'Random Forest': predictor.getClassifierStatistics('TextFeatures', 'RandomForest')[0].toString(),
       'Ada Boost': predictor.getClassifierStatistics('TextFeatures', 'AdaBoost')[0].toString(),
       'Naive Bayes': predictor.getClassifierStatistics('TextFeatures', 'Naive Bayes')[0].toString()
+    },
+    'Ensemble' : {
+      'Random Forest': predictor.getClassifierStatistics('Ensemble', 'RandomForest')[0].toString(),
+      'Ada Boost': predictor.getClassifierStatistics('Ensemble', 'AdaBoost')[0].toString(),
+      'Naive Bayes': predictor.getClassifierStatistics('Ensemble', 'Naive Bayes')[0].toString()
     }
   }
   return jsonify(data)
