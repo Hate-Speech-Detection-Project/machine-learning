@@ -54,15 +54,23 @@ class EnsembleClassifier:
 				if key not in self.classifiers[featureSet]:
 					self.classifiers[featureSet][key] = copy.deepcopy(classifier)
 
-	def __fitClassifier(self, featureSet, classifier):
-		self.scheduler.schedule(function = classifier.fitFeatureMatrix, 
-						args = (self.trainingFeatureMatrix[featureSet], 
-								self.trainingGroundTruth))
+	def __fitClassifier(self, featureSet, classifier, mode='parallel'):
+		# Workaround, because the scikit random forest implementation is not thread-safe
+		if mode is 'parallel':
+			self.scheduler.schedule(function = classifier.fitFeatureMatrix, 
+							args = (self.trainingFeatureMatrix[featureSet], 
+									self.trainingGroundTruth))
+		else:
+			classifier.fitFeatureMatrix(self.trainingFeatureMatrix[featureSet], self.trainingGroundTruth)
 
 	def __fitClassifiers(self):
 		for featureSet in self.featureSets:
 			for key, classifier in self.classifiers[featureSet].items():
-				self.__fitClassifier(featureSet, classifier)
+				# Workaround, because the scikit random forest implementation is not thread-safe
+				if key is 'RandomForest':
+					self.__fitClassifier(featureSet, classifier, 'single')
+				else:
+					self.__fitClassifier(featureSet, classifier)
 		self.scheduler.joinAll()
 
 	def __testClassifier(self, featureSet, classifier):
