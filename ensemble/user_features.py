@@ -18,9 +18,17 @@ class UserFeatureGenerator:
             number_of_comments_by_user.append(self.number_of_comments_by_user(comment['uid']))
             number_of_hate_comments_by_user.append(self.number_of_hate_comments_by_user(comment['uid']))
             share_of_hate_comments_by_user.append(self.share_of_hate_comments_by_user(comment['uid']))
+            print(index)
+
+        print(df['cid'].shape)
+        # print(time_since_last_comment_by_user.shape)
+        # print(time_since_last_hate_comment_by_user.shape)
+        # print(number_of_comments_by_user.shape)
+        # print(number_of_hate_comments_by_user.shape)
+        # print(share_of_hate_comments_by_user.shape)
 
         features = np.vstack(
-            (comment['cid'], time_since_last_comment_by_user, time_since_last_hate_comment_by_user, number_of_comments_by_user, number_of_hate_comments_by_user, share_of_hate_comments_by_user,)).T
+            (df['cid'], time_since_last_comment_by_user, time_since_last_hate_comment_by_user, number_of_comments_by_user, number_of_hate_comments_by_user, share_of_hate_comments_by_user,)).T
 
         return features
 
@@ -40,9 +48,9 @@ class UserFeatureGenerator:
 
         result = cur.fetchone()
 
-        if result is None:
+        if result is None or result[0] is None:
             print('Could not find comments for user with uid: ' + str(uid))
-            return []
+            return 0
 
         return result[0]
 
@@ -57,9 +65,9 @@ class UserFeatureGenerator:
 
         result = cur.fetchone()
 
-        if result is None:
+        if result is None or result[0] is None:
             print('Could not find hate comments for user with uid: ' + str(uid))
-            return []
+            return 0
 
         return result[0]
 
@@ -74,9 +82,9 @@ class UserFeatureGenerator:
 
         result = cur.fetchone()
 
-        if result is None:
+        if result is None or result[0] is None:
             print('Could not find comments for user with uid: ' + str(uid))
-            return []
+            return 0
 
         return result[0]
 
@@ -91,9 +99,9 @@ class UserFeatureGenerator:
 
         result = cur.fetchone()
 
-        if result is None:
+        if result is None or result[0] is None:
             print('Could not find hate comments for user with uid: ' + str(uid))
-            return []
+            return 0
 
         return result[0]
 
@@ -112,9 +120,9 @@ class UserFeatureGenerator:
 
         result = cur.fetchone()
 
-        if result is None:
+        if result is None or result[0] is None:
             print('Could not find comments for user with uid: ' + str(uid) + ' on ressort: ' + str(ressort) )
-            return []
+            return 0
 
         return result[0]
 
@@ -129,9 +137,9 @@ class UserFeatureGenerator:
 
         result = cur.fetchone()
 
-        if result is None:
+        if result is None or result[0] is None:
             print('Could not find hate comments for user with uid: ' + str(uid) + ' on ressort: ' + str(ressort) )
-            return []
+            return 0
 
         return result[0]
 
@@ -150,9 +158,9 @@ class UserFeatureGenerator:
 
         result = cur.fetchone()
 
-        if result is None:
+        if result is None or result[0] is None:
             print('Could not find comments for user with uid: ' + str(uid) + ' since: ' + str(time) )
-            return []
+            return 0
 
         return result[0]
 
@@ -167,9 +175,9 @@ class UserFeatureGenerator:
 
         result = cur.fetchone()
 
-        if result is None:
+        if result is None or result[0] is None:
             print('Could not find hate comments for user with uid: ' + str(uid) + ' since: ' + str(time) )
-            return []
+            return 0
 
         return result[0]
 
