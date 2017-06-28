@@ -77,7 +77,6 @@ class EnsembleClassifier:
 		self.scheduler.schedule(function = classifier.testFeatureMatrix, 
 						args = (self.testFeatureMatrix[featureSet], 
 								self.testGroundTruth))
-		self.scheduler.joinAll()
 
 	def __testClassifiers(self):
 		for featureSet in self.featureSets:
@@ -92,7 +91,14 @@ class EnsembleClassifier:
 				print(self.trainingDataFrames)
 				if key in self.trainingDataFrames and self.trainingDataFrames[key] is not None:
 					dataFrame = self.trainingDataFrames[key]
-				self.trainingFeatureMatrix[key] = conversion(dataFrame)
+				self.__prepareFeatureSet(self.trainingFeatureMatrix, key, conversion, dataFrame)
+				# corpuses are not thread-safe :/
+#				self.scheduler.schedule(function = self.__prepareFeatureSet, 
+#										args = (key, conversion, dataFrame))
+#		self.scheduler.joinAll();
+
+	def __prepareFeatureSet(self, destination, key,  conversion, dataFrame):
+		destination[key] = conversion(dataFrame)
 
 	def __generateTestFeatures(self):
 		for key, conversion in self.featureTestGen.items():
@@ -100,7 +106,7 @@ class EnsembleClassifier:
 				dataFrame = self.defaultTestDataFrame
 				if key in self.testDataFrames and self.trainingDataFrames[key] is not None:
 					dataFrame = self.testDataFrames[key]
-				self.testFeatureMatrix[key] = conversion(dataFrame)
+				self.__prepareFeatureSet(self.testFeatureMatrix, key, conversion, dataFrame)
 
 	def __addFeatureSet(self, name, trainingConversion, testConversion, testDataFrame = None, trainingDataFrame = None):
 		self.featureSets.append(name)
