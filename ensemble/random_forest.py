@@ -14,6 +14,7 @@ class RandomForestBOWClassifier:
 
     def fitFeatureMatrix(self, x, y):
         if not self.trained:
+            print(x)
             self.model = RandomForestClassifier(n_estimators = 100)
             self.model.fit(x, y)
 

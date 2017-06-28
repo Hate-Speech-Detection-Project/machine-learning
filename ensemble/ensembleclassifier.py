@@ -110,6 +110,7 @@ class EnsembleClassifier:
 		self.__addFeatureSet('BOW', self.preprocessor.trainFeatureMatrix, self.preprocessor.createFeatureMatrix)
 		self.__addFeatureSet('BOW Ensemble Test', self.preprocessor.trainFeatureMatrix, self.preprocessor.createFeatureMatrix, ensembleTestDF)
 		self.__addFeatureSet('TextFeatures', self.textFeatureGenerator.calculate_features_with_dataframe, self.textFeatureGenerator.calculate_features_with_dataframe)
+		self.__addFeatureSet('TextFeatures Ensemble Test', self.textFeatureGenerator.calculate_features_with_dataframe, self.textFeatureGenerator.calculate_features_with_dataframe, ensembleTestDF)
 
 		self.__addClassifier("RandomForest", RandomForestBOWClassifier())
 		self.__addClassifier("AdaBoost", AdaBoost(self.preprocessor))
@@ -119,11 +120,17 @@ class EnsembleClassifier:
 	def initEnsembleClassifier(self):
 	    ensemble_training_data = np.matrix((self.getClassifierStatistics('BOW', 'RandomForest')[2],
 		                                    self.getClassifierStatistics('BOW', 'AdaBoost')[2],
-		                                    self.getClassifierStatistics('BOW', 'Naive Bayes')[2])).getT()
+		                                    self.getClassifierStatistics('BOW', 'Naive Bayes')[2],
+		                                    self.getClassifierStatistics('TextFeatures', 'RandomForest')[2],
+		                                    self.getClassifierStatistics('TextFeatures', 'AdaBoost')[2],
+		                                    self.getClassifierStatistics('TextFeatures', 'Naive Bayes')[2])).getT()
 	    ensemble_test_data = np.matrix((self.getClassifierStatistics('BOW Ensemble Test', 'RandomForest')[2],
 	                                    self.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2],
-	                                    self.getClassifierStatistics('BOW Ensemble Test', 'Naive Bayes')[2])).getT()
-	    self.__addFeatureSet("BOW Ensemble", identity, identity, ensemble_training_data, ensemble_test_data)
+	                                    self.getClassifierStatistics('BOW Ensemble Test', 'Naive Bayes')[2],
+	                                    self.getClassifierStatistics('TextFeatures Ensemble Test', 'RandomForest')[2],
+	                                    self.getClassifierStatistics('TextFeatures Ensemble Test', 'AdaBoost')[2],
+	                                    self.getClassifierStatistics('TextFeatures Ensemble Test', 'Naive Bayes')[2])).getT()
+	    self.__addFeatureSet("Ensemble", identity, identity, ensemble_training_data, ensemble_test_data)
 	    self.__updateClassifiers()
 	    self.fitClassifiers()
 	    self.testClassifiers()
