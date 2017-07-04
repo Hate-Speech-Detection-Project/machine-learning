@@ -28,11 +28,11 @@ class TextFeatureGenerator:
 
         # semantic analysis
 
-        # num_adjectives = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['JJ', 'JJS', 'JJR']))
-        # num_determiner = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['DT']))
-        # num_personal_pronouns = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['PRP']))
-        # num_adverbs = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['RB', 'RBS']))
-        # num_interjections = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['UH']))
+        num_adjectives = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['JJ', 'JJS', 'JJR']))
+        num_determiner = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['DT']))
+        num_personal_pronouns = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['PRP']))
+        num_adverbs = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['RB', 'RBS']))
+        num_interjections = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['UH']))
 
         # calculation of cosinent similarity for relation between comment/article/hate+no-hate comments of the article
 
