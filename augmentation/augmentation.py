@@ -55,6 +55,33 @@ queries = [(
   ORDER BY created
   """
 ),(
+  # Time since last hate comment (by same user) on same article.
+  'time_since_last_hate_comment_same_user',
+  """
+  SELECT outside.created - (
+    SELECT COALESCE(MAX(inside.created), outside.created)
+    FROM comments AS inside
+    WHERE outside.url = inside.url
+    AND outside.created > inside.created
+    AND outside.uid = inside.uid
+    AND inside.hate
+  )
+  FROM temp_comments AS outside
+  ORDER BY created
+  """
+),(
+  # Time since creation of the corresponding article.
+  'time_since_article',
+  """
+  SELECT outside.created - (
+    SELECT inside.timestamp
+    FROM articles AS inside
+    WHERE outside.url = inside.url
+  )
+  FROM temp_comments AS outside
+  ORDER BY created
+  """
+),(
   # Number of comments by user at the time of writing the comment.
   'number_of_comments_by_user',
   """
