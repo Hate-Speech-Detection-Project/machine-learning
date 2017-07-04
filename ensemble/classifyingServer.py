@@ -1,5 +1,6 @@
-import matplotlib
-matplotlib.use("Qt4Agg")
+#in case you get problems with some qt4 / qt5 pyqtobject stuff
+#import matplotlib
+#matplotlib.use("Qt4Agg")
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
@@ -11,9 +12,9 @@ import json
 import io
 import base64
 
-trainDf = pd.read_csv('../../data/datasets/stratified_dual_small/train.csv', sep=',')
-testDf = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
-testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_small/test2.csv', sep=',')
+trainDf = pd.read_csv('../../data/datasets/stratified_dual_smallest/train.csv', sep=',')
+testDf = pd.read_csv('../../data/datasets/stratified_dual_smallest/test1.csv', sep=',')
+testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_smallest/test2.csv', sep=',')
 
 
 predictor = EnsembleClassifier()
@@ -36,10 +37,15 @@ def hello():
       'Ada Boost': predictor.getClassifierStatistics('BOW', 'AdaBoost')[0].toString(),
       'Naive Bayes': predictor.getClassifierStatistics('BOW', 'Naive Bayes')[0].toString()
     },
-    'Textfeatures' : {
+    'TextFeatures' : {
       'Random Forest': predictor.getClassifierStatistics('TextFeatures', 'RandomForest')[0].toString(),
       'Ada Boost': predictor.getClassifierStatistics('TextFeatures', 'AdaBoost')[0].toString(),
       'Naive Bayes': predictor.getClassifierStatistics('TextFeatures', 'Naive Bayes')[0].toString()
+    },
+    'UserFeatures' : {
+      'Random Forest': predictor.getClassifierStatistics('UserFeatures', 'RandomForest')[0].toString(),
+      'Ada Boost': predictor.getClassifierStatistics('UserFeatures', 'AdaBoost')[0].toString(),
+      'Naive Bayes': predictor.getClassifierStatistics('UserFeatures', 'Naive Bayes')[0].toString()
     },
     'Ensemble' : {
       'Random Forest': predictor.getClassifierStatistics('Ensemble', 'RandomForest')[0].toString(),
@@ -56,6 +62,10 @@ def correlation():
               predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2]]
   correlationMatrix = CorrelationMatrix(dataRows)
   return jsonify(correlationMatrix.get())
+
+@app.route('/single/<cid>')
+def single(cid):
+	return testDf[testDf['cid'] == cid]
 
 @app.route('/plot')
 def plot():
