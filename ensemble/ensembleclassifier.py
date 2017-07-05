@@ -71,14 +71,10 @@ class EnsembleClassifier:
 		for featureSet in self.featureSets:
 			for key, classifier in self.classifiers[featureSet].items():
 				# Workaround, because the scikit random forest implementation is not thread-safe
-<<<<<<< HEAD
-				self.__fitClassifier(featureSet, classifier, 'single')
-=======
 #				if key is 'RandomForest':
 					self.__fitClassifier(featureSet, classifier, 'single')
 #				else:
 #					self.__fitClassifier(featureSet, classifier)
->>>>>>> origin/scikit_confusion_matrix
 		self.scheduler.joinAll()
 
 	def __testClassifier(self, featureSet, classifier):
