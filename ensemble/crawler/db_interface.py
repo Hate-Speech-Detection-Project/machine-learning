@@ -5,7 +5,7 @@ import sys
 class DBInterface:
     def __init__(self):
         try:
-            self.conn = psycopg2.connect("dbname='hatespeech' user='postgres' host='172.22.23.253' password='admin'" )
+            self.conn = psycopg2.connect("dbname='hatespeech' user='postgres' host='localhost' password='admin'" )
         except:
             print("Cannot connect to database.")
             sys.exit(0)

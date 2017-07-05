@@ -3,7 +3,6 @@ import requests
 
 XPATH_ARTICLE_HEADING = 'header[data-ct-area="articleheader"]'
 XPATH_RESSORT = '//*[@id="navigation"]/nav[3]/ul/li[1]/a/span'
-# XPATH_ARTICLE_BODY = '//*[@id="js-article"]/div[1]/section/p/text()'
 XPATH_ARTICLE_BODY = '//*[@id="js-article"]/div[1]/*//p//text()'
 XPATH_ARTICLE_HEAD = '/html/head'
 
