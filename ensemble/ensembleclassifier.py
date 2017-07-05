@@ -7,7 +7,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from scheduler import Scheduler
 import pandas as pd
 import numpy as np
-from utils import CorrelationMatrix
+from utils import AnalysisInformation
 from text_features import TextFeatureGenerator
 import copy
 
@@ -67,10 +67,10 @@ class EnsembleClassifier:
 		for featureSet in self.featureSets:
 			for key, classifier in self.classifiers[featureSet].items():
 				# Workaround, because the scikit random forest implementation is not thread-safe
-				if key is 'RandomForest':
+#				if key is 'RandomForest':
 					self.__fitClassifier(featureSet, classifier, 'single')
-				else:
-					self.__fitClassifier(featureSet, classifier)
+#				else:
+#					self.__fitClassifier(featureSet, classifier)
 		self.scheduler.joinAll()
 
 	def __testClassifier(self, featureSet, classifier):
@@ -132,13 +132,15 @@ class EnsembleClassifier:
 		self.__updateClassifiers()
 
 	def initEnsembleClassifier(self):
-	    ensemble_training_data = np.matrix((self.getClassifierStatistics('BOW', 'RandomForest')[2],
+	    ensemble_training_data = np.matrix((
+	    									self.getClassifierStatistics('BOW', 'RandomForest')[2],
 		                                    self.getClassifierStatistics('BOW', 'AdaBoost')[2],
 		                                    self.getClassifierStatistics('BOW', 'Naive Bayes')[2],
 		                                    self.getClassifierStatistics('TextFeatures', 'RandomForest')[2],
 		                                    self.getClassifierStatistics('TextFeatures', 'AdaBoost')[2],
 		                                    self.getClassifierStatistics('TextFeatures', 'Naive Bayes')[2])).getT()
-	    ensemble_test_data = np.matrix((self.getClassifierStatistics('BOW Ensemble Test', 'RandomForest')[2],
+	    ensemble_test_data = np.matrix((
+	    								self.getClassifierStatistics('BOW Ensemble Test', 'RandomForest')[2],
 	                                    self.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2],
 	                                    self.getClassifierStatistics('BOW Ensemble Test', 'Naive Bayes')[2],
 	                                    self.getClassifierStatistics('TextFeatures Ensemble Test', 'RandomForest')[2],

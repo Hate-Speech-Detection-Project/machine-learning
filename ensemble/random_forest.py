@@ -2,7 +2,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.calibration import CalibratedClassifierCV
 import pandas as pd
 from preprocessor import Preprocessor
-from utils import ConfusionMatrix
+from utils import AnalysisInformation
 
 class RandomForestBOWClassifier:
     def __init__(self):
@@ -29,8 +29,8 @@ class RandomForestBOWClassifier:
 
             prob_pos_isotonic = self.calibrated.predict_proba(x)[:, 1]
 
-            confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(y))
-            self.testResult = (confusionMatrix, result, prob_pos_isotonic)
+            analysisInformation = AnalysisInformation(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(y))
+            self.testResult = (analysisInformation, result, prob_pos_isotonic)
             self.tested = True
 
         return self.testResult

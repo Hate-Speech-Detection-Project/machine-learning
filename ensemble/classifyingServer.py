@@ -5,15 +5,15 @@ from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import numpy as np
 from flask import *
-from utils import CorrelationMatrix
+from utils import AnalysisInformation
 from ensembleclassifier import EnsembleClassifier
 import json
 import io
 import base64
 
-trainDf = pd.read_csv('../../data/datasets/stratified_dual_small/train.csv', sep=',')
-testDf = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
-testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_small/test2.csv', sep=',')
+trainDf = pd.read_csv('../../data/datasets/stratified_dual_smallest/train.csv', sep=',')
+testDf = pd.read_csv('../../data/datasets/stratified_dual_smallest/test1.csv', sep=',')
+testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_smallest/test2.csv', sep=',')
 
 
 predictor = EnsembleClassifier()
@@ -30,24 +30,27 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-  data = {
-    'BOW' : {
-      'Random Forest': predictor.getClassifierStatistics('BOW', 'RandomForest')[0].toString(),
-      'Ada Boost': predictor.getClassifierStatistics('BOW', 'AdaBoost')[0].toString(),
-      'Naive Bayes': predictor.getClassifierStatistics('BOW', 'Naive Bayes')[0].toString()
-    },
-    'Textfeatures' : {
-      'Random Forest': predictor.getClassifierStatistics('TextFeatures', 'RandomForest')[0].toString(),
-      'Ada Boost': predictor.getClassifierStatistics('TextFeatures', 'AdaBoost')[0].toString(),
-      'Naive Bayes': predictor.getClassifierStatistics('TextFeatures', 'Naive Bayes')[0].toString()
-    },
-    'Ensemble' : {
-      'Random Forest': predictor.getClassifierStatistics('Ensemble', 'RandomForest')[0].toString(),
-      'Ada Boost': predictor.getClassifierStatistics('Ensemble', 'AdaBoost')[0].toString(),
-      'Naive Bayes': predictor.getClassifierStatistics('Ensemble', 'Naive Bayes')[0].toString()
-    }
-  }
-  return jsonify(data)
+
+	print(predictor.getClassifierStatistics('BOW', 'RandomForest')[0])
+
+	data = {
+		'BOW' : {
+			'Random Forest': predictor.getClassifierStatistics('BOW', 'RandomForest')[0].toString(),
+			'Ada Boost': predictor.getClassifierStatistics('BOW', 'AdaBoost')[0].toString(),
+			'Naive Bayes': predictor.getClassifierStatistics('BOW', 'Naive Bayes')[0].toString()
+		},
+		'Textfeatures' : {
+			'Random Forest': predictor.getClassifierStatistics('TextFeatures', 'RandomForest')[0].toString(),
+			'Ada Boost': predictor.getClassifierStatistics('TextFeatures', 'AdaBoost')[0].toString(),
+			'Naive Bayes': predictor.getClassifierStatistics('TextFeatures', 'Naive Bayes')[0].toString()
+		},
+		'Ensemble' : {
+			'Random Forest': predictor.getClassifierStatistics('Ensemble', 'RandomForest')[0].toString(),
+			'Ada Boost': predictor.getClassifierStatistics('Ensemble', 'AdaBoost')[0].toString(),
+			'Naive Bayes': predictor.getClassifierStatistics('Ensemble', 'Naive Bayes')[0].toString()
+		}
+	}
+	return jsonify(data)
 
 @app.route('/correlation')
 def correlation():
