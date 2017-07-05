@@ -71,10 +71,10 @@ class EnsembleClassifier:
 		for featureSet in self.featureSets:
 			for key, classifier in self.classifiers[featureSet].items():
 				# Workaround, because the scikit random forest implementation is not thread-safe
-#				if key is 'RandomForest':
+				if key is 'RandomForest':
 					self.__fitClassifier(featureSet, classifier, 'single')
-#				else:
-#					self.__fitClassifier(featureSet, classifier)
+				else:
+					self.__fitClassifier(featureSet, classifier)
 		self.scheduler.joinAll()
 
 	def __testClassifier(self, featureSet, classifier):

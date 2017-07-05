@@ -10,7 +10,7 @@ class Preprocessor:
                                      tokenizer=None,
                                      preprocessor=None,
                                      stop_words=None,
-                                     max_features=100)
+                                     max_features=20000)
 
     def comment_to_words(self, raw_comment):
         # Function to convert a raw review to a string of words
