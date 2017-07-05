@@ -9,8 +9,9 @@ class FilterManager():
   def __init__(self):
     # Create all the filters. Their priority is determined by their position in the list (FCFS).
     self.filters = [
-      ReactionFilter(600),
-      DearEditorsFilter()
+      ReactionFilter(6000)
+	  #,
+      #DearEditorsFilter()
     ]
 
   def filter(self, comment):
@@ -22,11 +23,11 @@ class FilterManager():
     
     Note: Comments MUST be given to filter() in ascending order defined by their timestamp.
     """
-    result = True
+    result = False
     for filter in self.filters:
       output = filter.filter(comment)
-      if not output['filtered'] or not output['result']:
-        result = False
+      if output['filtered'] and output['result']:
+        result = True
         break
     if result:
       return {

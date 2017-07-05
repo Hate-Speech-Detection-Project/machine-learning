@@ -80,17 +80,17 @@ def do_stuff():
         if filter_result['result']:
           if comment['hate']:
             tp += 1
-            write_comment(tp_file, comment)
+            #write_comment(tp_file, comment)
           else:
             fp += 1
-            write_comment(fp_file, comment)
+            #write_comment(fp_file, comment)
         else:
           if comment['hate']:
             fn += 1
-            write_comment(tn_file, comment)
+            #write_comment(tn_file, comment)
           else:
             tn += 1
-            write_comment(fn_file, comment)
+            #write_comment(fn_file, comment)
       
       if total%5000 == 0:
         print("%i,%i,%i,%i,%i,%i" % (total, filtered, tp, fp, tn, fn))
