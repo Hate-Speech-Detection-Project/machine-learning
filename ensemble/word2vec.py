@@ -8,13 +8,15 @@ from nltk.corpus import stopwords
 import multiprocessing
 from multiprocessing import cpu_count, Pool
 from joblib import Parallel
+import re
 from itertools import chain, repeat, islice
+import types
 
 
 class Word2VecClassifier:
     def __init__(self):
         self.train_df = None
-        self.model = Word2Vec.load('model/modelw2v_model')
+        self.w2v_model = Word2Vec.load('model/modelw2v_model')
         # initialize stemmer
         self.stemmer = SnowballStemmer("german")
         # grab stopword list
@@ -43,7 +45,7 @@ class Word2VecClassifier:
             comment_text = re.sub("[^a-zA-ZöÖüÜäÄß]"," ", comment_text)
             comment_text = re.sub("\s\s+"," ", comment_text)
             comment_text = comment_text.lower() + '. '
-            comment_text = unicode(comment_text, errors='replace')
+        #comment_text = unicode(comment_text, errors='replace')
         except:
             comment_text = ''
         return comment_text
@@ -59,32 +61,36 @@ class Word2VecClassifier:
 
     def word_to_position(self, word):
         try:
-            return np.average(self.model.wv[word])
+            value = np.average(self.w2v_model.wv[word])*100
+            return value
         except:
-            return 0
+            return -1
 
     def comment_to_vectors(self, comment):
         words = comment.split(' ')
-        # print("Comment:", words)
         result = list(map(self.word_to_position, words))
         # print("Result:", result)
-        result = list(self.pad(result, 500, np.average(result)))
+        result = list(self.pad(result, 50, 0))
         # print(result)
         return result
 
     def remove_stop_and_stem(self, data):
-        print("To Wordlist")
-        data = self.parallelize(data, self.to_wordlist)
-        print("Remove Stopwords")
-        data = self.parallelize(data, self.remove_stopwords)
-        print("Stem")
-        data = self.parallelize(data, self.stem)
+        # print("To Wordlist")
+        # data = self.parallelize(data, self.to_wordlist)
+        # print("Remove Stopwords")
+        # data = self.parallelize(data, self.remove_stopwords)
+        # print("Stem")
+        # data = self.parallelize(data, self.stem)
+        data = self.to_wordlist(data)
+        data = self.remove_stopwords(data)
+        data = self.stem(data)
         return data
 
     def calculate_features_with_dataframe(self, df):
         data = self.remove_stop_and_stem(df['comment'])
-        print("Calculate Word2Vec")
+        # print(data)
         vectors = list(map(self.comment_to_vectors, data))
+        # print(vectors)
 
         features = np.vstack((
           vectors, 
@@ -94,12 +100,17 @@ class Word2VecClassifier:
     def fit(self, train_df):
         self.X = self.calculate_features_with_dataframe(train_df)
         self.y = train_df['hate']
+        if isinstance(self.y.iloc[0], str):
+            self.y = self.y == 'True'
         self.svr = SVR(kernel='rbf')
         self.model = self.svr.fit(self.X, self.y)
 
     def test(self, test_df):
+        print("="*20)
         X = self.calculate_features_with_dataframe(test_df)
         y = test_df['hate']
+        if isinstance(y.iloc[0], str):
+            y = y == 'True'
         predicted = self.model.predict(X)
         return predicted
 
