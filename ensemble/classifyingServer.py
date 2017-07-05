@@ -12,9 +12,9 @@ import json
 import io
 import base64
 
-trainDf = pd.read_csv('../../data/datasets/stratified_dual_smallest/train.csv', sep=',')
-testDf = pd.read_csv('../../data/datasets/stratified_dual_smallest/test1.csv', sep=',')
-testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_smallest/test2.csv', sep=',')
+trainDf = pd.read_csv('../../data/datasets/stratified_dual/train.csv', sep=',')
+testDf = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
+testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual/test2.csv', sep=',')
 
 
 predictor = EnsembleClassifier()
@@ -59,7 +59,13 @@ def hello():
 def correlation():
   dataRows = [predictor.getClassifierStatistics('BOW', 'RandomForest')[2],
               predictor.getClassifierStatistics('BOW', 'AdaBoost')[2],
-              predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2]]
+              predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2],
+              predictor.getClassifierStatistics('TextFeatures', 'RandomForest')[2],
+              predictor.getClassifierStatistics('TextFeatures', 'AdaBoost')[2],
+              predictor.getClassifierStatistics('TextFeatures', 'Naive Bayes')[2],
+              predictor.getClassifierStatistics('UserFeatures', 'RandomForest')[2],
+              predictor.getClassifierStatistics('UserFeatures', 'AdaBoost')[2],
+              predictor.getClassifierStatistics('UserFeatures', 'Naive Bayes')[2]]
   correlationMatrix = CorrelationMatrix(dataRows)
   return jsonify(correlationMatrix.get())
 
@@ -75,24 +81,24 @@ def plot():
     fig = plt.figure(figsize=(15, 15))
     ax = fig.add_subplot(111, projection='3d')
 
-    for index,observation in enumerate(predictor.getClassifierStatistics('BOW', 'RandomForest')[2]):
-      ax.scatter( predictor.getClassifierStatistics('BOW', 'AdaBoost')[2][index], 
-                  predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2][index], 
-                  predictor.getClassifierStatistics('BOW', 'RandomForest')[2][index], 
-                  alpha=np.mean((predictor.getClassifierStatistics('BOW','AdaBoost')[2][index], predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2][index], predictor.getClassifierStatistics('BOW', 'RandomForest')[2][index]))/2,
+    for index,observation in enumerate(predictor.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2]):
+      ax.scatter( predictor.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2][index], 
+                  predictor.getClassifierStatistics('TextFeatures Ensemble Test', 'AdaBoost')[2][index], 
+                  predictor.getClassifierStatistics('UserFeatures Ensemble Test', 'AdaBoost')[2][index], 
+                  alpha=np.mean((predictor.getClassifierStatistics('BOW Ensemble Test','AdaBoost')[2][index], predictor.getClassifierStatistics('TextFeatures Ensemble Test', 'AdaBoost')[2][index], predictor.getClassifierStatistics('UserFeatures Ensemble Test', 'AdaBoost')[2][index]))/2,
                   s=30)
-      ax.scatter( predictor.getClassifierStatistics('BOW', 'AdaBoost')[2][index], 
-                  predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2][index], 
-                  predictor.getClassifierStatistics('BOW', 'RandomForest')[2][index], 
+      ax.scatter( predictor.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2][index], 
+                  predictor.getClassifierStatistics('TextFeatures Ensemble Test', 'AdaBoost')[2][index], 
+                  predictor.getClassifierStatistics('UserFeatures Ensemble Test', 'AdaBoost')[2][index], 
                   s = 1000,
-                  alpha=np.mean((predictor.getClassifierStatistics('BOW', 'AdaBoost')[2][index], predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2][index], predictor.getClassifierStatistics('BOW', 'RandomForest')[2][index])),
+                  alpha=np.mean((predictor.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2][index], predictor.getClassifierStatistics('TextFeatures Ensemble Test', 'AdaBoost')[2][index], predictor.getClassifierStatistics('UserFeatures Ensemble Test', 'AdaBoost')[2][index])),
                   marker=r'$ {} $'.format(testDf['cid'][index]))
 
     
 
-    ax.set_xlabel('Random Forest')
-    ax.set_ylabel('Ada Boost')
-    ax.set_zlabel('Naive Bayes')
+    ax.set_xlabel('BOW Ensemble')
+    ax.set_ylabel('TextFeatures Ensemble')
+    ax.set_zlabel('UserFeatures Ensemble Bayes')
 
     # ax.view_init(30, angle)
     # angle += 10
