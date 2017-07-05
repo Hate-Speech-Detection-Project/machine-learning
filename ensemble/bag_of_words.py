@@ -1,7 +1,7 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.naive_bayes import MultinomialNB
-from utils import ConfusionMatrix
+from utils import AnalysisInformation
 from preprocessor import Preprocessor
 import pandas as pd
 import numpy as np
@@ -73,8 +73,8 @@ class BagOfWordsClassifier:
       # acc = np.mean(predicted == y_test)
       prob_pos_isotonic = self.calibrated.predict_proba(X_new_tfidf)[:, 1]
 
-      confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y_test))
-      self.testResult = (confusionMatrix, predicted, prob_pos_isotonic)
+      analysisInformation = AnalysisInformation(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y_test))
+      self.testResult = (analysisInformation, predicted, prob_pos_isotonic)
       self.tested = True
 
     return self.testResult
@@ -86,8 +86,8 @@ class BagOfWordsClassifier:
 
       prob_pos_isotonic = self.calibrated.predict_proba(x)[:, 1]
 
-      confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y))
-      self.testResult = (confusionMatrix, predicted, prob_pos_isotonic)
+      analysisInformation = AnalysisInformation(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y))
+      self.testResult = (analysisInformation, predicted, prob_pos_isotonic)
       self.tested = True
 
     return self.testResult

@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import VotingClassifier
 from preprocessor import Preprocessor
-from utils import ConfusionMatrix
+from utils import AnalysisInformation
 
 from preprocessor import Preprocessor
 
@@ -36,5 +36,5 @@ class Vote:
             print(self.results)
             print(result)
 
-        confusionMatrix = ConfusionMatrix(self.results, result, self.verbose)
-        return (confusionMatrix, self.results)
+        analysisInformation = AnalysisInformation(self.results, result, self.verbose)
+        return (analysisInformation, self.results)

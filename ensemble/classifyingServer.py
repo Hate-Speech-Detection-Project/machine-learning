@@ -6,7 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import numpy as np
 from flask import *
-from utils import CorrelationMatrix
+from utils import AnalysisInformation
 from ensembleclassifier import EnsembleClassifier
 import json
 import io
@@ -15,7 +15,6 @@ import base64
 trainDf = pd.read_csv('../../data/datasets/stratified_dual/train.csv', sep=',')
 testDf = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
 testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual/test2.csv', sep=',')
-
 
 predictor = EnsembleClassifier()
 predictor.initClassifiers(trainDf, testDf, testEnsembleDf, 'hate')
@@ -31,6 +30,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
+
   data = {
     'BOW' : {
       'Random Forest': predictor.getClassifierStatistics('BOW', 'RandomForest')[0].toString(),

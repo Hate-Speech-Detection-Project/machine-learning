@@ -3,7 +3,7 @@ from sklearn.calibration import CalibratedClassifierCV
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import AdaBoostClassifier
-from utils import ConfusionMatrix
+from utils import AnalysisInformation
 
 from preprocessor import Preprocessor
 
@@ -33,9 +33,9 @@ class AdaBoost:
 
             prob_pos_isotonic = self.calibrated.predict_proba(x)[:, 1]
 
-            confusionMatrix = ConfusionMatrix(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(y))
+            analysisInformation = AnalysisInformation(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(y))
 
-            self.testResult = (confusionMatrix, result, prob_pos_isotonic)
+            self.testResult = (analysisInformation, result, prob_pos_isotonic)
             self.tested= True
         return self.testResult
 
