@@ -65,7 +65,8 @@ body{
 }
 
 .form-container .container .flex-container .comment-input{
-     height: 155px;
+    height: 145px;
+    margin-top: 47px;
 }
 
 
