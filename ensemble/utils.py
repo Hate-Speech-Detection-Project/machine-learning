@@ -36,7 +36,7 @@ class AnalysisInformation():
         (self.accuracy, self.precision, self.recall, self.support) = precision_recall_fscore_support(y_true, y_pred) 
 
     def toString(self):
-        return "Accuracy: " + str(self.accuracy) + "\tPrecision: " + str(self.precision) + "\tRecall: " + str(self.recall)
+        return "Accuracy: " + str(self.accuracy) + " Precision: " + str(self.precision) + " Recall: " + str(self.recall)
 
 
 class ConfusionMatrix():

@@ -39,8 +39,6 @@ class AdaBoost:
             self.tested= True
         return self.testResult
 
-    def predict(self, comment):
-        df = pd.Series([comment])
-        features = self.preprocessor.createFeatureMatrix(df)
-
-        return self.model.predict(features)
+    def predict(self, featureMatrix):
+        prob_pos_isotonic = self.calibrated.predict_proba(featureMatrix)[:, 1]
+        return prob_pos_isotonic[0]

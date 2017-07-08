@@ -92,14 +92,9 @@ class BagOfWordsClassifier:
 
     return self.testResult
 
-  def predict(self, comment):
-     # Get test data
-    X_test = [comment]
-
-    X_new_counts = self.count_vect.transform(X_test)
-    X_new_tfidf = self.tfidf_transformer.transform(X_new_counts)
-    predicted = self.clf.predict(X_new_tfidf)
-    return predicted
+  def predict(self, featureMatrix):
+    predicted = self.calibrated.predict_proba(featureMatrix)[:, 1]
+    return predicted[0]
 
   def predict_with_info(self, comment):
      # Get test data

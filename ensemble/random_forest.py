@@ -35,6 +35,9 @@ class RandomForestBOWClassifier:
 
         return self.testResult
 
+    def predict(self, featureMatrix):
+        return self.calibrated.predict_proba(featureMatrix)[:, 1][0]
+
  #   def predict(self, comment):
  #       df = pd.Series([comment])
  #       features = self.preprocessor.createFeatureMatrix(df)
