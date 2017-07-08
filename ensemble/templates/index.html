@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" type="text/css" href="static/css/style.css">
+    <script src="static/js/basics.js"> </script>
 </head>
 <body>
 <form class="form-container">
@@ -15,15 +16,15 @@
                 <span class="comment-input-label">
                      Bitte hier das Kommentar einfügen:
                 </span>
-                <textarea  class="comment-input-box" cols="40" rows="5"></textarea>
+                <textarea id="comment" class="comment-input-box" cols="40" rows="5"></textarea>
             </div>
             <div class="url-input">
                <span class="url-input-label">
                      Bitte hier die Artikelurl einfügen:
                 </span>
-                 <textarea class="url-input-box" cols="1" rows="1"></textarea>
+                 <textarea id="url" class="url-input-box" cols="1" rows="1"></textarea>
             </div>
-            <button class="submit-button">Kommentar senden</button>
+            <button id="submitButton" class="submit-button" onclick="submitComment()">Kommentar klassifizieren</button>
         </div>
     </div>
 </form>
