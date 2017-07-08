@@ -66,6 +66,18 @@ class Preprocessor:
 
         return comment_data_features
 
+    def createFeatureMatrixFromComment(self, comment):
+        # Create an empty list and append the clean reviews one by one
+        clean_test_comments = []
+
+        clean_comment = self.comment_to_words(comment)
+        clean_test_comments.append(clean_comment)
+
+        # Get a bag of words for the test set, and convert to a numpy array
+        test_data_features = self.vectorizer.transform(clean_test_comments)
+        return test_data_features
+
+
     def createFeatureMatrix(self, df):
         # Create an empty list and append the clean reviews one by one
         num_comments = len(df["comment"])

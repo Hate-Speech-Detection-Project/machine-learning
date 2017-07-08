@@ -1,7 +1,7 @@
 function submitComment() {
     const comment = document.getElementById("comment").value;
     const url = document.getElementById("url").value;
-    const apiURL = '//localhost:5000/predict/commentid';
+    const apiURL = '//localhost:5000/predict';
 
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "POST", apiURL, false );

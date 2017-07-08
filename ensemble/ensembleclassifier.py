@@ -93,10 +93,9 @@ class EnsembleClassifier:
 				self.__testClassifier(featureSet, classifier)
 		self.scheduler.joinAll();
 
-	def testClassifiersSingle(self, cid):
+	def testClassifiersSingle(self, comment, url):
 		results = {}
-		dataFrame = self.defaultTrainingDataFrame[self.defaultTrainingDataFrame['cid'] == int(cid)]
-		x = self.preprocessor.createFeatureMatrix(dataFrame)
+		x = self.preprocessor.createFeatureMatrixFromComment(comment)
 
 		for key, featureSet in enumerate(self.baselineFeatureSets):
 			for key, classifier in self.classifiers[featureSet].items():

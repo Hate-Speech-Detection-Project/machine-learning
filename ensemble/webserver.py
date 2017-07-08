@@ -184,7 +184,7 @@ def hello():
 @app.route('/predict', methods=["POST", "GET"])
 def predict():
   if request.method == "POST":
-    json_dict = request.get_json()
+    json_dict = request.get_json(force=True)
     comment = json_dict['comment']
   else:
     comment = request.args.get('comment', '')

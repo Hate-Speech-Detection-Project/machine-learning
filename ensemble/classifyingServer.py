@@ -74,9 +74,17 @@ def correlation():
 def single(cid):
 	return testDf[testDf['cid'] == int(cid)]
 
-@app.route('/predict/<cid>')
-def predict(cid):
-  results = predictor.testClassifiersSingle(cid)
+@app.route('/predict', methods=["POST", "GET"])
+def predict():
+  if request.method == "POST":
+    json_dict = request.get_json()
+    print(json_dict)
+    comment = json_dict['comment']
+    url = json_dict['url']
+  else:
+    comment = request.args.get('comment', '')
+    url = request.args.get('url', '')
+  results = predictor.testClassifiersSingle(comment, url)
   print(results)
   return jsonify(results)
 
@@ -120,7 +128,7 @@ def plot():
 
 # return the UI
 @app.route('/index')
-def hello():
+def index():
     return render_template('index.html')
 
 app.run()
