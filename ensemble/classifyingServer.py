@@ -28,6 +28,10 @@ predictor.initEnsembleClassifier()
 
 app = Flask(__name__)
 
+@app.route('/index')
+def hello():
+    return render_template('index.html')
+
 @app.route('/')
 def hello():
 
@@ -109,3 +113,6 @@ def plot():
     img.seek(0)
 
     return send_file(img, mimetype='image/png')
+
+
+app.run()
