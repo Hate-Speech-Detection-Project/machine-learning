@@ -38,16 +38,16 @@ def hello():
       'Ada Boost': predictor.getClassifierStatistics('BOW', 'AdaBoost')[0].toString(),
       'Naive Bayes': predictor.getClassifierStatistics('BOW', 'Naive Bayes')[0].toString()
     },
-    #'TextFeatures' : {
-    #  'Random Forest': predictor.getClassifierStatistics('TextFeatures', 'RandomForest')[0].toString(),
-    #  'Ada Boost': predictor.getClassifierStatistics('TextFeatures', 'AdaBoost')[0].toString(),
-    #  'Naive Bayes': predictor.getClassifierStatistics('TextFeatures', 'Naive Bayes')[0].toString()
-    #},
-#    'UserFeatures' : {
-#      'Random Forest': predictor.getClassifierStatistics('UserFeatures', 'RandomForest')[0].toString(),
-#      'Ada Boost': predictor.getClassifierStatistics('UserFeatures', 'AdaBoost')[0].toString(),
-#      'Naive Bayes': predictor.getClassifierStatistics('UserFeatures', 'Naive Bayes')[0].toString()
-#    },
+    'TextFeatures' : {
+      'Random Forest': predictor.getClassifierStatistics('TextFeatures', 'RandomForest')[0].toString(),
+      'Ada Boost': predictor.getClassifierStatistics('TextFeatures', 'AdaBoost')[0].toString(),
+      'Naive Bayes': predictor.getClassifierStatistics('TextFeatures', 'Naive Bayes')[0].toString()
+    },
+    'UserFeatures' : {
+      'Random Forest': predictor.getClassifierStatistics('UserFeatures', 'RandomForest')[0].toString(),
+      'Ada Boost': predictor.getClassifierStatistics('UserFeatures', 'AdaBoost')[0].toString(),
+      'Naive Bayes': predictor.getClassifierStatistics('UserFeatures', 'Naive Bayes')[0].toString()
+    },
     'Ensemble' : {
       'Random Forest': predictor.getClassifierStatistics('Ensemble', 'RandomForest')[0].toString(),
       'Ada Boost': predictor.getClassifierStatistics('Ensemble', 'AdaBoost')[0].toString(),
@@ -61,12 +61,12 @@ def correlation():
   dataRows = [predictor.getClassifierStatistics('BOW', 'RandomForest')[2],
               predictor.getClassifierStatistics('BOW', 'AdaBoost')[2],
               predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2]]
-#              predictor.getClassifierStatistics('TextFeatures', 'RandomForest')[2],
-#              predictor.getClassifierStatistics('TextFeatures', 'AdaBoost')[2],
-#              predictor.getClassifierStatistics('TextFeatures', 'Naive Bayes')[2],
-#              predictor.getClassifierStatistics('UserFeatures', 'RandomForest')[2],
-#              predictor.getClassifierStatistics('UserFeatures', 'AdaBoost')[2],
-#              predictor.getClassifierStatistics('UserFeatures', 'Naive Bayes')[2]]
+              predictor.getClassifierStatistics('TextFeatures', 'RandomForest')[2],
+              predictor.getClassifierStatistics('TextFeatures', 'AdaBoost')[2],
+              predictor.getClassifierStatistics('TextFeatures', 'Naive Bayes')[2],
+              predictor.getClassifierStatistics('UserFeatures', 'RandomForest')[2],
+              predictor.getClassifierStatistics('UserFeatures', 'AdaBoost')[2],
+              predictor.getClassifierStatistics('UserFeatures', 'Naive Bayes')[2]]
   correlationMatrix = CorrelationMatrix(dataRows)
   return jsonify(correlationMatrix.get())
 
