@@ -51,6 +51,7 @@ class BagOfWordsClassifier:
 
   def fitFeatureMatrix(self, x, y):
     if not self.trained:
+
         # Training a classifier
         from sklearn.naive_bayes import MultinomialNB
         self.clf = MultinomialNB().fit(x, y)
@@ -94,6 +95,12 @@ class BagOfWordsClassifier:
 
   def predict(self, featureMatrix):
     predicted = self.calibrated.predict_proba(featureMatrix)[:, 1]
+    if featureMatrix is None:
+        return 0
+
+    hate_words = [self.feature_names[i] for i in featureMatrix.tocsr().nonzero()[1]]
+    self.hate_words_and_indices = zip(featureMatrix.tocsr().nonzero()[1], hate_words)
+
     return predicted[0]
 
   def predict_with_info(self, comment):

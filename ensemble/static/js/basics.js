@@ -1,4 +1,5 @@
-function submitComment() {
+function submitComment(event) {
+    event.preventDefault()
     const comment = document.getElementById("comment").value;
     const url = document.getElementById("url").value;
     const apiURL = '//127.0.0.1:5000/predict';
