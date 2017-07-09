@@ -6,7 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import numpy as np
 from flask import *
-from utils import CorrelationMatrix
+from utils import AnalysisInformation
 from ensembleclassifier import EnsembleClassifier
 import json
 import io
