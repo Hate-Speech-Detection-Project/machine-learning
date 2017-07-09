@@ -10,7 +10,7 @@ class Preprocessor:
                                      tokenizer=None,
                                      preprocessor=None,
                                      stop_words=None,
-                                     max_features=200)
+                                     max_features=1000)
 
     def comment_to_words(self, raw_comment):
         # Function to convert a raw review to a string of words
@@ -78,7 +78,7 @@ class Preprocessor:
         return test_data_features
 
 
-    def createFeatureMatrix(self, df):
+    def createFeatureMatrix(self, df, single = False):
         # Create an empty list and append the clean reviews one by one
         num_comments = len(df["comment"])
         clean_test_comments = []
