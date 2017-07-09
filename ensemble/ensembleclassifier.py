@@ -108,8 +108,6 @@ class EnsembleClassifier:
 
     def __testClassifiers(self):
         for featureSet in self.featureSets:
-
-
             # fetch grountruth if not default
             groundTruth = self.testGroundTruth
             if featureSet in self.testGroundTruths.keys():
@@ -148,7 +146,6 @@ class EnsembleClassifier:
                 results[featureSet + key] = classifier.predict(x)
 
         return results
-
 
     def __generateTrainingFeatures(self):
         for key, conversion in self.featureTrainingGen.items():
@@ -209,7 +206,6 @@ class EnsembleClassifier:
                 self.testGroundTruths[name] = testDataFrame[groundTruthName]
 
     def initClassifiers(self, defaultTrainingDF, defaultTestDF, ensembleTestDF, groundTruthName):
-
         print(defaultTrainingDF)
 
         self.defaultTrainingDataFrame = defaultTrainingDF
@@ -262,6 +258,9 @@ class EnsembleClassifier:
         self.__updateClassifiers()
         self.fitClassifiers()
         self.testClassifiers()
+
+        nb = self.classifiers['BOW']['Naive Bayes']
+        nb.feature_names = self.preprocessor.feature_names
 
     def fitClassifiers(self):
         self.__generateTrainingFeatures()
