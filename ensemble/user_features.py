@@ -34,7 +34,7 @@ class UserFeatureGenerator:
 
     def __init__(self):
         try:
-            self.conn = psycopg2.connect("dbname='hatespeech' user='postgres' host='localhost' password='admin'")
+            self.conn = psycopg2.connect("dbname='postgres' user='postgres' host='172.17.0.2' password='password'")
         except:
             print('Could not connect to database.')
             sys.exit(0)

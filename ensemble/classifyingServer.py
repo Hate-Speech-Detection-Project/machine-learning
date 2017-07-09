@@ -60,7 +60,7 @@ def hello():
 def correlation():
   dataRows = [predictor.getClassifierStatistics('BOW', 'RandomForest')[2],
               predictor.getClassifierStatistics('BOW', 'AdaBoost')[2],
-              predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2]]
+              predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2],
               predictor.getClassifierStatistics('TextFeatures', 'RandomForest')[2],
               predictor.getClassifierStatistics('TextFeatures', 'AdaBoost')[2],
               predictor.getClassifierStatistics('TextFeatures', 'Naive Bayes')[2],

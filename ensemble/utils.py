@@ -33,7 +33,7 @@ class AnalysisInformation():
         self.precision = 0
         self.recall = 0
         self.support = 0
-        (self.accuracy, self.precision, self.recall, self.support) = precision_recall_fscore_support(y_true, y_pred) 
+        (self.accuracy, self.precision, self.recall, self.support) = precision_recall_fscore_support(y_true, y_pred, average='binary') 
 
     def toString(self):
         return "Accuracy: " + str(self.accuracy) + " Precision: " + str(self.precision) + " Recall: " + str(self.recall)
