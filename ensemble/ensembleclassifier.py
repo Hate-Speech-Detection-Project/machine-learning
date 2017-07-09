@@ -12,8 +12,10 @@ from text_features import TextFeatureGenerator
 from user_features import UserFeatureGenerator
 import copy
 
+
 def identity(param):
-	return param
+    return param
+
 
 class EnsembleClassifier:
 	def __init__(self):

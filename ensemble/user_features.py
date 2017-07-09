@@ -107,8 +107,9 @@ class UserFeatureGenerator:
 
 
     def share_of_hate_comments_by_user(self, uid):
-        return self.number_of_hate_comments_by_user(uid) / self.number_of_comments_by_user(uid)
-
+        if self.number_of_comments_by_user(uid) != 0:
+            return self.number_of_hate_comments_by_user(uid) / self.number_of_comments_by_user(uid)
+        return self.number_of_hate_comments_by_user(uid)
 
     def number_of_comments_by_user_on_ressort(self, uid, ressort):
         cur = self.conn.cursor()
