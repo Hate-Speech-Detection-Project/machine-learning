@@ -57,13 +57,19 @@ body{
 
 
 .form-container .container .flex-container .comment-input-box,
-.form-container .container .flex-container .url-input-box{
-    color: white;
+.form-container .container .flex-container .url-input-box,
+.form-container .container .flex-container .result{
     width: 50%;
     max-width: 550px;
     display: block;
     color: black;
     margin: 15px auto 50px auto;
+}
+
+.form-container .container .flex-container .result{
+    height: 300px;
+    background-color: white;
+    text-align: left;
 }
 
 .form-container .container .flex-container .url-input .url-input-box{

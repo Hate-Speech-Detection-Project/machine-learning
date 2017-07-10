@@ -123,7 +123,7 @@ class EnsembleClassifier:
 
     def testClassifiersSingle(self, comment, url):
         results = {}
-
+        results['Reasons'] = {}
         for key, featureSet in enumerate(self.baselineFeatureSets):
 
             data = {
@@ -140,10 +140,16 @@ class EnsembleClassifier:
             print(featureSet)
             print(generationFunction)
             x = generationFunction(df)
+
+            nb = self.classifiers['BOW']['Naive Bayes']
+
             for key, classifier in self.classifiers[featureSet].items():
                 #print(featureSet + key)
                 #print(x)
                 results[featureSet + key] = classifier.predict(x)
+
+        for tuple in nb.hate_words_and_indices:
+            results['Reasons'][tuple[1]] = str(tuple[0])
 
         return results
 

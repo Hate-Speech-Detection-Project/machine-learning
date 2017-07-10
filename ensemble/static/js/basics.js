@@ -1,5 +1,4 @@
-function submitComment(event) {
-    event.preventDefault()
+function submitComment() {
     const comment = document.getElementById("comment").value;
     const url = document.getElementById("url").value;
     const apiURL = '//127.0.0.1:5000/predict';
@@ -9,7 +8,8 @@ function submitComment(event) {
 
     xmlHttp.onreadystatechange = function() {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
-           alert(JSON.stringify(JSON.parse(xmlHttp.responseText)))
+           const pre = document.getElementById("json");
+           pre.innerHTML = JSON.stringify(JSON.parse(xmlHttp.responseText), undefined, 2)
         }
     }
     xmlHttp.setRequestHeader('Content-type', 'application/json');

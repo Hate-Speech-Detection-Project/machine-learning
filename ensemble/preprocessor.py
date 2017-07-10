@@ -11,6 +11,7 @@ class Preprocessor:
                                      preprocessor=None,
                                      stop_words=None,
                                      max_features=10000)
+        self.feature_names  = []
 
     def comment_to_words(self, raw_comment):
         # Function to convert a raw review to a string of words
@@ -59,7 +60,7 @@ class Preprocessor:
         # into feature vectors. The input to fit_transform should be a list of
         # strings.
         comment_data_features = self.vectorizer.fit_transform(clean_train_comments)
-
+        self.feature_names = self.vectorizer.get_feature_names()
         # Numpy arrays are easy to work with, so convert the result to an
         # array
         comment_data_features = comment_data_features.toarray()

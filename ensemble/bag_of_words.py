@@ -14,6 +14,8 @@ class BagOfWordsClassifier:
         self.train_df = None
         self.calibrated = None
         self.testResult = None
+        self.feature_names = []
+        self.hate_words_and_indices = []
 
   def fit(self, train_df):
     if not self.trained:
@@ -98,8 +100,9 @@ class BagOfWordsClassifier:
     if featureMatrix is None:
         return 0
 
-    hate_words = [self.feature_names[i] for i in featureMatrix.tocsr().nonzero()[1]]
-    self.hate_words_and_indices = zip(featureMatrix.tocsr().nonzero()[1], hate_words)
+    if len(self.feature_names) != 0:
+        hate_words = [self.feature_names[i] for i in featureMatrix.nonzero()[1]]
+        self.hate_words_and_indices = zip(featureMatrix.nonzero()[1], hate_words)
 
     return predicted[0]
 
