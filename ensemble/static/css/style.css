@@ -63,11 +63,11 @@ body{
     max-width: 550px;
     display: block;
     color: black;
-    margin: 15px auto 50px auto;
+    margin: 15px auto 25px auto;
 }
 
 .form-container .container .flex-container .result{
-    height: 300px;
+    height: 385px;
     background-color: white;
     text-align: left;
 }
