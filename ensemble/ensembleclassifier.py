@@ -137,8 +137,8 @@ class EnsembleClassifier:
             df = pd.DataFrame(data)
 
             generationFunction = self.featureTestGen[featureSet]
-            print(featureSet)
-            print(generationFunction)
+            # print(featureSet)
+            # print(generationFunction)
             x = generationFunction(df)
 
             nb = self.classifiers['BOW']['Naive Bayes']
@@ -212,7 +212,7 @@ class EnsembleClassifier:
                 self.testGroundTruths[name] = testDataFrame[groundTruthName]
 
     def initClassifiers(self, defaultTrainingDF, defaultTestDF, ensembleTestDF, groundTruthName):
-        print(defaultTrainingDF)
+        # print(defaultTrainingDF)
 
         self.defaultTrainingDataFrame = defaultTrainingDF
         self.trainingGroundTruth = defaultTrainingDF[groundTruthName]
@@ -280,6 +280,6 @@ class EnsembleClassifier:
         return self.classifiers[featureSetName][classifierName].testFeatureMatrix(None, None)
 
     def extractGroundTruth(self, dataFrameWithGroundTruth):
-        print(dataFrameWithGroundTruth.as_matrix())
+        # print(dataFrameWithGroundTruth.as_matrix())
         featureMatrix = dataFrameWithGroundTruth.drop(self.defaultGroundTruthName, axis=1).as_matrix()
         return featureMatrix

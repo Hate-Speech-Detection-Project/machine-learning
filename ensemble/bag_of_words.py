@@ -124,7 +124,7 @@ class BagOfWordsClassifier:
     indices = np.argsort(indexes)
     sorted_index = np.asarray(indices)
     index_ordered_by_words = np.sort(indexes)
-    hate_words = [words[val] + " (" + str(index_ordered_by_words[idx]) + ")" for idx, val in enumerate(sorted_index)]
+    hate_words = [words[val] + " (" + index_ordered_by_words[idx].encode('utf-8') + ")" for idx, val in enumerate(sorted_index)]
 
     return {
         "predicted": predicted,

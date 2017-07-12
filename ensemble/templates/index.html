@@ -1,33 +1,305 @@
-
 <!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" type="text/css" href="static/css/style.css">
-    <script src="static/js/basics.js"> </script>
-</head>
-<body>
-<form class="form-container">
-    <img src="static/images/freespeech.jpg">
-    <div class="container">
-        <div class="flex-container">
-            <div class="comment-input">
-                <span class="comment-input-label">
-                     Bitte hier das Kommentar einfügen:
-                </span>
-                <textarea id="comment" class="comment-input-box" cols="40" rows="5"></textarea>
-            </div>
-            <div class="url-input">
-               <span class="url-input-label">
-                     Bitte hier die Artikelurl einfügen:
-                </span>
-                 <textarea id="url" class="url-input-box" cols="1" rows="1"></textarea>
-            </div>
-            <textarea class="result" id="json"></textarea>
-            <button id="submitButton" class="submit-button" type="button" onclick="submitComment()">Kommentar klassifizieren</button>
-        </div>
-    </div>
-</form>
-</body>
+<html>
+	<head>
+		<title>Zeit Online</title>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	    <meta name="description" content="Demo project with jQuery">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<!-- Fonts -->
+		<!-- <link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,700" rel="stylesheet"> -->
+
+		<!-- Loading -->
+		<link rel="stylesheet" href="static/css/nprogress.min.css" />
+		<script src="static/js/nprogress.min.js"></script>		
+
+ 		<link rel="stylesheet" href="css/nprogress.min.css" />
+		<script src="js/nprogress.min.js"></script>
+
+		<!-- CSS -->
+		<style type="text/css">
+			body {
+				font-family: 'Noto Sans', sans-serif;
+				margin: 0;
+				padding: 0;
+				min-height: 100vh;
+				background-color: #e2e2e2;
+			}
+
+			*:focus {
+			    outline: none;
+			}
+
+			header {
+				border-bottom: 1px solid #D8D8D8;
+				background-color: #ffffff;
+				position: fixed;
+				top: 0px;
+    			width: 100%;
+			}
+
+			header span {
+				line-height: 60px;
+				padding-left: 20px;
+			}
+
+			header span.title {
+				padding: 0 20px;
+				font-size: 18px;
+				font-weight: 800;
+				display: inline-block;
+				border-right: 1px solid #D8D8D8;
+
+			}
+
+			header span.description {
+				color: #B5B5B5;
+				font-size: 15px;
+			}
+
+			content {
+				text-align: center;
+				padding: 40px;
+				display: block;
+				height: 100%;
+				margin-top: 62px;
+			}
+
+			.top-question {
+				font-size: 24px;
+			}
+
+			input.search {
+				width: 400px;
+				height: 30px;
+				border: none;
+				border-bottom: 1px solid #242424;
+				font-size: 20px;
+				text-align: center;
+			}
+
+			.comment-box {
+				border: none;
+			    min-width: 400px;
+			    min-height: 300px;
+			    border-radius: 3px;
+			    font-size: 14px;
+			    font-family: 'Noto Sans', sans-serif;
+			    padding: 15px;
+			}
+
+			.article {
+				border: none;
+			    min-width: 400px;
+			    min-height: 50px;
+			    border-radius: 3px;
+			    font-size: 14px;
+			    font-family: 'Noto Sans', sans-serif;
+			    padding: 0 15px;
+			}
+
+			h3 {
+				/*text-align: left;*/
+			}
+
+			.results {
+				margin-top: 80px;
+				/*text-align: left;*/
+			}
+
+			.spacer {
+				height: 40px;
+			}
+
+			button {
+				margin-top: 40px;
+			    background: #3a3a3a;
+			    border: none;
+			    border-radius: 4px;
+			    color: white;
+			    padding: 15px 60px;
+			    font-size: 17px;
+			    cursor: pointer;
+			    font-family: 'Noto Sans', sans-serif;
+			}
+
+			table {
+				text-align: left;
+				background-color: white;
+				margin-left: 50%;
+				transform: translateX(-50%);
+				padding: 10px;
+			}
+
+			table tr {
+				padding: 10px;
+			}
+
+			td.hate {
+				background-color: #941414;
+				width: 100%;
+				text-align: right;
+				color: white;
+			}
+
+			td.reasons {
+				background-color: rgb(255, 208, 82);
+			}
+
+			td.nohate {
+				background-color: #289414;
+				width: 100%;
+				text-align: right;
+				color: white;
+			}
+
+			td.reasons {
+				width: 100%;
+				text-align: right;
+			}
+
+		</style>
+	</head>
+	<body>
+		<header>
+		  <span class="title">Zeit Online</span>
+		  <span class="description">Erkennung von problematischen Kommentaren (Beta Version)</span>
+		</header>
+
+		<content>
+			<h1 class="top-question">Kommentar:</h1>
+			<textarea id="comment" class="comment-box"></textarea>
+
+<!-- 
+			<h1 class="top-question">Artikel:</h1>
+			<input id="url" class="article"/> -->
+
+			<br />
+			<button onclick="submitComment()">Analysieren</button>
+
+			<div class="results">
+			<h3>Ergebnis:</h3>
+				<p id="searchLoading">Ergebnis wird berechnet...</div>
+				<table id="word2vecResult" class="word2vecResult"></table>
+				<br />
+				<table id="result" class="result"></table>
+			</div>
+		</content>
+
+		<script type="text/javascript">
+		function submitCommentEnsemble() {
+			document.getElementById('searchLoading').style.display = 'block';
+			NProgress.start()
+			updateInterval = setInterval(function() { 
+				NProgress.inc() 
+			}, 2500)
+		    const comment = document.getElementById("comment").value;
+		    // const url = document.getElementById("url").value;
+		    const apiURL = '//127.0.0.1:5000/predict';
+
+		    var xmlHttp = new XMLHttpRequest();
+		    xmlHttp.open( "POST", apiURL );
+
+		    xmlHttp.onreadystatechange = function() {
+		        if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+		           const pre = document.getElementById("json");
+		           result = JSON.parse(xmlHttp.responseText)
+		           clearInterval(updateInterval)
+			       NProgress.done()
+			       document.getElementById('searchLoading').style.display = 'none';
+			       htmlText = ''
+
+			       reasons = []
+			       if (result['Reasons']) {
+				       for (var key in result['Reasons']) {
+						  if (result['Reasons'].hasOwnProperty(key)) {
+						  	reasons.push(key)
+						  }
+					   }
+			       }
+
+			       if (reasons && reasons.length > 0) {
+			       	 reasonsText = reasons.reverse().slice(5).join(', ')
+				   	 htmlText = htmlText + "<tr><td>Auff&auml;llige Worte:</td><td class=\"reasons\">" + reasonsText + "</td></tr>"
+			       }
+			       for (var key in result) {
+					  if (result.hasOwnProperty(key)) {
+					  	if (key == 'Reasons' || key.indexOf('UserFeatures') > -1) {
+					  	} else if (result[key] > 0.5) {
+						  	htmlText = htmlText + "<tr><td>" + key + ":</td><td class=\"hate\">" + result[key] + "</td></tr>"
+					  	} else {
+						  	htmlText = htmlText + "<tr><td>" + key + ":</td><td class=\"nohate\">" + result[key] + "</td></tr>"
+					  	}
+ 					    console.log(key + " -> " + result[key]);
+					  }
+					}
+				   document.getElementById('result').style.display = 'block';
+				   document.getElementById('searchLoading').style.display = 'none';
+			       document.querySelector(".result").innerHTML = htmlText
+		        }
+		    }
+		    xmlHttp.setRequestHeader('Content-type', 'application/json');
+		    xmlHttp.setRequestHeader('Access-Control-Allow-Origin', '*');
+
+		    const payload = {
+		            'comment': comment.replace(/[^\w\s]/gi, ''),
+		            'url': '' //url
+		    }
+
+
+		    xmlHttp.send(JSON.stringify(payload));
+		}
+
+
+		function submitCommentWord2Vec() {
+		    const comment = document.getElementById("comment").value;
+		    const apiURL = '//127.0.0.1:5005/predict';
+
+		    var xmlHttp = new XMLHttpRequest();
+		    xmlHttp.open( "POST", apiURL );
+
+		    xmlHttp.onreadystatechange = function() {
+		        if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+		           result = JSON.parse(xmlHttp.responseText)
+			       htmlText = ''
+
+			       reasons = []
+			       
+			       for (var key in result) {
+					  if (result.hasOwnProperty(key)) {
+					  	if (key == 'Reasons' || key.indexOf('UserFeatures') > -1) {
+					  	} else if (result[key] > 0.5) {
+						  	htmlText = htmlText + "<tr><td>" + key + ":</td><td class=\"hate\">" + result[key] + "</td></tr>"
+					  	} else {
+						  	htmlText = htmlText + "<tr><td>" + key + ":</td><td class=\"nohate\">" + result[key] + "</td></tr>"
+					  	}
+ 					    // console.log(key + " -> " + result[key]);
+					  }
+					}
+				   document.getElementById('result').style.display = 'block';
+			       document.querySelector('.word2vecResult').innerHTML = htmlText
+		        }
+		    }
+		    xmlHttp.setRequestHeader('Content-type', 'application/json');
+		    xmlHttp.setRequestHeader('Access-Control-Allow-Origin', '*');
+
+		    const payload = {
+		            'comment': comment.replace(/[^\w\s]/gi, ''),
+		            'url': '' //url
+		    }
+
+
+		    xmlHttp.send(JSON.stringify(payload));
+		}
+
+		function submitComment() {
+			submitCommentEnsemble()
+			submitCommentWord2Vec()
+		}
+
+		document.getElementById('searchLoading').style.display = 'none';
+		document.getElementById('result').style.display = 'none';
+		</script>
+	</body>
 </html>
