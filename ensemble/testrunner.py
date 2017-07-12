@@ -1,10 +1,10 @@
 from bag_of_words import BagOfWordsClassifier
 from text_features import TextFeatureClassifier
-from word2vec import Word2VecClassifier
-from doc2vec import Doc2VecClassifier
+# from word2vec import Word2VecClassifier
+# from doc2vec import Doc2VecClassifier
 from word2vec_adding import Word2VecAddingClassifier
-from word2vec_ensemble import Word2VecEnsembleClassifier
-from word2vec_deep_inverse_regression import Word2VecDeepInverseRegressionClassifier
+# from word2vec_ensemble import Word2VecEnsembleClassifier
+# from word2vec_deep_inverse_regression import Word2VecDeepInverseRegressionClassifier
 import pandas as pd
 import numpy as np
 from beautifultable import BeautifulTable
@@ -23,8 +23,10 @@ enable_TextFeatures = False
 class Predictor:
   def initialize(self, set):
 
-    self.train_df = pd.read_csv('../../data/datasets/' + set + '/train.csv', sep=',')
-    self.test_df = pd.read_csv('../../data/datasets/' + set + '/test.csv', sep=',')
+    # self.train_df = pd.read_csv('../../data/datasets/' + set + '/train.csv', sep=',')
+    # self.test_df = pd.read_csv('../../data/datasets/' + set + '/test.csv', sep=',')
+    self.train_df = pd.read_csv('../../data/datasets/stratified_10000/train.csv', sep=',')
+    self.test_df = pd.read_csv('../../data/datasets/100000/test.csv', sep=',')
 
     # self.bag_of_words_classifier = BagOfWordsClassifier()
     # self.bag_of_words_classifier.fit(self.train_df)
@@ -32,7 +34,7 @@ class Predictor:
     # self.text_features_classifier.fit(self.train_df)
 
     if enabled_Word2VecClassifier:
-        self.word2vec_classifier = Word2VecEnsembleClassifier()
+        self.word2vec_classifier = Word2VecAddingClassifier()
         self.word2vec_classifier.fit(self.train_df)
 
 
@@ -102,7 +104,7 @@ class Predictor:
 
 
 predictor = Predictor()
-datasets = ['tiny']  # '1000', '10000', 'stratified_10000']
+datasets = ['stratified']  # '1000', '10000', 'stratified_10000']
 
 for set in datasets:
   print("\nDataset:", set)
