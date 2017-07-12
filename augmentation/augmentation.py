@@ -73,12 +73,8 @@ queries = [(
   # Time since creation of the corresponding article.
   'time_since_article',
   """
-  SELECT outside.created - (
-    SELECT inside.timestamp
-    FROM articles AS inside
-    WHERE outside.url = inside.url
-  )
-  FROM temp_comments AS outside
+  SELECT temp_comments.created - EXTRACT(EPOCH FROM articles.publish_date)
+  FROM temp_comments JOIN articles USING (url)
   ORDER BY created
   """
 ),(
