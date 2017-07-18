@@ -1,6 +1,6 @@
 #in case you get problems with some qt4 / qt5 pyqtobject stuff
-import matplotlib
-matplotlib.use("Qt4Agg")
+#import matplotlib
+#matplotlib.use("Qt5Agg")
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
@@ -12,9 +12,9 @@ import json
 import io
 import base64
 
-trainDf = pd.read_csv('../../data/datasets/stratified_dual/train.csv', sep=',')
-testDf = pd.read_csv('../../data/datasets/stratified_dual/test1.csv', sep=',')
-testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual/test2.csv', sep=',')
+trainDf = pd.read_csv('../../data/datasets/stratified_dual_small/train.csv', sep=',')
+testDf = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
+testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_small/test2.csv', sep=',')
 
 predictor = EnsembleClassifier()
 predictor.initClassifiers(trainDf, testDf, testEnsembleDf, 'hate')

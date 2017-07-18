@@ -10,7 +10,7 @@ class Preprocessor:
                                      tokenizer=None,
                                      preprocessor=None,
                                      stop_words=None,
-                                     max_features=10000)
+                                     max_features=1000)
         self.feature_names  = []
 
     def comment_to_words(self, raw_comment):
