@@ -6,15 +6,16 @@ from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import numpy as np
 from flask import *
+from flask_cors import CORS, cross_origin
 from utils import AnalysisInformation, CorrelationMatrix
 from ensembleclassifier import EnsembleClassifier
 import json
 import io
 import base64
 
-trainDf = pd.read_csv('../../data/datasets/stratified_dual_small/train.csv', sep=',')
-testDf = pd.read_csv('../../data/datasets/stratified_dual_small/test1.csv', sep=',')
-testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_small/test2.csv', sep=',')
+trainDf = pd.read_csv('../../data/datasets/stratified_dual_smallest/train.csv', sep=',')
+testDf = pd.read_csv('../../data/datasets/stratified_dual_smallest/test1.csv', sep=',')
+testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_smallest/test2.csv', sep=',')
 
 predictor = EnsembleClassifier()
 predictor.initClassifiers(trainDf, testDf, testEnsembleDf, 'hate')
@@ -27,7 +28,7 @@ print('Done Testing models...')
 predictor.initEnsembleClassifier()
 
 app = Flask(__name__)
-
+CORS(app)
 
 @app.route('/')
 def hello():
@@ -131,4 +132,4 @@ def plot():
 def index():
     return render_template('index.html')
 
-app.run()
+app.run(host='0.0.0.0')
