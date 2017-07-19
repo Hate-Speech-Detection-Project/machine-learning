@@ -70,18 +70,13 @@ class EnsembleClassifier:
 
     def __fitClassifier(self, featureSet, classifier, groundTruth, mode='parallel'):
         # Workaround, because the scikit random forest implementation is not thread-safe
-        #if mode is 'parallel':
-        #   self.scheduler.schedule(function = classifier.fitFeatureMatrix, 
-        #                   args = (self.trainingFeatureMatrix[featureSet], 
-        #                           groundTruth))
-        #else:
-        #print("fitting classifier with:")
-        #print(featureSet)
-        #print(len(groundTruth))
-        #print(groundTruth)
-        #print(len(self.trainingFeatureMatrix[featureSet]))
-        #print(self.trainingFeatureMatrix[featureSet])
-        classifier.fitFeatureMatrix(self.trainingFeatureMatrix[featureSet], groundTruth)
+        if mode is 'parallel':
+           self.scheduler.schedule(function = classifier.fitFeatureMatrix, 
+                           args = (self.trainingFeatureMatrix[featureSet], 
+                                   groundTruth))
+        else:
+            self.scheduler.joinAll()
+            classifier.fitFeatureMatrix(self.trainingFeatureMatrix[featureSet], groundTruth)
 
     def __fitClassifiers(self):
         for featureSet in self.featureSets:
@@ -100,18 +95,13 @@ class EnsembleClassifier:
         self.scheduler.joinAll()
 
     def __testClassifier(self, featureSet, classifier, groundTruth, mode='parallel'):
-        #if mode is 'parallel':
-        #   self.scheduler.schedule(function = classifier.testFeatureMatrix, 
-        #                   args = (self.testFeatureMatrix[featureSet], 
-        #                           self.testGroundTruth))
-        #else:
-        #print("testing classifier with:")
-        #print(featureSet)
-        #print(len(groundTruth))
-        #print(groundTruth)
-        #print(len(self.testFeatureMatrix[featureSet]))
-        #print(self.testFeatureMatrix[featureSet])
-        classifier.testFeatureMatrix(self.testFeatureMatrix[featureSet], groundTruth)
+        if mode is 'parallel':
+           self.scheduler.schedule(function = classifier.testFeatureMatrix, 
+                           args = (self.testFeatureMatrix[featureSet], 
+                                   self.testGroundTruth))
+        else:
+            self.scheduler.joinAll()
+            classifier.testFeatureMatrix(self.testFeatureMatrix[featureSet], groundTruth)
 
     def __testClassifiers(self):
         for featureSet in self.featureSets:
@@ -168,9 +158,9 @@ class EnsembleClassifier:
                     dataFrame = self.trainingDataFrames[key]
                 self.__prepareFeatureSet(self.trainingFeatureMatrix, key, conversion, dataFrame)
                 # corpuses are not thread-safe :/
-#               self.scheduler.schedule(function = self.__prepareFeatureSet, 
-#                                       args = (key, conversion, dataFrame))
-#       self.scheduler.joinAll();
+                #self.scheduler.schedule(function = self.__prepareFeatureSet, 
+                #                       args = (self.trainingFeatureMatrix, key, conversion, dataFrame))
+        #self.scheduler.joinAll()
 
     def __prepareFeatureSet(self, destination, key,  conversion, dataFrame):
         destination[key] = conversion(dataFrame)
@@ -236,9 +226,9 @@ class EnsembleClassifier:
         self.__addEnsembleFeatureSet('UserFeatures Ensemble Test', self.userFeatureGenerator.calculate_features_with_dataframe, self.userFeatureGenerator.calculate_features_with_dataframe, ensembleTestDF, groundTruthName = groundTruthName)
         self.__addEnsembleFeatureSet('TextFeatures Ensemble Test', self.textFeatureGenerator.calculate_features_with_dataframe, self.textFeatureGenerator.calculate_features_with_dataframe, ensembleTestDF, groundTruthName = groundTruthName)
 
-        self.__addClassifier("RandomForest", RandomForestBOWClassifier())
         self.__addClassifier("AdaBoost", AdaBoost(self.preprocessor))
         self.__addClassifier("Naive Bayes", BagOfWordsClassifier())
+        self.__addClassifier("RandomForest", RandomForestBOWClassifier())
         self.__updateClassifiers()
 
     def initEnsembleClassifier(self):
