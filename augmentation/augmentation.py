@@ -3,7 +3,7 @@ import numpy as np
 import psycopg2
 import psycopg2.extras
 
-file = '../../data/10000/train.csv'
+file = '../../data/1000/3.csv'
 data = pd.read_csv(file, sep=',')
 data.sort_values('created')
 
@@ -76,7 +76,7 @@ queries = [(
   SELECT outside.created - (
     SELECT COALESCE(MAX(inside.created), outside.created)
     FROM comments AS inside
-    AND outside.created > inside.created
+    WHERE outside.created > inside.created
     AND outside.uid = inside.uid
   )
   FROM temp_comments AS outside
@@ -89,7 +89,7 @@ queries = [(
   SELECT outside.created - (
     SELECT COALESCE(MAX(inside.created), outside.created)
     FROM comments AS inside
-    AND outside.created > inside.created
+    WHERE outside.created > inside.created
     AND outside.uid = inside.uid
     AND inside.hate
   )
