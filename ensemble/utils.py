@@ -16,16 +16,29 @@ class CorrelationMatrix():
                     resultRow.append(correlation)
                 self.correlationMatrix.append(resultRow)
 
-        return self.correlationMatrix;
+        return self.correlationMatrix
 
     def toString(self):
+        matrix = self.get()
         matrixString =""
 
-        for row in self.correlationMatrix:
-            rowString = ""
+        matrixString.append("...\t")
+        for key in self.dataRows.keys()
+            matrixString.append(key)[:3]
+            matrixString.append("\t")
+        matrixString.append("\n")
+
+        for rown, index in enumerate(matrix):
+            rowTitle = self.dataRows.keys()[index]
+            rowString = rowTitle[:3] + "\t"
+
             for field in row:
-                rowString += str(field) + "\t"
-            matrixString += rowString + "\n" 
+                rowString += str(field)
+                rowString += "\t"
+            matrixString += rowString 
+            matrixString += "\n" 
+
+        return matrixString
 
 class AnalysisInformation():
     def __init__(self, y_pred, y_true):

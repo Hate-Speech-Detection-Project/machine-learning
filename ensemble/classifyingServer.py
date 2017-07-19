@@ -69,7 +69,7 @@ def correlation():
               predictor.getClassifierStatistics('UserFeatures', 'AdaBoost')[2],
               predictor.getClassifierStatistics('UserFeatures', 'Naive Bayes')[2]]
   correlationMatrix = CorrelationMatrix(dataRows)
-  return jsonify(correlationMatrix.get())
+  return correlationMatrix.toString()
 
 @app.route('/single/<cid>')
 def single(cid):
