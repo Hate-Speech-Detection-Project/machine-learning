@@ -59,15 +59,15 @@ def hello():
 
 @app.route('/correlation')
 def correlation():
-  dataRows = [predictor.getClassifierStatistics('BOW', 'RandomForest')[2],
-              predictor.getClassifierStatistics('BOW', 'AdaBoost')[2],
-              predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2],
-              predictor.getClassifierStatistics('TextFeatures', 'RandomForest')[2],
-              predictor.getClassifierStatistics('TextFeatures', 'AdaBoost')[2],
-              predictor.getClassifierStatistics('TextFeatures', 'Naive Bayes')[2],
-              predictor.getClassifierStatistics('UserFeatures', 'RandomForest')[2],
-              predictor.getClassifierStatistics('UserFeatures', 'AdaBoost')[2],
-              predictor.getClassifierStatistics('UserFeatures', 'Naive Bayes')[2]]
+  dataRows = {'BRandomForest' : predictor.getClassifierStatistics('BOW', 'RandomForest')[2],
+              'BAdaBoost' : predictor.getClassifierStatistics('BOW', 'AdaBoost')[2],
+              'BNaive Bayes' : predictor.getClassifierStatistics('BOW', 'Naive Bayes')[2],
+              'TRandomForest' : predictor.getClassifierStatistics('TextFeatures', 'RandomForest')[2],
+              'TAdaBoost' : predictor.getClassifierStatistics('TextFeatures', 'AdaBoost')[2],
+              'TNaive Bayes' : predictor.getClassifierStatistics('TextFeatures', 'Naive Bayes')[2],
+              'URandomForest' : predictor.getClassifierStatistics('UserFeatures', 'RandomForest')[2],
+              'UAdaBoost' : predictor.getClassifierStatistics('UserFeatures', 'AdaBoost')[2],
+              'UNaive Bayes' : predictor.getClassifierStatistics('UserFeatures', 'Naive Bayes')[2]}
   correlationMatrix = CorrelationMatrix(dataRows)
   return correlationMatrix.toString()
 

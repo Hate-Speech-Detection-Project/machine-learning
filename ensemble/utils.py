@@ -9,9 +9,9 @@ class CorrelationMatrix():
     def get(self):
         if len(self.correlationMatrix) == 0:
             self.correlationMatrix = []
-            for rowXIndex, rowX in enumerate(self.dataRows):
+            for rowXIndex, rowX in self.dataRows.items():
                 resultRow = []
-                for rowYIndex, rowY in enumerate(self.dataRows):
+                for rowYIndex, rowY in self.dataRows.items():
                     correlation = np.corrcoef(rowX, rowY)[0, 1]
                     resultRow.append(correlation)
                 self.correlationMatrix.append(resultRow)
@@ -22,18 +22,20 @@ class CorrelationMatrix():
         matrix = self.get()
         matrixString =""
 
-        matrixString.append("...\t")
-        for key in self.dataRows.keys()
-            matrixString.append(key)[:3]
-            matrixString.append("\t")
-        matrixString.append("\n")
+        matrixString += ("....\t")
+        for key in self.dataRows:
+            matrixString += '{:4.4}'.format(key)
+            matrixString += "\t"
+        matrixString += "\n"
 
-        for rown, index in enumerate(matrix):
-            rowTitle = self.dataRows.keys()[index]
-            rowString = rowTitle[:3] + "\t"
+        for index, row in enumerate(matrix):
+            print(self.dataRows.keys())
+            print(index)
+            rowTitle = list(self.dataRows.keys())[index]
+            rowString = '{:4.4}'.format(rowTitle) + "\t"
 
             for field in row:
-                rowString += str(field)
+                rowString += '{:4.4}'.format(str(field))
                 rowString += "\t"
             matrixString += rowString 
             matrixString += "\n" 
