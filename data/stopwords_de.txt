@@ -335,7 +335,10 @@ leide
 lieber
 los
 m
+<<<<<<< HEAD
 mal
+=======
+>>>>>>> master
 machen
 macht
 machte

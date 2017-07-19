@@ -5,7 +5,9 @@ from utils import AnalysisInformation
 from preprocessor import Preprocessor
 import pandas as pd
 import numpy as np
+from article_features import ArticleFeatures
 import re
+import nltk
 
 class BagOfWordsClassifier:
   def __init__(self):
@@ -133,8 +135,8 @@ class BagOfWordsClassifier:
 
   def hate_words(self):
     # Top words
-    X_train_hate = self.train_df[self.train_df['hate'] == 't']['comment']
-    X_train_no_hate = self.train_df[self.train_df['hate'] == 'f']['comment']
+    X_train_hate = self.train_df[self.train_df['hate'] == True]['comment']
+    X_train_no_hate = self.train_df[self.train_df['hate'] == False]['comment']
 
     X_train_hate_counts = self.count_vect.fit_transform(np.concatenate([X_train_hate, X_train_hate, X_train_no_hate]))
     X_train_hate_tfidf = self.tfidf_transformer.fit_transform(X_train_hate_counts)
@@ -151,6 +153,6 @@ class BagOfWordsClassifier:
     index = np.asarray(indices)[0]
     hate_words = [strings[i] for i in reversed(index)]
 
-    print("Top 40 hate words", hate_words[:40])
+    # print("Top 100 hate words", hate_words[:100])
 
     return hate_words

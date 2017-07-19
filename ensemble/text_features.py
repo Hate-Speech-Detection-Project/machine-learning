@@ -85,7 +85,6 @@ class TextFeatureGenerator:
 
     def calculate_features(self, comment, timestamp):
         tagged_comment = TextBlob(comment).tags
-
         date = datetime.datetime.fromtimestamp(timestamp)
         total_length = len(comment)
         num_of_words = len(comment.split())
