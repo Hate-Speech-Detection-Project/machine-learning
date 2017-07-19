@@ -2,8 +2,9 @@ import pandas as pd
 import numpy as np
 import psycopg2
 import psycopg2.extras
+import sys
 
-file = '../../data/1000/1.csv'
+file = sys.argv[1]
 data = pd.read_csv(file, sep=',')
 data.sort_values('created')
 
