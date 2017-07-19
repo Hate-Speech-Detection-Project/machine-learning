@@ -29,8 +29,6 @@ class CorrelationMatrix():
         matrixString += "\n"
 
         for index, row in enumerate(matrix):
-            print(self.dataRows.keys())
-            print(index)
             rowTitle = list(self.dataRows.keys())[index]
             rowString = '{:4.4}'.format(rowTitle) + "\t"
 

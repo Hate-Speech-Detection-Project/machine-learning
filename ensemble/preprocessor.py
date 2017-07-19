@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from nltk.corpus import stopwords # Import the stop word list
 
 class Preprocessor:
-    def __init__(self):
+    def __init__(self, ngramRange = (1, 1)):
         self.vectorizer  = CountVectorizer(analyzer="word",
                                      tokenizer=None,
                                      preprocessor=None,
@@ -78,8 +78,7 @@ class Preprocessor:
         test_data_features = self.vectorizer.transform(clean_test_comments)
         return test_data_features
 
-
-    def createFeatureMatrix(self, df, single = False):
+    def createFeatureMatrix(self, df):
         # Create an empty list and append the clean reviews one by one
         num_comments = len(df["comment"])
         clean_test_comments = []
