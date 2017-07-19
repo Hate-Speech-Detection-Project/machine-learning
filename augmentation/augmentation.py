@@ -70,6 +70,33 @@ queries = [(
   ORDER BY created
   """
 ),(
+  # Time since last comment (by same user) on any article.
+  'time_since_last_comment_same_user_any_article',
+  """
+  SELECT outside.created - (
+    SELECT COALESCE(MAX(inside.created), outside.created)
+    FROM comments AS inside
+    AND outside.created > inside.created
+    AND outside.uid = inside.uid
+  )
+  FROM temp_comments AS outside
+  ORDER BY created
+  """
+),(
+  # Time since last hate comment (by same user) on any article.
+  'time_since_last_hate_comment_same_user_any_article',
+  """
+  SELECT outside.created - (
+    SELECT COALESCE(MAX(inside.created), outside.created)
+    FROM comments AS inside
+    AND outside.created > inside.created
+    AND outside.uid = inside.uid
+    AND inside.hate
+  )
+  FROM temp_comments AS outside
+  ORDER BY created
+  """
+),(
   # Time since creation of the corresponding article.
   'time_since_article',
   """
@@ -87,6 +114,40 @@ queries = [(
     WHERE inside.uid = outside.uid
     AND inside.created < outside.created
   )
+  FROM temp_comments AS outside
+  ORDER BY created
+  """
+),(
+  # Number of hate comments by user at the time of writing the comment.
+  'number_of_hate_comments_by_user',
+  """
+  SELECT (
+    SELECT COUNT(1)
+    FROM comments AS inside
+    WHERE inside.uid = outside.uid
+    AND inside.created < outside.created
+    AND inside.hate
+  )
+  FROM temp_comments AS outside
+  ORDER BY created
+  """
+),(
+  # Share of hate comments by user at the time of writing the comment.
+  # TODO This could also be aggregated from the other features, would save time.
+  'share_of_hate_comments_by_user',
+  """
+  SELECT ((
+    SELECT COUNT(1)
+    FROM comments AS inside
+    WHERE inside.uid = outside.uid
+    AND inside.created < outside.created
+    AND inside.hate
+  )::real / (
+    SELECT GREATEST(1, COUNT(1))
+    FROM comments AS inside
+    WHERE inside.uid = outside.uid
+    AND inside.created < outside.created
+  )::real) AS hate_share
   FROM temp_comments AS outside
   ORDER BY created
   """
