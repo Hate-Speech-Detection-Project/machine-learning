@@ -109,12 +109,26 @@ queries = [(
   'number_of_comments_by_user',
   """
   SELECT (
-  	SELECT COUNT(1)
+    SELECT COUNT(1)
     FROM comments AS inside
     WHERE inside.uid = outside.uid
     AND inside.created < outside.created
   )
   FROM temp_comments AS outside
+  ORDER BY created
+  """
+),(
+  # Number of comments by user in the same ressort at the time of writing the comment.
+  'number_of_comments_by_user_in_ressort',
+  """
+  SELECT (
+    SELECT COUNT(1)
+    FROM comments AS inside LEFT JOIN articles AS inside_articles USING (url)
+    WHERE inside.uid = outside.uid
+    AND inside.created < outside.created
+	AND inside_articles.ressort = outside_articles.ressort
+  )
+  FROM temp_comments AS outside LEFT JOIN articles AS outside_articles USING (url)
   ORDER BY created
   """
 ),(
@@ -129,6 +143,21 @@ queries = [(
     AND inside.hate
   )
   FROM temp_comments AS outside
+  ORDER BY created
+  """
+),(
+  # Number of hate comments by user in the same ressort at the time of writing the comment.
+  'number_of_hate_comments_by_user_in_ressort',
+  """
+  SELECT (
+  	SELECT COUNT(1)
+    FROM comments AS inside LEFT JOIN articles AS inside_articles USING (url)
+    WHERE inside.uid = outside.uid
+	AND inside.hate
+    AND inside.created < outside.created
+	AND inside_articles.ressort = outside_articles.ressort
+  )
+  FROM temp_comments AS outside LEFT JOIN articles AS outside_articles USING (url)
   ORDER BY created
   """
 ),(
