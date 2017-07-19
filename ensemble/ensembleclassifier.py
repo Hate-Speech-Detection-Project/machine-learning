@@ -16,6 +16,7 @@ class EnsembleClassifier:
     def __init__(self):
         self.threads = []
         self.preprocessor = Preprocessor()
+        self.ngramPreprocessor = Preprocessor((1,4))
         self.textFeatureGenerator = TextFeatureGenerator()
         self.userFeatureGenerator = UserFeatureGenerator()
 
@@ -49,6 +50,12 @@ class EnsembleClassifier:
         self.trainingFeatureMatrix = {}
 
         self.testFeatureMatrix = {}
+
+    def getClassifierNames(self):
+        return self.classifierProtoTypes.keys()
+
+    def getFeatureSetNames(self):
+        return self.featureSets
 
     def __addClassifier(self, name, classifier):
         self.classifierProtoTypes[name] = classifier
@@ -222,6 +229,7 @@ class EnsembleClassifier:
         self.defaultGroundTruthName = groundTruthName
 
         self.__addFeatureSet('BOW', self.preprocessor.trainFeatureMatrix, self.preprocessor.createFeatureMatrix)
+        self.__addFeatureSet('BOWNGRAM', self.ngramPreprocessor.trainFeatureMatrix, self.ngramPreprocessor.createFeatureMatrix)
         self.__addEnsembleFeatureSet('BOW Ensemble Test', self.preprocessor.trainFeatureMatrix, self.preprocessor.createFeatureMatrix, ensembleTestDF)
         self.__addFeatureSet('TextFeatures', self.textFeatureGenerator.calculate_features_with_dataframe, self.textFeatureGenerator.calculate_features_with_dataframe)
         self.__addFeatureSet('UserFeatures', self.userFeatureGenerator.calculate_features_with_dataframe, self.userFeatureGenerator.calculate_features_with_dataframe)
