@@ -3,7 +3,7 @@ import numpy as np
 import psycopg2
 import psycopg2.extras
 
-file = '../../data/1000/3.csv'
+file = '../../data/1000/1.csv'
 data = pd.read_csv(file, sep=',')
 data.sort_values('created')
 
@@ -196,4 +196,5 @@ data_result.columns = [query[0] for query in queries]
 data = data.join(data_result)
 
 # Output file.
-data.to_csv(file + '.augmented.csv', encoding='utf-8')
+data.to_csv(file + '.augmented.csv', encoding='utf-8', index=False)
+print("Done")
