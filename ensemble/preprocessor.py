@@ -5,12 +5,13 @@ from sklearn.feature_extraction.text import CountVectorizer
 from nltk.corpus import stopwords # Import the stop word list
 
 class Preprocessor:
-    def __init__(self):
+    def __init__(self, ngramRange = (1, 1)):
         self.vectorizer  = CountVectorizer(analyzer="word",
                                      tokenizer=None,
                                      preprocessor=None,
                                      stop_words=None,
-                                     max_features=100)
+                                     max_features=1000)
+        self.feature_names  = []
 
     def comment_to_words(self, raw_comment):
         # Function to convert a raw review to a string of words
@@ -59,12 +60,23 @@ class Preprocessor:
         # into feature vectors. The input to fit_transform should be a list of
         # strings.
         comment_data_features = self.vectorizer.fit_transform(clean_train_comments)
-
+        self.feature_names = self.vectorizer.get_feature_names()
         # Numpy arrays are easy to work with, so convert the result to an
         # array
         comment_data_features = comment_data_features.toarray()
 
         return comment_data_features
+
+    def createFeatureMatrixFromComment(self, comment):
+        # Create an empty list and append the clean reviews one by one
+        clean_test_comments = []
+
+        clean_comment = self.comment_to_words(comment)
+        clean_test_comments.append(clean_comment)
+
+        # Get a bag of words for the test set, and convert to a numpy array
+        test_data_features = self.vectorizer.transform(clean_test_comments)
+        return test_data_features
 
     def createFeatureMatrix(self, df):
         # Create an empty list and append the clean reviews one by one

@@ -9,23 +9,36 @@ class CorrelationMatrix():
     def get(self):
         if len(self.correlationMatrix) == 0:
             self.correlationMatrix = []
-            for rowXIndex, rowX in enumerate(self.dataRows):
+            for rowXIndex, rowX in self.dataRows.items():
                 resultRow = []
-                for rowYIndex, rowY in enumerate(self.dataRows):
+                for rowYIndex, rowY in self.dataRows.items():
                     correlation = np.corrcoef(rowX, rowY)[0, 1]
                     resultRow.append(correlation)
                 self.correlationMatrix.append(resultRow)
 
-        return self.correlationMatrix;
+        return self.correlationMatrix
 
     def toString(self):
+        matrix = self.get()
         matrixString =""
 
-        for row in self.correlationMatrix:
-            rowString = ""
+        matrixString += ("....\t")
+        for key in self.dataRows:
+            matrixString += '{:4.4}'.format(key)
+            matrixString += "\t"
+        matrixString += "\n"
+
+        for index, row in enumerate(matrix):
+            rowTitle = list(self.dataRows.keys())[index]
+            rowString = '{:4.4}'.format(rowTitle) + "\t"
+
             for field in row:
-                rowString += str(field) + "\t"
-            matrixString += rowString + "\n" 
+                rowString += '{:4.4}'.format(str(field))
+                rowString += "\t"
+            matrixString += rowString 
+            matrixString += "\n" 
+
+        return matrixString
 
 class AnalysisInformation():
     def __init__(self, y_pred, y_true):
@@ -33,10 +46,10 @@ class AnalysisInformation():
         self.precision = 0
         self.recall = 0
         self.support = 0
-        (self.accuracy, self.precision, self.recall, self.support) = precision_recall_fscore_support(y_true, y_pred) 
+        (self.accuracy, self.precision, self.recall, self.support) = precision_recall_fscore_support(y_true, y_pred, average='binary') 
 
     def toString(self):
-        return "Accuracy: " + str(self.accuracy) + "\tPrecision: " + str(self.precision) + "\tRecall: " + str(self.recall)
+        return "Accuracy: " + str(self.accuracy) + " Precision: " + str(self.precision) + " Recall: " + str(self.recall)
 
 
 class ConfusionMatrix():

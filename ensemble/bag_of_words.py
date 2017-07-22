@@ -5,7 +5,9 @@ from utils import AnalysisInformation
 from preprocessor import Preprocessor
 import pandas as pd
 import numpy as np
+from article_features import ArticleFeatures
 import re
+import nltk
 
 class BagOfWordsClassifier:
   def __init__(self):
@@ -14,6 +16,8 @@ class BagOfWordsClassifier:
         self.train_df = None
         self.calibrated = None
         self.testResult = None
+        self.feature_names = []
+        self.hate_words_and_indices = []
 
   def fit(self, train_df):
     if not self.trained:
@@ -51,6 +55,7 @@ class BagOfWordsClassifier:
 
   def fitFeatureMatrix(self, x, y):
     if not self.trained:
+
         # Training a classifier
         from sklearn.naive_bayes import MultinomialNB
         self.clf = MultinomialNB().fit(x, y)
@@ -92,14 +97,16 @@ class BagOfWordsClassifier:
 
     return self.testResult
 
-  def predict(self, comment):
-     # Get test data
-    X_test = [comment]
+  def predict(self, featureMatrix):
+    predicted = self.calibrated.predict_proba(featureMatrix)[:, 1]
+    if featureMatrix is None:
+        return 0
 
-    X_new_counts = self.count_vect.transform(X_test)
-    X_new_tfidf = self.tfidf_transformer.transform(X_new_counts)
-    predicted = self.clf.predict(X_new_tfidf)
-    return predicted
+    if len(self.feature_names) != 0:
+        hate_words = [self.feature_names[i] for i in featureMatrix.nonzero()[1]]
+        self.hate_words_and_indices = zip(featureMatrix.nonzero()[1], hate_words)
+
+    return predicted[0]
 
   def predict_with_info(self, comment):
      # Get test data
@@ -119,7 +126,7 @@ class BagOfWordsClassifier:
     indices = np.argsort(indexes)
     sorted_index = np.asarray(indices)
     index_ordered_by_words = np.sort(indexes)
-    hate_words = [words[val] + " (" + str(index_ordered_by_words[idx]) + ")" for idx, val in enumerate(sorted_index)]
+    hate_words = [words[val] + " (" + index_ordered_by_words[idx].encode('utf-8') + ")" for idx, val in enumerate(sorted_index)]
 
     return {
         "predicted": predicted,
@@ -128,8 +135,8 @@ class BagOfWordsClassifier:
 
   def hate_words(self):
     # Top words
-    X_train_hate = self.train_df[self.train_df['hate'] == 't']['comment']
-    X_train_no_hate = self.train_df[self.train_df['hate'] == 'f']['comment']
+    X_train_hate = self.train_df[self.train_df['hate'] == True]['comment']
+    X_train_no_hate = self.train_df[self.train_df['hate'] == False]['comment']
 
     X_train_hate_counts = self.count_vect.fit_transform(np.concatenate([X_train_hate, X_train_hate, X_train_no_hate]))
     X_train_hate_tfidf = self.tfidf_transformer.fit_transform(X_train_hate_counts)
@@ -146,6 +153,6 @@ class BagOfWordsClassifier:
     index = np.asarray(indices)[0]
     hate_words = [strings[i] for i in reversed(index)]
 
-    print("Top 40 hate words", hate_words[:40])
+    # print("Top 100 hate words", hate_words[:100])
 
     return hate_words

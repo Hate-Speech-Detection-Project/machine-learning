@@ -58,7 +58,7 @@ class TextFeatureGenerator:
         for thread in threads:
             thread.join()
 
-          # TODO calculates the sentiment values for each comment, nevertheless it is not worth the effort
+        # TODO calculates the sentiment values for each comment, nevertheless it is not worth the effort
         # sentiment_analysis = df['comment'].apply(lambda x: (TextBlob(x, parser=PatternParser(pprint=True, lemmata=True))).sentiment[0])
 
         features = np.vstack(
@@ -72,9 +72,9 @@ class TextFeatureGenerator:
         for index, row in df.iterrows():
             cos_list.append(topic_features.get_cos_similarity_for_article(row['comment'], row['url']))
 
-
     def _calculate_hate_cos_similarity(self, df, cos_list, topic_features):
         for index, row in df.iterrows():
+            print(index)
             cos_list.append(topic_features.get_cos_similarity_for_hate_comments_of_article(row['comment'], row['url']))
 
     def _calculate_no_hate_comments_cos_similarity(self, df, cos_list, topic_features):
@@ -85,7 +85,6 @@ class TextFeatureGenerator:
 
     def calculate_features(self, comment, timestamp):
         tagged_comment = TextBlob(comment).tags
-
         date = datetime.datetime.fromtimestamp(timestamp)
         total_length = len(comment)
         num_of_words = len(comment.split())
