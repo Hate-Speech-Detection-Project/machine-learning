@@ -13,9 +13,11 @@ import json
 import io
 import base64
 
-trainDf = pd.read_csv('../../data/datasets/stratified_dual/train.csv.augmented.csv', sep=',')
-testDf = pd.read_csv('../../data/datasets/stratified_dual/test1.csv.augmented.csv', sep=',')
-testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual/test2.csv.augmented.csv', sep=',')
+np.set_printoptions(threshold=np.inf)
+
+trainDf = pd.read_csv('../../data/datasets/stratified_dual_smaller/test2.csv.augmented.csv', sep=',')
+testDf = pd.read_csv('../../data/datasets/stratified_dual_smaller/train.csv.augmented.csv', sep=',')
+testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_smaller/test1.csv.augmented.csv', sep=',')
 
 predictor = EnsembleClassifier()
 predictor.initClassifiers(trainDf, testDf, testEnsembleDf, 'hate')
