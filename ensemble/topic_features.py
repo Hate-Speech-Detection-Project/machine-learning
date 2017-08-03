@@ -43,11 +43,7 @@ class TopicFeatures:
             no_hate_corpus = ''
             for tuple in no_hate_comments:
                 no_hate_comment = tuple[0].strip()
-                if not bool(no_hate_comment.strip()):
-                    no_hate_corpus += ' ' + no_hate_comment
-
-            if not bool(no_hate_corpus.strip()):
-                return SIMILAR
+                no_hate_corpus += ' ' + no_hate_comment
 
             corpus.extend([no_hate_corpus])
             vector = TfidfVectorizer(min_df=1)
@@ -65,17 +61,12 @@ class TopicFeatures:
         cos_sim_in_degree = DIFFERENT
         corpus = [comment.strip()]
         hate_comments = self.dbinterface.get_comments_for_article_by_type(article_url, 't')
-
         if len(hate_comments) != 0:
 
             hate_comments_corpus = ''
             for tuple in hate_comments:
                 hate_comment = tuple[0].strip()
-                if not bool(hate_comment.strip()):
-                    hate_comments_corpus += ' ' + hate_comment
-
-            if not bool(hate_comments_corpus.strip()):
-                return DIFFERENT
+                hate_comments_corpus += ' ' + hate_comment
 
             corpus.extend([hate_comments_corpus])
 
@@ -90,22 +81,7 @@ class TopicFeatures:
 
         return cos_sim_in_degree
 
-    #
-    # def vote(self, degrees):
-    #     votes = ['f','f','f']
-    #     if degrees[COS_SIM_NO_HATE_INDEX] >= 85:
-    #         votes[COS_SIM_NO_HATE_INDEX] = 't'
-    #
-    #     if degrees[COS_SIM_ARTICLE_INDEX] >= 85:
-    #         votes[COS_SIM_ARTICLE_INDEX] = 't'
-    #
-    #     if degrees[COS_SIM_HATE_INDEX] < 60:
-    #         votes[COS_SIM_HATE_INDEX] = 't'
-    #
-    #     if(votes.count('t') >= 2):
-    #         return 't'
-    #
-    #     return 'f'
+
 
     def _cos_to_degree(self, cos):
         if cos <= 1.0 and cos >= 0:

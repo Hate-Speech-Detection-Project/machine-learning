@@ -17,9 +17,13 @@ import base64
 # testDf = pd.read_csv('../data/stratified_dual_smallest/test1.csv', sep=',')
 # testEnsembleDf = pd.read_csv('../data/stratified_dual_smallest/test2.csv', sep=',')
 
-trainDf = pd.read_csv('../data/1000/train.csv', sep=',')
-testDf = pd.read_csv('../data/1000/test.csv', sep=',')
-testEnsembleDf = pd.read_csv('../data/1000/test.csv', sep=',')
+# trainDf = pd.read_csv('../data/1000/train.csv', sep=',')
+# testDf = pd.read_csv('../data/1000/test.csv', sep=',')
+# testEnsembleDf = pd.read_csv('../data/1000/test.csv', sep=',')
+trainDf = pd.read_csv('../data/100000/train.csv', sep=',')
+testDf = pd.read_csv('../data/tiny/test.csv', sep=',')
+testEnsembleDf = pd.read_csv('../data/tiny/test.csv', sep=',')
+
 # =======
 # np.set_printoptions(threshold=np.inf)
 #
@@ -96,12 +100,12 @@ def plot():
     for index,observation in enumerate(predictor.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2]):
       ax.scatter( predictor.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2][index], 
                   predictor.getClassifierStatistics('TextFeatures Ensemble Test', 'AdaBoost')[2][index], 
-                  predictor.getClassifierStatistics('UserFeatures Ensemble Test', 'AdaBoost')[2][index], 
+                  predictor.getClassifierStatistics('UserFeatures Ensemble Test', 'AdaBoost')[2][index],
                   alpha=np.mean((predictor.getClassifierStatistics('BOW Ensemble Test','AdaBoost')[2][index], predictor.getClassifierStatistics('TextFeatures Ensemble Test', 'AdaBoost')[2][index], predictor.getClassifierStatistics('UserFeatures Ensemble Test', 'AdaBoost')[2][index]))/2,
                   s=30)
       ax.scatter( predictor.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2][index], 
                   predictor.getClassifierStatistics('TextFeatures Ensemble Test', 'AdaBoost')[2][index], 
-                  predictor.getClassifierStatistics('UserFeatures Ensemble Test', 'AdaBoost')[2][index], 
+                  predictor.getClassifierStatistics('UserFeatures Ensemble Test', 'AdaBoost')[2][index],
                   s = 1000,
                   alpha=np.mean((predictor.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2][index], predictor.getClassifierStatistics('TextFeatures Ensemble Test', 'AdaBoost')[2][index], predictor.getClassifierStatistics('UserFeatures Ensemble Test', 'AdaBoost')[2][index])),
                   marker=r'$ {} $'.format(testDf['cid'][index]))

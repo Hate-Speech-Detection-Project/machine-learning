@@ -60,7 +60,6 @@ class BagOfWordsClassifier:
         # Training a classifier
         from sklearn.naive_bayes import MultinomialNB
         self.clf = MultinomialNB().fit(x, y)
-
         self.calibrated = CalibratedClassifierCV(self.clf, cv=2, method='isotonic')
         self.calibrated.fit(x, y)
         self.trained = True

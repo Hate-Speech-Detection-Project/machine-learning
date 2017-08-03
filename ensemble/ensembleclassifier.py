@@ -243,39 +243,40 @@ class EnsembleClassifier:
         self.__updateClassifiers()
 
     def initEnsembleClassifier(self):
-        ensemble_training_data = {'BOW RandomForest': self.getClassifierStatistics('BOW', 'RandomForest')[2],
-                                  'BOW AdaBoost ': self.getClassifierStatistics('BOW', 'AdaBoost')[2],
-                                  'BOW Bayes': self.getClassifierStatistics('BOW', 'Naive Bayes')[2],
-                                  'BOW SVM': self.getClassifierStatistics('BOW', 'SVM')[2],
+        ensemble_training_data = {
+        # 'BOW RandomForest': self.getClassifierStatistics('BOW', 'RandomForest')[2],
+        #                           'BOW AdaBoost ': self.getClassifierStatistics('BOW', 'AdaBoost')[2],
+        #                           'BOW Bayes': self.getClassifierStatistics('BOW', 'Naive Bayes')[2],
+        #                           'BOW SVM': self.getClassifierStatistics('BOW', 'SVM')[2],
                                   'TextFeatures RandomForest':
                                       self.getClassifierStatistics('TextFeatures', 'RandomForest')[2],
                                   'TextFeatures AdaBoost': self.getClassifierStatistics('TextFeatures', 'AdaBoost')[2],
                                   'TextFeatures Bayes': self.getClassifierStatistics('TextFeatures', 'Naive Bayes')[2],
                                   'TextFeatures SVM': self.getClassifierStatistics('TextFeatures', 'SVM')[2],
-                                  'UserFeatures RandomForest':
-                                      self.getClassifierStatistics('UserFeatures', 'RandomForest')[2],
-                                  'UserFeatures AdaBoost': self.getClassifierStatistics('UserFeatures', 'AdaBoost')[2],
-                                  'UserFeatures Bayes': self.getClassifierStatistics('UserFeatures', 'Naive Bayes')[2],
-                                  'UserFeatures SVM': self.getClassifierStatistics('UserFeatures', 'SVM')[2],
+                                  # 'UserFeatures RandomForest':
+                                  #     self.getClassifierStatistics('UserFeatures', 'RandomForest')[2],
+                                  # 'UserFeatures AdaBoost': self.getClassifierStatistics('UserFeatures', 'AdaBoost')[2],
+                                  # 'UserFeatures Bayes': self.getClassifierStatistics('UserFeatures', 'Naive Bayes')[2],
+                                  # 'UserFeatures SVM': self.getClassifierStatistics('UserFeatures', 'SVM')[2],
                                   self.defaultGroundTruthName: self.defaultTestDataFrame[self.defaultGroundTruthName]}
         ensembleTrainingDF = pd.DataFrame(data=ensemble_training_data)
 
         ensemble_test_data = {
-            'BOW RandomForest Ensemble': self.getClassifierStatistics('BOW Ensemble Test', 'RandomForest')[2],
-            'BOW AdaBoost Ensemble': self.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2],
-            'BOW Bayes Ensemble': self.getClassifierStatistics('BOW Ensemble Test', 'Naive Bayes')[2],
-            'BOW SVM Ensemble': self.getClassifierStatistics('BOW Ensemble Test', 'SVM')[2],
+            # 'BOW RandomForest Ensemble': self.getClassifierStatistics('BOW Ensemble Test', 'RandomForest')[2],
+            # 'BOW AdaBoost Ensemble': self.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2],
+            # 'BOW Bayes Ensemble': self.getClassifierStatistics('BOW Ensemble Test', 'Naive Bayes')[2],
+            # 'BOW SVM Ensemble': self.getClassifierStatistics('BOW Ensemble Test', 'SVM')[2],
             'TextFeatures RandomForest Ensemble':
                 self.getClassifierStatistics('TextFeatures Ensemble Test', 'RandomForest')[2],
             'TextFeatures AdaBoost Ensemble ': self.getClassifierStatistics('TextFeatures Ensemble Test', 'AdaBoost')[
                 2],
             'TextFeatures Bayes Ensemble': self.getClassifierStatistics('TextFeatures Ensemble Test', 'Naive Bayes')[2],
             'TextFeatures SVM': self.getClassifierStatistics('TextFeatures Ensemble Test', 'SVM')[2],
-            'UserFeatures RandomForest Ensemble':
-                self.getClassifierStatistics('UserFeatures Ensemble Test', 'RandomForest')[2],
-            'UserFeatures AdaBoost Ensemble': self.getClassifierStatistics('UserFeatures Ensemble Test', 'AdaBoost')[2],
-            'UserFeatures Bayes Ensemble': self.getClassifierStatistics('UserFeatures Ensemble Test', 'Naive Bayes')[2],
-            'UserFeatures SVM Ensemble': self.getClassifierStatistics('UserFeatures Ensemble Test', 'SVM')[2],
+            # 'UserFeatures RandomForest Ensemble':
+            #     self.getClassifierStatistics('UserFeatures Ensemble Test', 'RandomForest')[2],
+            # 'UserFeatures AdaBoost Ensemble': self.getClassifierStatistics('UserFeatures Ensemble Test', 'AdaBoost')[2],
+            # 'UserFeatures Bayes Ensemble': self.getClassifierStatistics('UserFeatures Ensemble Test', 'Naive Bayes')[2],
+            # 'UserFeatures SVM Ensemble': self.getClassifierStatistics('UserFeatures Ensemble Test', 'SVM')[2],
             self.defaultGroundTruthName: self.ensembleTestDataFrame[self.defaultGroundTruthName]
         }
         ensembleTestDF = pd.DataFrame(data=ensemble_test_data)

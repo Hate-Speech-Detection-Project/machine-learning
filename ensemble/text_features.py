@@ -12,7 +12,9 @@ from enum import Enum
 import pandas as pd
 import time
 import scipy.stats
+import seaborn as sns
 import matplotlib.pyplot as plt
+import sys
 
 RESULT_COUNT = 12
 
@@ -35,11 +37,8 @@ class TextFeatureGenerator:
         return df.apply(lambda x: TextBlob(x).tags)
 
     def calculate_features_with_dataframe(self, df):
-
         threads = []
         df["created"] = df["created"].astype("datetime64[ns]")
-
-        hour = df.created.dt.hour
 
         threads.append(
             Thread(target=(
@@ -140,31 +139,52 @@ class TextFeatureGenerator:
             self.results[Resultindices.NUM_OF_PERSONAL_PRONOUNS.value],
             self.results[Resultindices.NUM_OF_DETERMINER.value],
             self.results[Resultindices.NUM_OF_ADJECTIVES.value],
-
+            #
             cos_similarity_article,
             cos_similarity_no_hate_comments,
             cos_similarity_hate_comments,
-            hour
+
         )).T
 
-        data = np.corrcoef(features)
-        print(np.corrcoef(features))
+        # we stop the system within this method in order to show the heatmap properly
+        # comment it out if you want to continue with the training-process
+        self.show_correlation_heat_map(features, df)
 
-        fig, ax = plt.subplots()
-        heatmap = ax.pcolor(data)
-
-        # put the major ticks at the middle of each cell, notice "reverse" use of dimension
-        ax.set_yticks(np.arange(data.shape[0]) + 0.5, minor=False)
-        ax.set_xticks(np.arange(data.shape[1]) + 0.5, minor=False)
-
-        plt.show()
-
-        return features
+        return  features
 
     def _start_threads_and_join(self, threads):
         for thread in threads:
             thread.start()
             thread.join()
+
+    def show_correlation_heat_map(self, feature_matrix, df):
+        # #EM = #ExclamationMarks
+        # #QM = #QuestionMarks
+        # #DW = #DistinctWords
+        # #WIT = #WordsInTotal
+        # LC = CommentLength
+
+        # #IJ = #Interjections
+        # #AV = #Adverbs
+        # #PP = #PersonalPronouns
+        # #DM = #Determiner (e.g. "jener", "solcher")
+        # #AJ = #Adjectives
+
+        # CoSS A = cos similarity with article
+        # CoSS NAC = cos similarity with not appropriate comments for all hate-comments of the article
+        # CoSS AC = cos similarity with appropriate comments for the article
+
+        frame = pd.DataFrame(data=feature_matrix, index=range(len(df.index)))
+        frame.columns = ['# EM', '# QM', '# DW', '# WIT', 'LC', '# IJ', '# AV', '# PP', '# DM', '# AJ'
+            , 'CoSS A', 'CoSS NAC', 'CoSS AC']
+        correlation_matrix = frame.corr()
+
+        ax = plt.axes()
+        sns.heatmap(correlation_matrix, ax=ax)
+
+        ax.set_title('Text-Feature Correlations')
+        plt.show()
+        sys.exit()
 
 
     def _calculate_article_cos_similarity(self, df, cos_list, topic_features):

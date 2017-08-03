@@ -5,6 +5,7 @@ import numpy as np
 from sklearn.svm import NuSVC
 from utils import AnalysisInformation
 import scipy.sparse as sps
+import sys
 
 from preprocessor import Preprocessor
 
@@ -25,14 +26,12 @@ class SVMClassifier:
 
             self.calibrated = CalibratedClassifierCV(self.model, cv=2, method='isotonic')
             self.calibrated.fit(x, y)
+
             self.trained = True
             print("done")
 
     def testFeatureMatrix(self, x, y):
         if not self.tested:
-            print(x)
-            print(y)
-
             if sps.issparse(x):
                 x = x.todense()
             # Use the random forest to make sentiment label predictions
