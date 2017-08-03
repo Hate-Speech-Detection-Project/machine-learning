@@ -101,8 +101,8 @@ queries = [(
   # Time since creation of the corresponding article.
   'time_since_article',
   """
-  SELECT temp_comments.created - EXTRACT(EPOCH FROM articles.publish_date)
-  FROM temp_comments JOIN articles USING (url)
+  SELECT temp_comments.created - COALESCE(EXTRACT(EPOCH FROM articles.publish_date), temp_comments.created)
+  FROM temp_comments LEFT JOIN articles USING (url)
   ORDER BY created
   """
 ),(

@@ -20,6 +20,13 @@ import base64
 trainDf = pd.read_csv('../data/1000/train.csv', sep=',')
 testDf = pd.read_csv('../data/1000/test.csv', sep=',')
 testEnsembleDf = pd.read_csv('../data/1000/test.csv', sep=',')
+# =======
+# np.set_printoptions(threshold=np.inf)
+#
+# trainDf = pd.read_csv('../../data/datasets/stratified_dual_smaller/test2.csv.augmented.csv', sep=',')
+# testDf = pd.read_csv('../../data/datasets/stratified_dual_smaller/train.csv.augmented.csv', sep=',')
+# testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_smaller/test1.csv.augmented.csv', sep=',')
+# >>>>>>> origin/master
 
 predictor = EnsembleClassifier()
 predictor.initClassifiers(trainDf, testDf, testEnsembleDf, 'hate')
