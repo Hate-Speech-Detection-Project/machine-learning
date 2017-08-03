@@ -78,6 +78,16 @@ class DBInterface:
         self.conn.commit()
         return cur.fetchall()
 
+    def get_all_articles(self):
+        cur = self.conn.cursor()
+        cur.execute(
+            """
+                  SELECT body FROM articles LIMIT 500;
+            """
+        )
+        self.conn.commit()
+        return cur.fetchall()
+
 
     def get_all_articles_by_ressort(self, ressort):
         cur = self.conn.cursor()

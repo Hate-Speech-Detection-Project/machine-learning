@@ -18,7 +18,7 @@ class EnsembleClassifier:
         self.preprocessor = Preprocessor()
         self.ngramPreprocessor = Preprocessor((1,4))
         self.textFeatureGenerator = TextFeatureGenerator()
-        self.userFeatureGenerator = UserFeatureGenerator()
+        # self.userFeatureGenerator = UserFeatureGenerator()
 
         self.scheduler = Scheduler()
         self.classifiers = {}
@@ -79,10 +79,12 @@ class EnsembleClassifier:
             classifier.fitFeatureMatrix(self.trainingFeatureMatrix[featureSet], groundTruth)
 
     def __fitClassifiers(self):
+        print( self.featureSets)
         for featureSet in self.featureSets:
 
             # fetch grountruth if not default
             groundTruth = self.trainingGroundTruth
+            print(groundTruth)
             if featureSet in self.trainingGroundTruths.keys():
                 groundTruth = self.trainingGroundTruths[featureSet]
 
@@ -157,6 +159,7 @@ class EnsembleClassifier:
                 if key in self.trainingDataFrames and self.trainingDataFrames[key] is not None:
                     dataFrame = self.trainingDataFrames[key]
                 self.__prepareFeatureSet(self.trainingFeatureMatrix, key, conversion, dataFrame)
+
                 # corpuses are not thread-safe :/
                 #self.scheduler.schedule(function = self.__prepareFeatureSet, 
                 #                       args = (self.trainingFeatureMatrix, key, conversion, dataFrame))
@@ -218,42 +221,43 @@ class EnsembleClassifier:
         self.testGroundTruth = defaultTestDF[groundTruthName]
         self.defaultGroundTruthName = groundTruthName
 
-        self.__addFeatureSet('BOW', self.preprocessor.trainFeatureMatrix, self.preprocessor.createFeatureMatrix)
-        self.__addFeatureSet('BOWNGRAM', self.ngramPreprocessor.trainFeatureMatrix, self.ngramPreprocessor.createFeatureMatrix)
-        self.__addEnsembleFeatureSet('BOW Ensemble Test', self.preprocessor.trainFeatureMatrix, self.preprocessor.createFeatureMatrix, ensembleTestDF)
+        # self.__addFeatureSet('BOW', self.preprocessor.trainFeatureMatrix, self.preprocessor.createFeatureMatrix)
+        # self.__addFeatureSet('BOWNGRAM', self.ngramPreprocessor.trainFeatureMatrix, self.ngramPreprocessor.createFeatureMatrix)
+        # self.__addEnsembleFeatureSet('BOW Ensemble Test', self.preprocessor.trainFeatureMatrix, self.preprocessor.createFeatureMatrix, ensembleTestDF)
         self.__addFeatureSet('TextFeatures', self.textFeatureGenerator.calculate_features_with_dataframe, self.textFeatureGenerator.calculate_features_with_dataframe)
-        self.__addFeatureSet('UserFeatures', self.userFeatureGenerator.calculate_features_with_dataframe, self.userFeatureGenerator.calculate_features_with_dataframe)
-        self.__addEnsembleFeatureSet('UserFeatures Ensemble Test', self.userFeatureGenerator.calculate_features_with_dataframe, self.userFeatureGenerator.calculate_features_with_dataframe, ensembleTestDF, groundTruthName = groundTruthName)
-        self.__addEnsembleFeatureSet('TextFeatures Ensemble Test', self.textFeatureGenerator.calculate_features_with_dataframe, self.textFeatureGenerator.calculate_features_with_dataframe, ensembleTestDF, groundTruthName = groundTruthName)
+        # self.__addFeatureSet('UserFeatures', self.userFeatureGenerator.calculate_features_with_dataframe, self.userFeatureGenerator.calculate_features_with_dataframe)
+        # self.__addEnsembleFeatureSet('UserFeatures Ensemble Test', self.userFeatureGenerator.calculate_features_with_dataframe, self.userFeatureGenerator.calculate_features_with_dataframe, ensembleTestDF, groundTruthName = groundTruthName)
+        # self.__addEnsembleFeatureSet('TextFeatures Ensemble Test', self.textFeatureGenerator.calculate_features_with_dataframe, self.textFeatureGenerator.calculate_features_with_dataframe, ensembleTestDF, groundTruthName = groundTruthName)
 
-        self.__addClassifier("AdaBoost", AdaBoost(self.preprocessor))
+        # self.__addClassifier("AdaBoost", AdaBoost(self.preprocessor))
         self.__addClassifier("Naive Bayes", BagOfWordsClassifier())
-        self.__addClassifier("RandomForest", RandomForestBOWClassifier())
+        # self.__addClassifier("RandomForest", RandomForestBOWClassifier())
         self.__updateClassifiers()
 
     def initEnsembleClassifier(self):
-        ensemble_training_data = {'BOW RandomForest' : self.getClassifierStatistics('BOW', 'RandomForest')[2],
-                                'BOW AdaBoost ' : self.getClassifierStatistics('BOW', 'AdaBoost')[2],
-                                'BOW Bayes' : self.getClassifierStatistics('BOW', 'Naive Bayes')[2],
-                                'TextFeatures RandomForest' : self.getClassifierStatistics('TextFeatures', 'RandomForest')[2],
+        ensemble_training_data = {
+                                # 'BOW RandomForest' : self.getClassifierStatistics('BOW', 'RandomForest')[2],
+                                # 'BOW AdaBoost ' : self.getClassifierStatistics('BOW', 'AdaBoost')[2],
+                                # 'BOW Bayes' : self.getClassifierStatistics('BOW', 'Naive Bayes')[2],
+                                # 'TextFeatures RandomForest' : self.getClassifierStatistics('TextFeatures', 'RandomForest')[2],
                                 'TextFeatures AdaBoost' : self.getClassifierStatistics('TextFeatures', 'AdaBoost')[2],
                                 'TextFeatures Bayes' : self.getClassifierStatistics('TextFeatures', 'Naive Bayes')[2],
-                                'UserFeatures RandomForest' : self.getClassifierStatistics('UserFeatures', 'RandomForest')[2],
-                                'UserFeatures AdaBoost' : self.getClassifierStatistics('UserFeatures', 'AdaBoost')[2],
-                                'UserFeatures Bayes' : self.getClassifierStatistics('UserFeatures', 'Naive Bayes')[2],
+                                # 'UserFeatures RandomForest' : self.getClassifierStatistics('UserFeatures', 'RandomForest')[2],
+                                # 'UserFeatures AdaBoost' : self.getClassifierStatistics('UserFeatures', 'AdaBoost')[2],
+                                # 'UserFeatures Bayes' : self.getClassifierStatistics('UserFeatures', 'Naive Bayes')[2],
                                 self.defaultGroundTruthName : self.defaultTestDataFrame[self.defaultGroundTruthName]}
         ensembleTrainingDF = pd.DataFrame(data = ensemble_training_data)
 
         ensemble_test_data = {      
-                                'BOW RandomForest Ensemble' : self.getClassifierStatistics('BOW Ensemble Test', 'RandomForest')[2],
-                                'BOW AdaBoost Ensemble' : self.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2],
-                                'BOW Bayes Ensemble' : self.getClassifierStatistics('BOW Ensemble Test', 'Naive Bayes')[2],
-                                'TextFeatures RandomForest Ensemble' : self.getClassifierStatistics('TextFeatures Ensemble Test', 'RandomForest')[2],
+                                # 'BOW RandomForest Ensemble' : self.getClassifierStatistics('BOW Ensemble Test', 'RandomForest')[2],
+                                # 'BOW AdaBoost Ensemble' : self.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2],
+                                # 'BOW Bayes Ensemble' : self.getClassifierStatistics('BOW Ensemble Test', 'Naive Bayes')[2],
+                                # 'TextFeatures RandomForest Ensemble' : self.getClassifierStatistics('TextFeatures Ensemble Test', 'RandomForest')[2],
                                 'TextFeatures AdaBoost Ensemble ': self.getClassifierStatistics('TextFeatures Ensemble Test', 'AdaBoost')[2],
                                 'TextFeatures Bayes Ensemble' : self.getClassifierStatistics('TextFeatures Ensemble Test', 'Naive Bayes')[2],
-                                'UserFeatures RandomForest Ensemble' : self.getClassifierStatistics('UserFeatures Ensemble Test', 'RandomForest')[2],
-                                'UserFeatures AdaBoost Ensemble' : self.getClassifierStatistics('UserFeatures Ensemble Test', 'AdaBoost')[2],
-                                'UserFeatures Bayes Ensemble' : self.getClassifierStatistics('UserFeatures Ensemble Test', 'Naive Bayes')[2],
+                                # 'UserFeatures RandomForest Ensemble' : self.getClassifierStatistics('UserFeatures Ensemble Test', 'RandomForest')[2],
+                                # 'UserFeatures AdaBoost Ensemble' : self.getClassifierStatistics('UserFeatures Ensemble Test', 'AdaBoost')[2],
+                                # 'UserFeatures Bayes Ensemble' : self.getClassifierStatistics('UserFeatures Ensemble Test', 'Naive Bayes')[2],
                                 self.defaultGroundTruthName : self.ensembleTestDataFrame[self.defaultGroundTruthName]
                             }
         ensembleTestDF = pd.DataFrame(data = ensemble_test_data)

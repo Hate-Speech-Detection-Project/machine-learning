@@ -5,6 +5,7 @@ from utils import AnalysisInformation
 from preprocessor import Preprocessor
 import pandas as pd
 import numpy as np
+from sklearn.feature_selection import RFE
 from article_features import ArticleFeatures
 import re
 import nltk
@@ -63,6 +64,13 @@ class BagOfWordsClassifier:
         self.calibrated = CalibratedClassifierCV(self.clf, cv=2, method='isotonic')
         self.calibrated.fit(x, y)
         self.trained = True
+
+        rfe = RFE(self.clf, 3)
+        fit = rfe.fit(x, y)
+        print("Num Features: %d") % fit.n_features_
+        print("Selected Features: %s") % fit.support_
+        print("Feature Ranking: %s") % fit.ranking_
+
 
   def test(self, test_df):
 

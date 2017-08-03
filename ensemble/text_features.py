@@ -8,65 +8,164 @@ import datetime
 from textblob_de import TextBlobDE as TextBlob
 from textblob_de import PatternParser
 from threading import Thread
+from enum import Enum
+import pandas as pd
+import time
+import scipy.stats
+import matplotlib.pyplot as plt
+
+RESULT_COUNT = 12
+
+
+class Resultindices(Enum):
+    LENGTH_OF_COMMENT, NUM_OF_WORDS, NUM_OF_DISTINCT_WORDS, \
+    NUM_OF_QUESTIONMARKS, NUM_OF_EXCLAMATIONMARKS, NUM_OF_ADJECTIVES, \
+    NUM_OF_DETERMINER, NUM_OF_PERSONAL_PRONOUNS, NUM_OF_ADVERBS, \
+    NUM_OF_INTERJECTIONS, SUBJECTIVITY_VALUE, POLARITY_VALUE = range(
+        RESULT_COUNT)
+
 
 class TextFeatureGenerator:
     def __init__(self):
         self.train_df = None
         self.topic_features = TopicFeatures()
+        self.results = [0] * RESULT_COUNT
+
+    def tagCommentsFromDf(self, df):
+        return df.apply(lambda x: TextBlob(x).tags)
 
     def calculate_features_with_dataframe(self, df):
-        tagged_comments = df['comment'].apply(lambda x: TextBlob(x).tags)
-        threads = []
 
+        threads = []
         df["created"] = df["created"].astype("datetime64[ns]")
+
         hour = df.created.dt.hour
-        total_length = df['comment'].apply(lambda x: len(x))
-        num_of_words = df['comment'].apply(lambda x: len(x.split()))
-        num_of_distinct_words = df['comment'].apply(lambda x: len(set(x.split())))
-        num_questions = df['comment'].apply(lambda x: x.count('?'))
-        num_exclamation = df['comment'].apply(lambda x: x.count('!'))
+
+        threads.append(
+            Thread(target=(
+                lambda df, results, index: results.insert(index, df['comment'].apply(lambda x: len(x)))),
+                args=(df, self.results, Resultindices.LENGTH_OF_COMMENT.value)))
+
+        threads.append(
+            Thread(target=(
+                lambda df, results, index: results.insert(index, df['comment'].apply(lambda x: len(x.split())))),
+                args=(df, self.results, Resultindices.NUM_OF_WORDS.value)))
+
+        threads.append(
+            Thread(target=(
+                lambda df, results, index: results.insert(index, df['comment'].apply(lambda x: len(set(x.split()))))),
+                args=(df, self.results, Resultindices.NUM_OF_DISTINCT_WORDS.value)))
+
+        threads.append(
+            Thread(target=(
+                lambda df, results, index: results.insert(index, df['comment'].apply(lambda x: x.count('?')))),
+                args=(df, self.results, Resultindices.NUM_OF_QUESTIONMARKS.value)))
+
+        threads.append(
+            Thread(target=(
+                lambda df, results, index: results.insert(index, df['comment'].apply(lambda x: x.count('!')))),
+                args=(df, self.results, Resultindices.NUM_OF_EXCLAMATIONMARKS.value)))
 
         # semantic analysis
+        self._start_threads_and_join(threads)
 
-        num_adjectives = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['JJ', 'JJS', 'JJR']))
-        num_determiner = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['DT']))
-        num_personal_pronouns = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['PRP']))
-        num_adverbs = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['RB', 'RBS']))
-        num_interjections = tagged_comments.apply(lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['UH']))
+        print('Start tagging for semantic analysis')
+        threads = []
+        text_blob_comments = df['comment'].apply(lambda x: TextBlob(x))
+        tagged_comments = text_blob_comments.apply(lambda x: x.tags)
+        print('finished tagging')
 
-        # calculation of cosinent similarity for relation between comment/article/hate+no-hate comments of the article
+        threads.append(
+            Thread(target=(
+                lambda x, results, index: results.insert(index, tagged_comments.apply(
+                    lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['JJ', 'JJS', 'JJR'])))),
+                args=(tagged_comments, self.results, Resultindices.NUM_OF_ADJECTIVES.value)))
 
+        threads.append(
+            Thread(target=(
+                lambda x, results, index: results.insert(index, tagged_comments.apply(
+                    lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['DT'])))),
+                args=(tagged_comments, self.results, Resultindices.NUM_OF_DETERMINER.value)))
+
+        threads.append(
+            Thread(target=(
+                lambda x, results, index: results.insert(index, tagged_comments.apply(
+                    lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['PRP'])))),
+                args=(tagged_comments, self.results, Resultindices.NUM_OF_PERSONAL_PRONOUNS.value)))
+
+        threads.append(
+            Thread(target=(
+                lambda x, results, index: results.insert(index, tagged_comments.apply(
+                    lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['RB', 'RBS'])))),
+                args=(tagged_comments, self.results, Resultindices.NUM_OF_ADVERBS.value)))
+
+        threads.append(
+            Thread(target=(
+                lambda x, results, index: results.insert(index, tagged_comments.apply(
+                    lambda x: TextFeatureGenerator._getCountOfWordsByTaggedList(x, ['UH'])))),
+                args=(tagged_comments, self.results, Resultindices.NUM_OF_INTERJECTIONS.value)))
+
+        # # calculation of cosinent similarity for relation between comment/article/hate+no-hate comments of the article
+        print('Start semantic analysis')
+        self._start_threads_and_join(threads)
+        print('Finished semantic analysis')
+
+        threads = []
+
+        print('Start calculation of cosinent-similarity for semantic analysis')
         cos_similarity_article = []
         cos_similarity_no_hate_comments = []
         cos_similarity_hate_comments = []
 
-        thread1 = Thread(target=self._calculate_article_cos_similarity,
-                        args=(df, cos_similarity_article, self.topic_features))
-        threads.append(thread1)
-        thread1.start()
+        threads.append(Thread(target=self._calculate_article_cos_similarity,
+                              args=(df, cos_similarity_article, self.topic_features)))
 
-        thread2 = Thread(target=self._calculate_no_hate_comments_cos_similarity,
-                         args=(df, cos_similarity_no_hate_comments, self.topic_features))
-        threads.append(thread2)
-        thread2.start()
+        threads.append(Thread(target=self._calculate_no_hate_comments_cos_similarity,
+                              args=(df, cos_similarity_no_hate_comments, self.topic_features)))
 
-        thread3 = Thread(target=self._calculate_hate_cos_similarity,
-                         args=(df, cos_similarity_hate_comments, self.topic_features))
-        threads.append(thread3)
-        thread3.start()
+        threads.append(Thread(target=self._calculate_hate_cos_similarity,
+                              args=(df, cos_similarity_hate_comments, self.topic_features)))
 
-        for thread in threads:
-            thread.join()
+        self._start_threads_and_join(threads)
 
-        # TODO calculates the sentiment values for each comment, nevertheless it is not worth the effort
-        # sentiment_analysis = df['comment'].apply(lambda x: (TextBlob(x, parser=PatternParser(pprint=True, lemmata=True))).sentiment[0])
+        features = np.vstack((
+            self.results[Resultindices.NUM_OF_EXCLAMATIONMARKS.value],
+            self.results[Resultindices.NUM_OF_QUESTIONMARKS.value],
+            self.results[Resultindices.NUM_OF_DISTINCT_WORDS.value],
+            self.results[Resultindices.NUM_OF_WORDS.value],
+            self.results[Resultindices.LENGTH_OF_COMMENT.value],
 
-        features = np.vstack(
-            (total_length, num_questions, num_exclamation, num_of_words, hour,
-             num_of_distinct_words, num_adjectives, num_determiner, num_personal_pronouns, num_adverbs,num_interjections,
-             cos_similarity_article,cos_similarity_no_hate_comments, cos_similarity_hate_comments)).T
+            self.results[Resultindices.NUM_OF_INTERJECTIONS.value],
+            self.results[Resultindices.NUM_OF_ADVERBS.value],
+            self.results[Resultindices.NUM_OF_PERSONAL_PRONOUNS.value],
+            self.results[Resultindices.NUM_OF_DETERMINER.value],
+            self.results[Resultindices.NUM_OF_ADJECTIVES.value],
+
+            cos_similarity_article,
+            cos_similarity_no_hate_comments,
+            cos_similarity_hate_comments,
+            hour
+        )).T
+
+        data = np.corrcoef(features)
+        print(np.corrcoef(features))
+
+        fig, ax = plt.subplots()
+        heatmap = ax.pcolor(data)
+
+        # put the major ticks at the middle of each cell, notice "reverse" use of dimension
+        ax.set_yticks(np.arange(data.shape[0]) + 0.5, minor=False)
+        ax.set_xticks(np.arange(data.shape[1]) + 0.5, minor=False)
+
+        plt.show()
 
         return features
+
+    def _start_threads_and_join(self, threads):
+        for thread in threads:
+            thread.start()
+            thread.join()
+
 
     def _calculate_article_cos_similarity(self, df, cos_list, topic_features):
         for index, row in df.iterrows():
@@ -74,14 +173,12 @@ class TextFeatureGenerator:
 
     def _calculate_hate_cos_similarity(self, df, cos_list, topic_features):
         for index, row in df.iterrows():
-            print(index)
             cos_list.append(topic_features.get_cos_similarity_for_hate_comments_of_article(row['comment'], row['url']))
 
     def _calculate_no_hate_comments_cos_similarity(self, df, cos_list, topic_features):
         for index, row in df.iterrows():
-            cos_list.append(topic_features.get_cos_similarity_for_no_hate_comments_of_article(row['comment'], row['url']))
-
-
+            cos_list.append(
+                topic_features.get_cos_similarity_for_no_hate_comments_of_article(row['comment'], row['url']))
 
     def calculate_features(self, comment, timestamp):
         tagged_comment = TextBlob(comment).tags
@@ -96,7 +193,8 @@ class TextFeatureGenerator:
         num_interjections = TextFeatureGenerator._getCountOfWordsByTaggedList(tagged_comment, ['UH'])
         num_adverbs = TextFeatureGenerator._getCountOfWordsByTaggedList(tagged_comment, ['RB', 'RBS'])
         features = np.vstack((total_length, num_questions, num_exclamation, num_of_words,
-                              date.hour, num_adjectives, num_determiner, num_personal_pronouns,num_adverbs,num_interjections)).T
+                              date.hour, num_adjectives, num_determiner, num_personal_pronouns, num_adverbs,
+                              num_interjections)).T
         return features
 
     def calculate_time_feature(self, df):
