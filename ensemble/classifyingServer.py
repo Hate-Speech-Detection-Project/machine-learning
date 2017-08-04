@@ -15,9 +15,9 @@ import base64
 
 np.set_printoptions(threshold=np.inf)
 
-trainDf = pd.read_csv('../../data/datasets/stratified_dual_smaller/test2.csv.augmented.csv', sep=',')
-testDf = pd.read_csv('../../data/datasets/stratified_dual_smaller/train.csv.augmented.csv', sep=',')
-testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_smaller/test1.csv.augmented.csv', sep=',')
+trainDf = pd.read_csv('../../data/datasets/stratified_dual_new/test2.csv.augmented.csv', sep=',')
+testDf = pd.read_csv('../../data/datasets/stratified_dual_new/train.csv.augmented.csv', sep=',')
+testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_new/test1.csv.augmented.csv', sep=',')
 
 predictor = EnsembleClassifier()
 predictor.initClassifiers(trainDf, testDf, testEnsembleDf, 'hate')
@@ -49,14 +49,7 @@ def hello():
 
 @app.route('/correlation')
 def correlation():
-  dataRows = {}
-
-  for featureSetName in predictor.getFeatureSetNames():
-    for classifierName in predictor.getClassifierNames():
-      dataRows[featureSetName[:1] + classifierName] = predictor.getClassifierStatistics(featureSetName, classifierName)[2]
-
-  correlationMatrix = CorrelationMatrix(dataRows)
-  return correlationMatrix.toString()
+  return predictor.getCorrelationMatrix().toString()
 
 @app.route('/single/<cid>')
 def single(cid):
