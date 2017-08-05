@@ -71,6 +71,7 @@ class EnsembleClassifier:
                     self.classifiers[featureSet][key] = copy.deepcopy(classifier)
 
     def __fitClassifier(self, featureSet, classifier, groundTruth, mode='parallel'):
+        print("fitting classifier" + featureSet)
         # Workaround, because the scikit random forest implementation is not thread-safe
         if mode is 'parallel':
            self.scheduler.schedule(function = classifier.fitFeatureMatrix, 
@@ -97,6 +98,7 @@ class EnsembleClassifier:
         self.scheduler.joinAll()
 
     def __testClassifier(self, featureSet, classifier, groundTruth, mode='parallel'):
+        print("testing classifier" + featureSet)
         if mode is 'parallel':
            self.scheduler.schedule(function = classifier.testFeatureMatrix, 
                            args = (self.testFeatureMatrix[featureSet], 
