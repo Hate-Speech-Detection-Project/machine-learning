@@ -68,6 +68,10 @@ def predict():
   print(results)
   return jsonify(results)
 
+@app.route('/sparseClassifiers')
+def sparseClassifiers():
+	return jsonify(predictor.getSparslyCorrelatingClassifiers())
+
 @app.route('/plot')
 def plot():
 

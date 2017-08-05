@@ -97,7 +97,6 @@ class EnsembleClassifier:
         self.scheduler.joinAll()
 
     def __testClassifier(self, featureSet, classifier, groundTruth, mode='parallel'):
-        print(featureSet)
         if mode is 'parallel':
            self.scheduler.schedule(function = classifier.testFeatureMatrix, 
                            args = (self.testFeatureMatrix[featureSet], 
@@ -223,6 +222,7 @@ class EnsembleClassifier:
 
         self.__addFeatureSet('BOW', self.preprocessor.trainFeatureMatrix, self.preprocessor.createFeatureMatrix)
         self.__addFeatureSet('BOWNGRAM', self.ngramPreprocessor.trainFeatureMatrix, self.ngramPreprocessor.createFeatureMatrix)
+        self.__addEnsembleFeatureSet('BOWNGRAM Ensemble Test', self.preprocessor.trainFeatureMatrix, self.ngramPreprocessor.createFeatureMatrix, ensembleTestDF)
         self.__addEnsembleFeatureSet('BOW Ensemble Test', self.preprocessor.trainFeatureMatrix, self.preprocessor.createFeatureMatrix, ensembleTestDF)
         self.__addFeatureSet('TextFeatures', self.textFeatureGenerator.calculate_features_with_dataframe, self.textFeatureGenerator.calculate_features_with_dataframe)
         self.__addFeatureSet('UserFeatures', self.userFeatureGenerator.calculate_features_with_dataframe, self.userFeatureGenerator.calculate_features_with_dataframe)
@@ -236,36 +236,21 @@ class EnsembleClassifier:
         self.__updateClassifiers()
 
     def initEnsembleClassifier(self):
-        ensemble_training_data = {'BOW RandomForest' : self.getClassifierStatistics('BOW', 'RandomForest')[2],
-                                'BOW AdaBoost ' : self.getClassifierStatistics('BOW', 'AdaBoost')[2],
-                                'BOW Bayes' : self.getClassifierStatistics('BOW', 'Naive Bayes')[2],
-                                'BOW SVM' : self.getClassifierStatistics('BOW', 'SVM')[2],
-                                'TextFeatures RandomForest' : self.getClassifierStatistics('TextFeatures', 'RandomForest')[2],
-                                'TextFeatures AdaBoost' : self.getClassifierStatistics('TextFeatures', 'AdaBoost')[2],
-                                'TextFeatures Bayes' : self.getClassifierStatistics('TextFeatures', 'Naive Bayes')[2],
-                                'TextFeatures SVM' : self.getClassifierStatistics('TextFeatures', 'SVM')[2],
-                                'UserFeatures RandomForest' : self.getClassifierStatistics('UserFeatures', 'RandomForest')[2],
-                                'UserFeatures AdaBoost' : self.getClassifierStatistics('UserFeatures', 'AdaBoost')[2],
-                                'UserFeatures Bayes' : self.getClassifierStatistics('UserFeatures', 'Naive Bayes')[2],
-                                'UserFeatures SVM' : self.getClassifierStatistics('UserFeatures', 'SVM')[2],
-                                self.defaultGroundTruthName : self.defaultTestDataFrame[self.defaultGroundTruthName]}
+        ensemble_training_data = {}
+        classifiers = self.getSparslyCorrelatingClassifiers(blackList = 'Ensemble')
+        print(classifiers)
+        for classifier in classifiers:
+            ensemble_training_data[classifier[0] + ' ' +  classifier[1]] = self.getClassifierStatistics(classifier[0], classifier[1])[2]
+        ensemble_training_data[self.defaultGroundTruthName] = self.defaultTestDataFrame[self.defaultGroundTruthName]
+        #print(ensemble_training_data)
         ensembleTrainingDF = pd.DataFrame(data = ensemble_training_data)
 
-        ensemble_test_data = {      
-                                'BOW RandomForest Ensemble' : self.getClassifierStatistics('BOW Ensemble Test', 'RandomForest')[2],
-                                'BOW AdaBoost Ensemble' : self.getClassifierStatistics('BOW Ensemble Test', 'AdaBoost')[2],
-                                'BOW Bayes Ensemble' : self.getClassifierStatistics('BOW Ensemble Test', 'Naive Bayes')[2],
-                                'BOW SVM Ensemble' : self.getClassifierStatistics('BOW Ensemble Test', 'SVM')[2],
-                                'TextFeatures RandomForest Ensemble' : self.getClassifierStatistics('TextFeatures Ensemble Test', 'RandomForest')[2],
-                                'TextFeatures AdaBoost Ensemble ': self.getClassifierStatistics('TextFeatures Ensemble Test', 'AdaBoost')[2],
-                                'TextFeatures Bayes Ensemble' : self.getClassifierStatistics('TextFeatures Ensemble Test', 'Naive Bayes')[2],
-                                'TextFeatures SVM' : self.getClassifierStatistics('TextFeatures Ensemble Test', 'SVM')[2],
-                                'UserFeatures RandomForest Ensemble' : self.getClassifierStatistics('UserFeatures Ensemble Test', 'RandomForest')[2],
-                                'UserFeatures AdaBoost Ensemble' : self.getClassifierStatistics('UserFeatures Ensemble Test', 'AdaBoost')[2],
-                                'UserFeatures Bayes Ensemble' : self.getClassifierStatistics('UserFeatures Ensemble Test', 'Naive Bayes')[2],
-                                'UserFeatures SVM Ensemble' : self.getClassifierStatistics('UserFeatures Ensemble Test', 'SVM')[2],
-                                self.defaultGroundTruthName : self.ensembleTestDataFrame[self.defaultGroundTruthName]
-                            }
+        ensemble_test_data = {}
+        for classifier in classifiers:
+            ensemble_test_data[classifier[0] + ' ' + classifier[1]] = self.getClassifierStatistics(classifier[0] + ' Ensemble Test', classifier[1])[2]
+        ensemble_test_data[self.defaultGroundTruthName] = self.ensembleTestDataFrame[self.defaultGroundTruthName]
+        for key, classifier in ensemble_test_data.items():
+            print(classifier.shape)
         ensembleTestDF = pd.DataFrame(data = ensemble_test_data)
 
         self.__addEnsembleFeatureSet("Ensemble", self.extractGroundTruth, self.extractGroundTruth, ensembleTrainingDF, ensembleTestDF)
@@ -277,7 +262,7 @@ class EnsembleClassifier:
         nb.feature_names = self.preprocessor.feature_names
 
     def getCorrelationMatrix(self):
-        if self.correlationMatrix is not None:
+        if self.correlationMatrix is None:
             dataRows = {}
             for featureSetName in self.getFeatureSetNames():
                 for classifierName in self.getClassifierNames():
@@ -295,20 +280,26 @@ class EnsembleClassifier:
 
         return pd.DataFrame(data = joined_data)
 
-    def getSparslyCorrelatingClassifiers():
+    def getSparslyCorrelatingClassifiers(self, blackList = None, whiteList = None):
         sparselyCorrelatingCombinations = set()
         possibleCombinations = set()
 
-        for featureSet in self.featuresets:
-            for key, classifier in self.classifiers:
-                possibleCombinations.add([featureSet, key])
+        for featureSet in self.featureSets:
+            if blackList is not None and blackList in featureSet: 
+                continue
+            if whiteList is not None and whiteList not in featureSet: 
+                continue
+            for key, classifier in self.classifierProtoTypes.items():
+                possibleCombinations.add((featureSet, key))
 
-        for combination in possibleCombinations:
-            dataRow0 = self.getClassifierStatistics(combination[0][0], combination[0][1])[2]
-            dataRow1 = self.getClassifierStatistics(combination[1][0], combination[1][1])[2]
-            correlation = np.corrcoef(dataRow0, dataRow1)[0, 1]
-            if(correlation <= 0.2):
-                sparselyCorrelatingCombinations.add(combination)
+        for combination0 in possibleCombinations:
+            for combination1 in possibleCombinations:
+                dataRow0 = self.getClassifierStatistics(combination0[0], combination0[1])[2]
+                dataRow1 = self.getClassifierStatistics(combination1[0], combination1[1])[2]
+                correlation = np.corrcoef(dataRow0, dataRow1)[0, 1]
+                if(correlation <= 0.2):
+                    sparselyCorrelatingCombinations.add(combination0)
+                    sparselyCorrelatingCombinations.add(combination1)
 
         return sparselyCorrelatingCombinations
 
