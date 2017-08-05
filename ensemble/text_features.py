@@ -74,7 +74,7 @@ class TextFeatureGenerator:
 
     def _calculate_hate_cos_similarity(self, df, cos_list, topic_features):
         for index, row in df.iterrows():
-            print(index)
+            #print(index)
             cos_list.append(topic_features.get_cos_similarity_for_hate_comments_of_article(row['comment'], row['url']))
 
     def _calculate_no_hate_comments_cos_similarity(self, df, cos_list, topic_features):

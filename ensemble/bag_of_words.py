@@ -78,7 +78,7 @@ class BagOfWordsClassifier:
       # acc = np.mean(predicted == y_test)
       prob_pos_isotonic = self.calibrated.predict_proba(X_new_tfidf)[:, 1]
 
-      analysisInformation = AnalysisInformation(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y_test))
+      analysisInformation = AnalysisInformation(predicted, y_test)
       self.testResult = (analysisInformation, predicted, prob_pos_isotonic)
       self.tested = True
 
@@ -91,7 +91,7 @@ class BagOfWordsClassifier:
 
       prob_pos_isotonic = self.calibrated.predict_proba(x)[:, 1]
 
-      analysisInformation = AnalysisInformation(Preprocessor.convertBoolStringsToNumbers(predicted), Preprocessor.convertBoolStringsToNumbers(y))
+      analysisInformation = AnalysisInformation(predicted, y)
       self.testResult = (analysisInformation, predicted, prob_pos_isotonic)
       self.tested = True
 

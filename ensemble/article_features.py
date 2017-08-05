@@ -17,7 +17,7 @@ class ArticleFeatures:
             try:
                 # self.conn = psycopg2.connect("dbname='hatespeech' user='postgres' host='localhost' password='admin'")
                 self.conn = psycopg2.connect(
-                    "dbname='hatespeech' user='postgres' password='admin' port='5432' host='172.22.23.253'")
+                    "dbname='hatespeech' user='postgres' password='admin' port='5432' host='172.17.0.2'")
             except:
                 print("Cannot connect to database.")
                 sys.exit(0)

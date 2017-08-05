@@ -53,7 +53,7 @@ class AnalysisInformation():
 
 
 class ConfusionMatrix():
-    def __init__(self, predictions, reality, verbose = False):
+    def __init__(self, predictions, reality, verbose = True):
         self.predictions = 0
         self.positives = 0
         self.negatives = 0

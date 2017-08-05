@@ -15,9 +15,9 @@ import base64
 
 np.set_printoptions(threshold=np.inf)
 
-trainDf = pd.read_csv('../../data/datasets/stratified_dual_new/test2.csv.augmented.csv', sep=',')
-testDf = pd.read_csv('../../data/datasets/stratified_dual_new/train.csv.augmented.csv', sep=',')
-testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_new/test1.csv.augmented.csv', sep=',')
+trainDf = pd.read_csv('../../data/datasets/stratified_dual_smaller_new/test2.csv.augmented.csv', sep=',')
+testDf = pd.read_csv('../../data/datasets/stratified_dual_smaller_new/train.csv.augmented.csv', sep=',')
+testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_smaller_new/test1.csv.augmented.csv', sep=',')
 
 predictor = EnsembleClassifier()
 predictor.initClassifiers(trainDf, testDf, testEnsembleDf, 'hate')
@@ -42,7 +42,6 @@ def hello():
 
     for classifierName in predictor.getClassifierNames():
       featureSet[classifierName] = predictor.getClassifierStatistics(featureSetName, classifierName)[0].toString()
-
     data[featureSetName] = featureSet
 
   return jsonify(data)

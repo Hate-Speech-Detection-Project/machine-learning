@@ -71,7 +71,6 @@ class EnsembleClassifier:
                     self.classifiers[featureSet][key] = copy.deepcopy(classifier)
 
     def __fitClassifier(self, featureSet, classifier, groundTruth, mode='parallel'):
-        print(featureSet)
         # Workaround, because the scikit random forest implementation is not thread-safe
         if mode is 'parallel':
            self.scheduler.schedule(function = classifier.fitFeatureMatrix, 
@@ -277,42 +276,41 @@ class EnsembleClassifier:
         nb = self.classifiers['BOW']['Naive Bayes']
         nb.feature_names = self.preprocessor.feature_names
 
-	def getCorrelationMatrix(self):
+    def getCorrelationMatrix(self):
+        if self.correlationMatrix is not None:
+            dataRows = {}
+            for featureSetName in self.getFeatureSetNames():
+                for classifierName in self.getClassifierNames():
+                    dataRows[featureSetName[:1] + classifierName] = self.getClassifierStatistics(featureSetName, classifierName)[2]
 
-		if self.correlationMatrix is not None:
-			dataRows = {}
-			for featureSetName in self.getFeatureSetNames():
-				for classifierName in self.getClassifierNames():
-					dataRows[featureSetName[:1] + classifierName] = self.getClassifierStatistics(featureSetName, classifierName)[2]
+            self.correlationMatrix = CorrelationMatrix(dataRows)
 
-			self.correlationMatrix = CorrelationMatrix(dataRows)
-
-		return self.correlationMatrix
+        return self.correlationMatrix
 
     def getCompleteTrainingSet(self):
-    	joined_data = {}
-    	
-    	for key, dataSet in self.trainingDataFrames.items():
-    		joined_data[key] = dataSet
+        joined_data = {}
+        
+        for key, dataSet in self.trainingDataFrames.items():
+            joined_data[key] = dataSet
 
-    	return pd.DataFrame(data = joined_data)
+        return pd.DataFrame(data = joined_data)
 
     def getSparslyCorrelatingClassifiers():
-    	sparselyCorrelatingCombinations = set()
-    	possibleCombinations = set()
+        sparselyCorrelatingCombinations = set()
+        possibleCombinations = set()
 
-    	for featureSet in self.featuresets:
-    		for key, classifier in self.classifiers:
-    			possibleCombinations.add([featureSet, key])
+        for featureSet in self.featuresets:
+            for key, classifier in self.classifiers:
+                possibleCombinations.add([featureSet, key])
 
-    	for combination in possibleCombinations:
-    		dataRow0 = self.getClassifierStatistics(combination[0][0], combination[0][1])[2]
-    		dataRow1 = self.getClassifierStatistics(combination[1][0], combination[1][1])[2]
-    		correlation = np.corrcoef(dataRow0, dataRow1)[0, 1]
-    		if(correlation <= 0.2)
-    			sparselyCorrelatingCombinations.add(combination)
+        for combination in possibleCombinations:
+            dataRow0 = self.getClassifierStatistics(combination[0][0], combination[0][1])[2]
+            dataRow1 = self.getClassifierStatistics(combination[1][0], combination[1][1])[2]
+            correlation = np.corrcoef(dataRow0, dataRow1)[0, 1]
+            if(correlation <= 0.2):
+                sparselyCorrelatingCombinations.add(combination)
 
-    	return sparselyCorrelatingCombinations
+        return sparselyCorrelatingCombinations
 
     def fitClassifiers(self):
         self.__generateTrainingFeatures()

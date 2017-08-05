@@ -33,7 +33,9 @@ class AdaBoost:
 
             prob_pos_isotonic = self.calibrated.predict_proba(x)[:, 1]
 
-            analysisInformation = AnalysisInformation(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(y))
+            print(result)
+            print(y)
+            analysisInformation = AnalysisInformation(result, y)
 
             self.testResult = (analysisInformation, result, prob_pos_isotonic)
             self.tested= True

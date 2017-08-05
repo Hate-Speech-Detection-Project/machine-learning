@@ -30,9 +30,6 @@ class SVMClassifier:
 
     def testFeatureMatrix(self, x, y):
         if not self.tested:
-            print(x)
-            print(y)
-
             if sps.issparse(x):
                 x = x.todense()
             # Use the random forest to make sentiment label predictions
@@ -40,7 +37,7 @@ class SVMClassifier:
 
             prob_pos_isotonic = self.calibrated.predict_proba(x)[:, 1]
 
-            analysisInformation = AnalysisInformation(Preprocessor.convertBoolStringsToNumbers(result), Preprocessor.convertBoolStringsToNumbers(y))
+            analysisInformation = AnalysisInformation(result, y)
 
             self.testResult = (analysisInformation, result, prob_pos_isotonic)
             self.tested= True
