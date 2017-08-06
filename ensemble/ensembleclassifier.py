@@ -11,6 +11,7 @@ import numpy as np
 from utils import AnalysisInformation, CorrelationMatrix
 from text_features import TextFeatureGenerator
 from user_features import UserFeatureGenerator
+import scipy.sparse as sps
 import copy
 
 class EnsembleClassifier:
@@ -275,12 +276,18 @@ class EnsembleClassifier:
         return self.correlationMatrix
 
     def getCompleteTrainingSet(self):
-        joined_data = {}
+        joined_data = None
         
-        for key, dataSet in self.trainingDataFrames.items():
-            joined_data[key] = dataSet
-
-        return pd.DataFrame(data = joined_data)
+        for key, dataSet in self.testFeatureMatrix.items():
+            if sps.issparse(dataSet):
+                dataSet = dataSet.todense()
+                dataFrame = pd.DataFrame(data = dataSet)
+                if joined_data is None:
+                    joined_data = dataFrame
+                else:
+                    joined_data = pd.concat([joined_data, dataFrame], axis = 1)
+            print(dataSet.shape)
+        return joined_data
 
     def getSparslyCorrelatingClassifiers(self, blackList = None, whiteList = None):
         sparselyCorrelatingCombinations = set()
