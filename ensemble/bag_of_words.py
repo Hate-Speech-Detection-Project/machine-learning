@@ -11,6 +11,7 @@ import nltk
 
 class BagOfWordsClassifier:
   def __init__(self):
+        self.name = "Naive Bayes"
         self.trained = False
         self.tested = False
         self.train_df = None

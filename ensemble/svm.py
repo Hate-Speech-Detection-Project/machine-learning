@@ -10,6 +10,7 @@ from preprocessor import Preprocessor
 
 class SVMClassifier:
     def __init__(self):
+        self.name = 'SVM'
         self.trained = False
         self.tested = False
         self.model = None
@@ -44,5 +45,8 @@ class SVMClassifier:
         return self.testResult
 
     def predict(self, featureMatrix):
+        if sps.issparse(featureMatrix):
+            featureMatrix = featureMatrix.todense()
+
         prob_pos_isotonic = self.calibrated.predict_proba(featureMatrix)[:, 1]
         return prob_pos_isotonic[0]

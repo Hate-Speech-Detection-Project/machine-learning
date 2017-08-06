@@ -9,6 +9,7 @@ from preprocessor import Preprocessor
 
 class AdaBoost:
     def __init__(self, preprocessor):
+        self.name = "AdaBoost"
         self.trained = False
         self.tested = False
         self.model = None

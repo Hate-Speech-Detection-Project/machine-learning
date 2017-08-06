@@ -18,12 +18,13 @@ class EnsembleClassifier:
     def __init__(self):
         self.threads = []
         self.preprocessor = Preprocessor()
-        self.ngramPreprocessor = Preprocessor((1,4))
+        self.ngramPreprocessor = Preprocessor((2,2))
         self.textFeatureGenerator = TextFeatureGenerator()
         self.userFeatureGenerator = UserFeatureGenerator()
 
         self.scheduler = Scheduler()
         self.classifiers = {}
+        self.ensembleClassifiers = set()
 
         self.defaultTrainingDataFrame = None
         self.defaultTestDataFrame = None
@@ -60,8 +61,8 @@ class EnsembleClassifier:
     def getFeatureSetNames(self):
         return self.featureSets
 
-    def __addClassifier(self, name, classifier):
-        self.classifierProtoTypes[name] = classifier
+    def __addClassifier(self, classifier):
+        self.classifierProtoTypes[classifier.name] = classifier
 
     def __updateClassifiers(self):
         for featureSet in self.featureSets:
@@ -126,6 +127,9 @@ class EnsembleClassifier:
     def testClassifiersSingle(self, comment, url):
         results = {}
         results['Reasons'] = {}
+
+        ensembleDf = {}
+
         for key, featureSet in enumerate(self.baselineFeatureSets):
 
             data = {
@@ -134,7 +138,15 @@ class EnsembleClassifier:
                 'url' : [url],
                 'timestamp' : [1.483460e+09],
                 'uid' : [0],
-                'cid' : [0]
+                'cid' : [0],
+                'time_since_last_comment': 12345,
+                'time_since_last_comment_same_user': 12345,
+                'time_since_last_hate_comment_same_user': 12345,
+                'time_since_last_comment_same_user_any_article': 12345,
+                'time_since_last_hate_comment_same_user_any_article': 12345,
+                'number_of_comments_by_user': 12345,
+                'number_of_hate_comments_by_user': 12345,
+                'share_of_hate_comments_by_user': 12345,
             }
             df = pd.DataFrame(data)
 
@@ -142,14 +154,22 @@ class EnsembleClassifier:
             # print(featureSet)
             # print(generationFunction)
             x = generationFunction(df)
-
-            nb = self.classifiers['BOW']['Naive Bayes']
-
             for key, classifier in self.classifiers[featureSet].items():
                 #print(featureSet + key)
                 #print(x)
-                results[featureSet + key] = classifier.predict(x)
+                prediction = classifier.predict(x)
+                results[featureSet + key] = prediction
 
+                # initEnsemble has to be run to this moment
+                if (featureSet, classifier.name) in self.ensembleClassifiers:
+                    ensembleDf[featureSet + ' ' + classifier.name] = [prediction]
+
+        ensembleDf = pd.DataFrame(data = ensembleDf)
+
+        for key, ensembleClassifier in self.classifiers['Ensemble'].items():
+            results['Ensemble' + key] = ensembleClassifier.predict(ensembleDf)
+
+        nb = self.classifiers['BOW']['Naive Bayes']
         for tuple in nb.hate_words_and_indices:
             results['Reasons'][tuple[1]] = str(tuple[0])
 
@@ -232,24 +252,24 @@ class EnsembleClassifier:
         self.__addEnsembleFeatureSet('UserFeatures Ensemble Test', self.userFeatureGenerator.calculate_features_with_dataframe, self.userFeatureGenerator.calculate_features_with_dataframe, ensembleTestDF, groundTruthName = groundTruthName)
         self.__addEnsembleFeatureSet('TextFeatures Ensemble Test', self.textFeatureGenerator.calculate_features_with_dataframe, self.textFeatureGenerator.calculate_features_with_dataframe, ensembleTestDF, groundTruthName = groundTruthName)
 
-        self.__addClassifier("AdaBoost", AdaBoost(self.preprocessor))
-        self.__addClassifier("Naive Bayes", BagOfWordsClassifier())
-        self.__addClassifier("RandomForest", RandomForestBOWClassifier())
-        self.__addClassifier("SVM", SVMClassifier())
+        self.__addClassifier(AdaBoost(self.preprocessor))
+        self.__addClassifier(BagOfWordsClassifier())
+        self.__addClassifier(RandomForestBOWClassifier())
+        self.__addClassifier(SVMClassifier())
         self.__updateClassifiers()
 
     def initEnsembleClassifier(self):
         ensemble_training_data = {}
-        classifiers = self.getSparslyCorrelatingClassifiers(blackList = 'Ensemble')
-        print(classifiers)
-        for classifier in classifiers:
+        self.ensembleClassifiers = self.getSparslyCorrelatingClassifiers(blackList = 'Ensemble')
+        print(self.ensembleClassifiers)
+        for classifier in self.ensembleClassifiers:
             ensemble_training_data[classifier[0] + ' ' +  classifier[1]] = self.getClassifierStatistics(classifier[0], classifier[1])[2]
         ensemble_training_data[self.defaultGroundTruthName] = self.defaultTestDataFrame[self.defaultGroundTruthName]
         #print(ensemble_training_data)
         ensembleTrainingDF = pd.DataFrame(data = ensemble_training_data)
 
         ensemble_test_data = {}
-        for classifier in classifiers:
+        for classifier in self.ensembleClassifiers:
             ensemble_test_data[classifier[0] + ' ' + classifier[1]] = self.getClassifierStatistics(classifier[0] + ' Ensemble Test', classifier[1])[2]
         ensemble_test_data[self.defaultGroundTruthName] = self.ensembleTestDataFrame[self.defaultGroundTruthName]
         for key, classifier in ensemble_test_data.items():

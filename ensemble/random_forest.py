@@ -6,6 +6,7 @@ from utils import AnalysisInformation
 
 class RandomForestBOWClassifier:
     def __init__(self):
+        self.name = 'RandomForest'
         self.trained = False
         self.tested = False
         self.model = None
