@@ -19,14 +19,14 @@ class RandomForestBOWClassifier(Classifier):
             self.model = RandomForestClassifier(n_estimators = 100)
             self.model.fit(x, y, sample_weight=self.getWeights(y))
 
-            self.calibrated = CalibratedClassifierCV(self.model, cv=2, method='isotonic')
+            self.calibrated = CalibratedClassifierCV(self.model, method='isotonic', cv=10)
             self.calibrated.fit(x, y, sample_weight=self.getWeights(y))
             self.trained = True
 
     def testFeatureMatrix(self, x, y):
         if not self.tested:
             # Use the random forest to make sentiment label predictions
-            result = self.model.predict(x)
+            result = self.calibrated.predict(x)
 
             prob_pos_isotonic = self.calibrated.predict_proba(x)[:, 1]
 

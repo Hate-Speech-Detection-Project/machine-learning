@@ -51,7 +51,7 @@ class BagOfWordsClassifier(Classifier):
       #     self.hate_words = self.hate_words()
       #     print("done")
 
-        self.calibrated = CalibratedClassifierCV(self.clf, cv=2, method='isotonic')
+        self.calibrated = CalibratedClassifierCV(self.clf, method='isotonic', cv=10)
         self.calibrated.fit(X_train_tfidf, y_train, sample_weight=self.getWeights(y))
         self.trained = True
 
@@ -62,7 +62,7 @@ class BagOfWordsClassifier(Classifier):
         from sklearn.naive_bayes import MultinomialNB
         self.clf = MultinomialNB().fit(x, y, sample_weight=self.getWeights(y))
 
-        self.calibrated = CalibratedClassifierCV(self.clf, cv=2, method='isotonic')
+        self.calibrated = CalibratedClassifierCV(self.clf, method='isotonic', cv=10)
         self.calibrated.fit(x, y, sample_weight=self.getWeights(y))
         self.trained = True
 
@@ -75,7 +75,7 @@ class BagOfWordsClassifier(Classifier):
 
       X_new_counts = self.count_vect.transform(X_test)
       X_new_tfidf = self.tfidf_transformer.transform(X_new_counts)
-      predicted = self.clf.predict(X_new_tfidf)
+      predicted = self.calibrated.predict(X_new_tfidf)
 
       # acc = np.mean(predicted == y_test)
       prob_pos_isotonic = self.calibrated.predict_proba(X_new_tfidf)[:, 1]

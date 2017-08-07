@@ -1,15 +1,15 @@
 from threading import Thread
 
 class Scheduler:
-	def __init__(self):
-		self.threads = []
+	def __init__(self):		
+		self.processes = []
 
 	def schedule(self, function, args):
-		thread = Thread(target = function, args = args)
-		self.threads.append(thread)
-		thread.start()
+		process = Thread(target = function, args = args)
+		self.processes.append(process)
+		process.start()
 
 	def joinAll(self):
-		for thread in self.threads:
-			thread.join()
+		for process in self.processes:
+			process.join()
 
