@@ -12,14 +12,12 @@ import nltk
 
 class BagOfWordsClassifier(Classifier):
   def __init__(self):
-        self.name = "Naive Bayes"
-        self.trained = False
-        self.tested = False
-        self.train_df = None
-        self.calibrated = None
-        self.testResult = None
-        self.feature_names = []
-        self.hate_words_and_indices = []
+    super().__init__()
+    self.name = "Naive Bayes"
+    self.trained = False
+    self.train_df = None
+    self.feature_names = []
+    self.hate_words_and_indices = []
 
   def fit(self, train_df):
     if not self.trained:
@@ -81,19 +79,6 @@ class BagOfWordsClassifier(Classifier):
       prob_pos_isotonic = self.calibrated.predict_proba(X_new_tfidf)[:, 1]
 
       analysisInformation = AnalysisInformation(predicted, y_test)
-      self.testResult = (analysisInformation, predicted, prob_pos_isotonic)
-      self.tested = True
-
-    return self.testResult
-
-  def testFeatureMatrix(self, x, y):
-
-    if not self.tested:
-      predicted = self.clf.predict(x)
-
-      prob_pos_isotonic = self.calibrated.predict_proba(x)[:, 1]
-
-      analysisInformation = AnalysisInformation(predicted, y)
       self.testResult = (analysisInformation, predicted, prob_pos_isotonic)
       self.tested = True
 

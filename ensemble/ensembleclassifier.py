@@ -270,8 +270,8 @@ class EnsembleClassifier:
 
         self.__addClassifier(AdaBoost())
         self.__addClassifier(BagOfWordsClassifier())
-        self.__addClassifier(RandomForestBOWClassifier())
         self.__addClassifier(SVMClassifier())
+        self.__addClassifier(RandomForestBOWClassifier())
         self.__updateClassifiers()
 
     def initEnsembleClassifier(self):

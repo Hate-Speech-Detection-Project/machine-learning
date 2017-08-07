@@ -41,15 +41,33 @@ class CorrelationMatrix():
         return matrixString
 
 class AnalysisInformation():
-    def __init__(self, y_pred, y_true):
+    def __init__(self, y_pred=[], y_true=[], initializer=[]):
         self.accuracy = 0
         self.precision = 0
         self.recall = 0
         self.support = 0
-        (self.accuracy, self.precision, self.recall, self.support) = precision_recall_fscore_support(y_true, y_pred, average='binary') 
+
+        if len(initializer) > 0:
+            for info in initializer:
+                self.accuracy += info.accuracy
+                self.precision += info.precision
+                self.recall += info.recall
+                self.support += info.support
+
+            self.accuracy /= len(initializer)
+            self.precision /= len(initializer)
+            self.recall /= len(initializer)
+            self.support /= len(initializer)
+            return;
+
+        (self.accuracy, self.precision, self.recall, self.support) = precision_recall_fscore_support(y_true, y_pred, average='binary')
 
     def toString(self):
         return "Accuracy: " + str(self.accuracy) + " Precision: " + str(self.precision) + " Recall: " + str(self.recall)
+
+    @staticmethod
+    def analysisInformationScorer(y_true,y_pred):
+        return AnalysisInformation(y_pred, y_true)
 
 
 class ConfusionMatrix():

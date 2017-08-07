@@ -7,11 +7,10 @@ from classifier import Classifier
 
 class RandomForestBOWClassifier(Classifier):
     def __init__(self):
+        super().__init__()
         self.name = 'RandomForest'
         self.trained = False
-        self.tested = False
         self.model = None
-        self.calibrated = None
         self.testResult = None
 
     def fitFeatureMatrix(self, x, y):
@@ -22,19 +21,6 @@ class RandomForestBOWClassifier(Classifier):
             self.calibrated = CalibratedClassifierCV(self.model, method='isotonic', cv=10)
             self.calibrated.fit(x, y, sample_weight=self.getWeights(y))
             self.trained = True
-
-    def testFeatureMatrix(self, x, y):
-        if not self.tested:
-            # Use the random forest to make sentiment label predictions
-            result = self.calibrated.predict(x)
-
-            prob_pos_isotonic = self.calibrated.predict_proba(x)[:, 1]
-
-            analysisInformation = AnalysisInformation(result, y)
-            self.testResult = (analysisInformation, result, prob_pos_isotonic)
-            self.tested = True
-
-        return self.testResult
 
     def predict(self, featureMatrix):
         return self.calibrated.predict_proba(featureMatrix)[:, 1][0]

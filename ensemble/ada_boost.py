@@ -10,12 +10,10 @@ from preprocessor import Preprocessor
 
 class AdaBoost(Classifier):
     def __init__(self):
+        super().__init__()
         self.name = "AdaBoost"
         self.trained = False
-        self.tested = False
         self.model = None
-        self.calibrated = None
-        self.testResult = None
 
     def fitFeatureMatrix(self, x, y):
         if not self.trained:
@@ -26,19 +24,6 @@ class AdaBoost(Classifier):
             self.calibrated.fit(x, y, sample_weight=self.getWeights(y))
             self.trained = True
             print("done")
-
-    def testFeatureMatrix(self, x, y):
-        if not self.tested:
-            # Use the random forest to make sentiment label predictions
-            result = self.calibrated.predict(x)
-
-            prob_pos_isotonic = self.calibrated.predict_proba(x)[:, 1]
-
-            analysisInformation = AnalysisInformation(result, y)
-
-            self.testResult = (analysisInformation, result, prob_pos_isotonic)
-            self.tested= True
-        return self.testResult
 
     def predict(self, featureMatrix):
         prob_pos_isotonic = self.calibrated.predict_proba(featureMatrix)[:, 1]

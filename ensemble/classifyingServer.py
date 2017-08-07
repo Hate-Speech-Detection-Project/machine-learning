@@ -15,9 +15,9 @@ import base64
 
 np.set_printoptions(threshold=np.inf)
 
-trainDf = pd.read_csv('../../data/datasets/stratified_dual_smaller_new/test2.csv.augmented.csv', sep=',')
-testDf = pd.read_csv('../../data/datasets/stratified_dual_smaller_new/train.csv.augmented.csv', sep=',')
-testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_smaller_new/test1.csv.augmented.csv', sep=',')
+trainDf = pd.read_csv('../../data/datasets/stratified_dual_smaller_new/train.csv.augmented.csv', sep=',')
+testDf = pd.read_csv('../../data/datasets/stratified_dual_smaller_new/test1.csv.augmented.csv', sep=',')
+testEnsembleDf = pd.read_csv('../../data/datasets/stratified_dual_smaller_new/test2.csv.augmented.csv', sep=',')
 
 predictor = EnsembleClassifier()
 predictor.initClassifiers(trainDf, testDf, testEnsembleDf, 'hate')
@@ -115,4 +115,4 @@ def plot():
 def index():
     return render_template('index.html')
 
-app.run(host='0.0.0.0', port=6666)
+app.run(host='0.0.0.0', port=8080)
