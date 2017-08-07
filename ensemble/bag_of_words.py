@@ -6,10 +6,11 @@ from preprocessor import Preprocessor
 import pandas as pd
 import numpy as np
 from article_features import ArticleFeatures
+from classifier import Classifier
 import re
 import nltk
 
-class BagOfWordsClassifier:
+class BagOfWordsClassifier(Classifier):
   def __init__(self):
         self.name = "Naive Bayes"
         self.trained = False
@@ -41,7 +42,7 @@ class BagOfWordsClassifier:
 
         # Training a classifier
         from sklearn.naive_bayes import MultinomialNB
-        self.clf = MultinomialNB().fit(X_train_tfidf, y_train)
+        self.clf = MultinomialNB().fit(X_train_tfidf, y_train, sample_weight=self.getWeights(y))
         self.hate_words = self.hate_words()
 
       # def fitFeatureMatrix(self, x, y):
@@ -51,7 +52,7 @@ class BagOfWordsClassifier:
       #     print("done")
 
         self.calibrated = CalibratedClassifierCV(self.clf, cv=2, method='isotonic')
-        self.calibrated.fit(X_train_tfidf, y_train)
+        self.calibrated.fit(X_train_tfidf, y_train, sample_weight=self.getWeights(y))
         self.trained = True
 
   def fitFeatureMatrix(self, x, y):
@@ -59,10 +60,10 @@ class BagOfWordsClassifier:
 
         # Training a classifier
         from sklearn.naive_bayes import MultinomialNB
-        self.clf = MultinomialNB().fit(x, y)
+        self.clf = MultinomialNB().fit(x, y, sample_weight=self.getWeights(y))
 
         self.calibrated = CalibratedClassifierCV(self.clf, cv=2, method='isotonic')
-        self.calibrated.fit(x, y)
+        self.calibrated.fit(x, y, sample_weight=self.getWeights(y))
         self.trained = True
 
   def test(self, test_df):

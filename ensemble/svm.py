@@ -5,10 +5,10 @@ import numpy as np
 from sklearn.svm import NuSVC
 from utils import AnalysisInformation
 import scipy.sparse as sps
-
+from classifier import Classifier
 from preprocessor import Preprocessor
 
-class SVMClassifier:
+class SVMClassifier(Classifier):
     def __init__(self):
         self.name = 'SVM'
         self.trained = False
@@ -22,10 +22,10 @@ class SVMClassifier:
             if sps.issparse(x):
                 x = x.todense()
             clf = NuSVC()
-            self.model = clf.fit(x, y)
+            self.model = clf.fit(x, y, sample_weight=self.getWeights(y))
 
             self.calibrated = CalibratedClassifierCV(self.model, cv=2, method='isotonic')
-            self.calibrated.fit(x, y)
+            self.calibrated.fit(x, y, sample_weight=self.getWeights(y))
             self.trained = True
             print("done")
 

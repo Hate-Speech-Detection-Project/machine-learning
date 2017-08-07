@@ -3,8 +3,9 @@ from sklearn.calibration import CalibratedClassifierCV
 import pandas as pd
 from preprocessor import Preprocessor
 from utils import AnalysisInformation
+from classifier import Classifier
 
-class RandomForestBOWClassifier:
+class RandomForestBOWClassifier(Classifier):
     def __init__(self):
         self.name = 'RandomForest'
         self.trained = False
@@ -16,10 +17,10 @@ class RandomForestBOWClassifier:
     def fitFeatureMatrix(self, x, y):
         if not self.trained:
             self.model = RandomForestClassifier(n_estimators = 100)
-            self.model.fit(x, y)
+            self.model.fit(x, y, sample_weight=self.getWeights(y))
 
             self.calibrated = CalibratedClassifierCV(self.model, cv=2, method='isotonic')
-            self.calibrated.fit(x, y)
+            self.calibrated.fit(x, y, sample_weight=self.getWeights(y))
             self.trained = True
 
     def testFeatureMatrix(self, x, y):

@@ -4,10 +4,11 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import AdaBoostClassifier
 from utils import AnalysisInformation
+from classifier import Classifier
 
 from preprocessor import Preprocessor
 
-class AdaBoost:
+class AdaBoost(Classifier):
     def __init__(self, preprocessor):
         self.name = "AdaBoost"
         self.trained = False
@@ -20,10 +21,10 @@ class AdaBoost:
     def fitFeatureMatrix(self, x, y):
         if not self.trained:
             clf = AdaBoostClassifier(n_estimators=100)
-            self.model = clf.fit(x, y)
+            self.model = clf.fit(x, y, sample_weight=self.getWeights(y))
 
             self.calibrated = CalibratedClassifierCV(self.model, cv=2, method='isotonic')
-            self.calibrated.fit(x, y)
+            self.calibrated.fit(x, y, sample_weight=self.getWeights(y))
             self.trained = True
             print("done")
 
