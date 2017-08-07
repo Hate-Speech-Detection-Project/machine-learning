@@ -9,12 +9,11 @@ from classifier import Classifier
 from preprocessor import Preprocessor
 
 class AdaBoost(Classifier):
-    def __init__(self, preprocessor):
+    def __init__(self):
         self.name = "AdaBoost"
         self.trained = False
         self.tested = False
         self.model = None
-        self.preprocessor = preprocessor
         self.calibrated = None
         self.testResult = None
 

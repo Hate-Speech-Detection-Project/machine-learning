@@ -183,11 +183,12 @@ class EnsembleClassifier:
                     dataFrame = self.trainingDataFrames[key]
                 self.__prepareFeatureSet(self.trainingFeatureMatrix, key, conversion, dataFrame)
                 # corpuses are not thread-safe :/
-                #self.scheduler.schedule(function = self.__prepareFeatureSet, 
-                #                       args = (self.trainingFeatureMatrix, key, conversion, dataFrame))
-        #self.scheduler.joinAll()
+                self.scheduler.schedule(function = self.__prepareFeatureSet, 
+                                       args = (self.trainingFeatureMatrix, key, conversion, dataFrame))
+        self.scheduler.joinAll()
 
     def __prepareFeatureSet(self, destination, key,  conversion, dataFrame):
+        print(key)
         destination[key] = conversion(dataFrame)
 
     def __generateTestFeatures(self):
@@ -243,16 +244,31 @@ class EnsembleClassifier:
         self.testGroundTruth = defaultTestDF[groundTruthName]
         self.defaultGroundTruthName = groundTruthName
 
-        self.__addFeatureSet('BOW', self.preprocessor.trainFeatureMatrix, self.preprocessor.createFeatureMatrix)
-        self.__addFeatureSet('BOWNGRAM', self.ngramPreprocessor.trainFeatureMatrix, self.ngramPreprocessor.createFeatureMatrix)
-        self.__addEnsembleFeatureSet('BOWNGRAM Ensemble Test', self.preprocessor.trainFeatureMatrix, self.ngramPreprocessor.createFeatureMatrix, ensembleTestDF)
-        self.__addEnsembleFeatureSet('BOW Ensemble Test', self.preprocessor.trainFeatureMatrix, self.preprocessor.createFeatureMatrix, ensembleTestDF)
+        preprocessor = Preprocessor()
+        self.__addFeatureSet('BOW', preprocessor.trainFeatureMatrix, preprocessor.createFeatureMatrix)
+
+
+        preprocessor = Preprocessor()
+        self.__addEnsembleFeatureSet('BOW Ensemble Test', preprocessor.trainFeatureMatrix, preprocessor.createFeatureMatrix, ensembleTestDF)
+
+        preprocessor = Preprocessor((2, 2))
+        self.__addFeatureSet('BOWNGRAM', preprocessor.trainFeatureMatrix, preprocessor.createFeatureMatrix)
+
+        preprocessor = Preprocessor((2, 2))
+        self.__addEnsembleFeatureSet('BOWNGRAM Ensemble Test', preprocessor.trainFeatureMatrix, preprocessor.createFeatureMatrix, ensembleTestDF)
+
         self.__addFeatureSet('TextFeatures', self.textFeatureGenerator.calculate_features_with_dataframe, self.textFeatureGenerator.calculate_features_with_dataframe)
+
+
         self.__addFeatureSet('UserFeatures', self.userFeatureGenerator.calculate_features_with_dataframe, self.userFeatureGenerator.calculate_features_with_dataframe)
+
+
         self.__addEnsembleFeatureSet('UserFeatures Ensemble Test', self.userFeatureGenerator.calculate_features_with_dataframe, self.userFeatureGenerator.calculate_features_with_dataframe, ensembleTestDF, groundTruthName = groundTruthName)
+
+
         self.__addEnsembleFeatureSet('TextFeatures Ensemble Test', self.textFeatureGenerator.calculate_features_with_dataframe, self.textFeatureGenerator.calculate_features_with_dataframe, ensembleTestDF, groundTruthName = groundTruthName)
 
-        self.__addClassifier(AdaBoost(self.preprocessor))
+        self.__addClassifier(AdaBoost())
         self.__addClassifier(BagOfWordsClassifier())
         self.__addClassifier(RandomForestBOWClassifier())
         self.__addClassifier(SVMClassifier())
